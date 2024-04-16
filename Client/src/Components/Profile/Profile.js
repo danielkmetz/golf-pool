@@ -12,7 +12,6 @@ import { selectAllPicks, deleteUserPicks } from '../../Features/myPicksSlice';
 function Profile() {
     const [username, setUsername] = useState('');
     const allUserPicks = useSelector(selectAllPicks);
-    const [allPicks, setAllPicks] = useState([])
     const [tier1Picks, setTier1Picks] = useState([]);
     const [tier2Picks, setTier2Picks] = useState([]);
     const [tier3Picks, setTier3Picks] = useState([]);

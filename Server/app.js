@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
@@ -13,10 +14,11 @@ const LocalStrategy = require('passport-local').Strategy;
 const connectUserDB = require('./Config/userDB');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { uuid } = require('uuidv4')
 
 connectUserDB();
 
-const secret = 'crieuanfiuqerfnuiueau'; // Replace with a long, random string
+const secret = uuid(); 
 const app = express();
 
 app.use(bodyParser.json());

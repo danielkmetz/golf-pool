@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Container, TextField, Typography, Card, CardMedia } from '@mui/material';
+import { Button, Container, TextField, Typography } from '@mui/material';
 
 const Login = ({ setIsLoggedIn }) => {
   const [username, setUsername] = useState('');

@@ -7,7 +7,7 @@ import {
     TableCell, 
     TableContainer, TableHead, TableRow, Paper,} from '@mui/material'
     
-function GolferTable({tierPicks, leaderboardResults, liveResults, tournamentInfo}) {
+function GolferTable({tierPicks, liveResults, tournamentInfo}) {
     
     const getGolferThru = (name) => {
         const currentPos = getCurrentPosition(name, liveResults);

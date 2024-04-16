@@ -28,7 +28,6 @@ function addT(value, currentPos, sortedResults) {
   }
   
 function Rounds() {
-    const leaderboard = useSelector(selectResults);
     const liveResults = useSelector(selectLiveResults);
     const dispatch = useDispatch();
 

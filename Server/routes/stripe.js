@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const stripe = require('stripe')(
-    'sk_test_51P3g6jLRiEE4G9kBeQVs8jOFhqoyvJaVO92zFQt0mFqTB1kawz2DvdvwWt6NntnDWzZevqsE0aBOGxm4uYmJUTnj008vASRLtj');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 router.post('/', async (req, res) => {
   const {email} = req.body

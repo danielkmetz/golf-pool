@@ -6,7 +6,6 @@ import {
     DialogContent,
     DialogTitle
 } from '@mui/material';
-import { useNavigate } from 'react-router';
 
 function SubmissionWindow({isOpen, handleClose, title, children, handleSubmission}) {
 

@@ -5,15 +5,15 @@ import CheckoutForm from "./CheckoutForm";
 import { jwtDecode } from "jwt-decode";
 import { selectPaymentStatus } from "../../Features/paymentStatusSlice";
 import { useSelector } from "react-redux";
-
+import { STRIPE_PUBLIC_KEY } from "../../Secrets";
 // Make sure to call loadStripe outside of a component’s render to avoid
 // recreating the Stripe object on every render.
 // This is your test publishable API key.
-const stripePromise = loadStripe("pk_test_51P3g6jLRiEE4G9kBSFBZRSeapJuC6EVHMBq9Yb1oAIDnuSqmOqFCMzB6HakaKBNMd3E5ofmPRPAG3n6B0ncDEOx500I1ZRRefR");
+
+const stripePromise = loadStripe(STRIPE_PUBLIC_KEY);
 
 export default function CheckoutPage({onClose}) {
   const [username, setUsername] = useState(null);
-  const [showCheckout, setShowCheckout] = useState(true);
   const paymentStatus = useSelector(selectPaymentStatus);
   
   useEffect(() => {
@@ -23,9 +23,8 @@ export default function CheckoutPage({onClose}) {
       const decodedToken = jwtDecode(token);
       setUsername(decodedToken.username);
     }
-  }, [username]);
 
-  
+  }, [username]);
 
   console.log('payment status from CheckoutPage', paymentStatus)
   return (

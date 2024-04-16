@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import { Container, Box } from '@mui/material';
 import Tier1 from './Tier1';
 import MyPicks from './myPicks';

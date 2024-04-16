@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
-import { Container, Button, Menu, MenuItem, Link } from '@mui/material';
-import { useNavigate } from 'react-router';
+import { Container, Button, Menu, MenuItem } from '@mui/material';
 import { selectOddsResults } from '../../Features/bettingOddsSlice';
 import { useSelector } from 'react-redux';
 

@@ -14,7 +14,7 @@ import { fetchTotalPicks, selectTotalPicks } from '../../Features/myPicksSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchLiveModel, selectLiveResults } from '../../Features/LeaderboardSlice';
 import { fetchTournamentInfo, selectTournamentInfo } from '../../Features/TournamentInfoSlice';
-import { getCurrentPosition, getRoundScore } from '../../actions';
+import { getRoundScore } from '../../actions';
 
 function PoolStandings() {
     const [users, setUsers] = useState([]);

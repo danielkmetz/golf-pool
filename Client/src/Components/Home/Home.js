@@ -4,7 +4,6 @@ import Leaderboard from '../Leaderboard/Leaderboard';
 import RulesDialog from './RulesDialog';
 import PoolStandings from '../PoolStandings/poolStandings';
 import Weather from '../Weather/Weather';
-import { selectTournamentInfo, fetchTournamentInfo } from '../../Features/TournamentInfoSlice';
 import TournamentInfo from './TournamentInfo';
 
 function Home() {

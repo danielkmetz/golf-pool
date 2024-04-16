@@ -2,15 +2,13 @@ import React from 'react';
 import {
     TableContainer,
     TableBody,
-    TableHead,
     TableRow,
     TableCell,
-    Container,
     Table,
     Button,
 } from '@mui/material';
 
-function BettingOdds({ oddsResults, tier, addGolfer }) {
+function BettingOdds({ oddsResults, addGolfer }) {
     
     return (
         <TableContainer>

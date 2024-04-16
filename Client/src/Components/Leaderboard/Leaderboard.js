@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import { 
     Typography, 
     Table, 
@@ -11,10 +11,7 @@ import {
 } from '@mui/material';
 import { 
     fetchLeaderboard,
-    selectResults,
-    selectError,
-    fetchRound1,
-    selectRoundData, 
+    selectResults, 
 } from '../../Features/LeaderboardSlice';
 import { useDispatch, useSelector} from 'react-redux';
 import Positions from './Positions';
