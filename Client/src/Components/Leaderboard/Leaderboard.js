@@ -72,7 +72,7 @@ function Leaderboard() {
                     </TableRow>
                 </TableHead>
                 <TableBody sx={{overflow: "scroll"}}>
-                    {currentDay >= 4 || currentDay === 1 ? <Rounds />  : <Positions results={results}/>}
+                    {currentDay >= 4 || currentDay === 2 ? <Rounds />  : <Positions results={results}/>}
                 </TableBody>
             </Table>
         </TableContainer>

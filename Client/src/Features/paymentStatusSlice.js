@@ -1,12 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from 'axios';
-import { useDispatch } from "react-redux";
 
 export const fetchPaymentStatus = createAsyncThunk(
     'paymentStatus/fetchPaymentStatus',
     async (username, {dispatch}) => {
         try {
-            const response = await axios.get(`http://localhost:5000/users/paymentStatus/${username}`, {
+            const response = await axios.get(`${process.env.REACT_APP_API_URL_pSTATUS}${username}`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
@@ -29,7 +28,7 @@ export const updatePaymentStatus = createAsyncThunk(
     async ({username, status}, {dispatch}) => {
         console.log(username, status)
         try {
-            const response = await axios.put(`http://localhost:5000/users/paymentStatus/${username}`, {
+            const response = await axios.put(`${process.env.REACT_APP_API_URL_pSTATUS}${username}`, {
                 paymentStatus: status
             })
 

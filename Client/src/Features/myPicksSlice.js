@@ -5,7 +5,7 @@ export const fetchUserPicks = createAsyncThunk(
     'myPicks/fetchUserPicks',
     async (username) => {
         try {
-            const response = await fetch(`http://localhost:5000/userpicks/${username}`);
+            const response = await fetch(`${process.env.REACT_APP_API_URL_PICKS}${username}`);
             //console.log(response)
             if (!response.ok) {
                 throw new Error('Failed to fetch user picks');
@@ -25,7 +25,7 @@ export const deleteUserPicks = createAsyncThunk(
     'myPicks/deleteUserPicks',
     async ({username}) => {
         try {
-            const response = await axios.delete(`http://localhost:5000/userpicks/delete-user-picks/${username}`);
+            const response = await axios.delete(`${process.env.REACT_APP_API_URL_DELETE}${username}`);
             console.log(response.data);
             alert('Your picks have been deleted');
         } catch (error) {
@@ -39,7 +39,7 @@ export const fetchTotalPicks = createAsyncThunk(
     'myPicks/fetchTotalPicks',
     async () => {
         try {
-            const response = await fetch(`http://localhost:5000/userpicks/`);
+            const response = await fetch(process.env.REACT_APP_API_URL_PICKS);
             //console.log(response)
             if (!response.ok) {
                 throw new Error('Failed to fetch user picks');

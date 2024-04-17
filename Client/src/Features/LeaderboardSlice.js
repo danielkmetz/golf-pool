@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-const url = 'https://feeds.datagolf.com/field-updates?tour=pga&file_format=json&key=60dcdaab5c730996cb62f5891ca9';
+const url = `https://feeds.datagolf.com/field-updates?tour=pga&file_format=json&${process.env.REACT_APP_DATA_GOLF_KEY}`;
 const params = {
 	method: 'GET',
 };
@@ -17,7 +17,7 @@ export const fetchLeaderboard = createAsyncThunk(
 export const fetchRound1 = createAsyncThunk(
     'leaderboard/fetchRound1',
     async () => {
-        const liveUrl = `https://feeds.datagolf.com/preds/live-tournament-stats?&round=1&key=60dcdaab5c730996cb62f5891ca9`;
+        const liveUrl = `https://feeds.datagolf.com/preds/live-tournament-stats?&round=1&${process.env.REACT_APP_DATA_GOLF_KEY}`;
         const response = await fetch(liveUrl, params);
         const json = await response.json();
         //console.log(json)
@@ -28,7 +28,7 @@ export const fetchRound1 = createAsyncThunk(
 export const fetchLiveModel = createAsyncThunk(
     'leaderboard/fetchLiveModel',
     async () => {
-        const url = 'https://feeds.datagolf.com/preds/in-play?tour=pga&dead_heat=no&odds_format=percent&key=60dcdaab5c730996cb62f5891ca9';
+        const url = `https://feeds.datagolf.com/preds/in-play?tour=pga&dead_heat=no&odds_format=percent&${process.env.REACT_APP_DATA_GOLF_KEY}`;
         const response = await fetch(url, params);
         const json = await response.json()
         //console.log(json);

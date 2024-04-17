@@ -68,7 +68,7 @@ const CARD_ELEMENT_OPTIONS = {
       }
       const cardElement = elements.getElement(CardElement);
   
-      const { data } = await axios.post('http://localhost:5000/charge', {
+      const { data } = await axios.post(process.env.REACT_APP_API_URL_PAY, {
       });
       const result = await stripe.confirmCardPayment(data.clientSecret, {
         payment_method: {

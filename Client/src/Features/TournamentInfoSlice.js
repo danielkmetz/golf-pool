@@ -62,8 +62,9 @@ function getFullName(abbreviation) {
 export const fetchTournamentInfo = createAsyncThunk(
     'tournamentInfo/fetchTournamentInfo',
     async (_, { dispatch }) => {
+        const key = process.env.REACT_APP_SPORTS_DATA_KEY;
         const scheduleUrl = 
-        'https://api.sportsdata.io/golf/v2/json/Tournaments/2024?key=8d248137425947d2928a10896592f0b1';
+        `https://api.sportsdata.io/golf/v2/json/Tournaments/2024?${key}`;
         const response = await fetch(scheduleUrl);
         const tournaments = await response.json();
         
@@ -88,7 +89,7 @@ export const fetchTournamentInfo = createAsyncThunk(
 export const fetchWeather = createAsyncThunk(
     'weather/fetchWeather',
     async (city) => {
-        const key = '7d01763e46af4c01884213609241104';
+        const key = process.env.REACT_APP_WEATHER_KEY;
         const weatherUrl = `http://api.weatherapi.com/v1/forecast.json?key=${key}&q=${city}` 
         const response = await axios.get(weatherUrl)
         console.log(response)

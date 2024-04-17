@@ -30,7 +30,7 @@ function PoolStandings() {
 
     //fetch all current users from mongoDB
     useEffect(() => {
-        fetch('http://localhost:5000/users') 
+        fetch(process.env.REACT_APP_API_URL_USERS) 
             .then(response => response.json())
             .then(data => setUsers(data))
             .catch(error => console.error('Error fetching users:', error));
