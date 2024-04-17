@@ -5,7 +5,6 @@ import CheckoutForm from "./CheckoutForm";
 import { jwtDecode } from "jwt-decode";
 import { selectPaymentStatus } from "../../Features/paymentStatusSlice";
 import { useSelector } from "react-redux";
-import { STRIPE_PUBLIC_KEY } from "../../Secrets";
 // Make sure to call loadStripe outside of a component’s render to avoid
 // recreating the Stripe object on every render.
 // This is your test publishable API key.
