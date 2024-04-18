@@ -61,13 +61,13 @@ passport.deserializeUser(async (id, done) => {
   });
 
 
-app.use('/userpicks', userPicksRoutes)
-app.use('/auth', authRoutes);
-app.use('/users', userRoutes);
-app.use('/register', registerRoute);
-app.use('/charge', stripeRoute);
+app.use('api/userpicks', userPicksRoutes)
+app.use('api/auth', authRoutes);
+app.use('api/users', userRoutes);
+app.use('api/register', registerRoute);
+app.use('api/charge', stripeRoute);
 
-app.post('/login', passport.authenticate('local'), (req, res) => {
+app.post('api/login', passport.authenticate('local'), (req, res) => {
     const token = jwt.sign({ username: req.user.username }, secret, { expiresIn: '1h' });
     res.json({ message: 'Login successful', token });
   });
