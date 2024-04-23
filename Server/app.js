@@ -69,6 +69,7 @@ app.use('api/charge', stripeRoute);
 
 app.post('api/login', passport.authenticate('local'), (req, res) => {
     const token = jwt.sign({ username: req.user.username }, secret, { expiresIn: '1h' });
+    res.setHeader('Content-Type', 'application/json');
     res.json({ message: 'Login successful', token });
   });
 
