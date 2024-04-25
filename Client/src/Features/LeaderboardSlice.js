@@ -1,13 +1,15 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-const url = `https://feeds.datagolf.com/field-updates?tour=pga&file_format=json&${process.env.REACT_APP_DATA_GOLF_KEY}`;
 const params = {
 	method: 'GET',
+    'Access-Control-Allow-Origin': '*',
 };
 
 export const fetchLeaderboard = createAsyncThunk(
     'leaderboard/fetchLeaderboard',
     async () => {
+        const url = `${process.env.REACT_APP_API_URL}/leaderboard`;
+        //console.log(url)
         const response = await fetch(url, params);
         const json = await response.json();
         return json.field.map(i => i);
@@ -28,7 +30,8 @@ export const fetchRound1 = createAsyncThunk(
 export const fetchLiveModel = createAsyncThunk(
     'leaderboard/fetchLiveModel',
     async () => {
-        const url = `https://feeds.datagolf.com/preds/in-play?tour=pga&dead_heat=no&odds_format=percent&${process.env.REACT_APP_DATA_GOLF_KEY}`;
+        const url = `${process.env.REACT_APP_API_URL}/liveResults`;
+        //console.log(url)
         const response = await fetch(url, params);
         const json = await response.json()
         //console.log(json);

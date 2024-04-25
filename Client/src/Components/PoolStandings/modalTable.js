@@ -6,6 +6,7 @@ import {
 import { getRoundScore } from '../../actions';
 
 function ModalTable({ tier1, tier2, tier3, tier4, liveResults, coursePar }) {
+    console.log(liveResults);
     const getPos = (name) => {
         const golfer = liveResults.find(golfer => golfer.player_name === name);
         return golfer.current_pos;

@@ -128,6 +128,18 @@ export const myPicksSlice = createSlice({
         },
         removeTier4Golfer: (state, action) => {
             state.tier4Picks = state.tier4Picks.filter(golfer => golfer !== action.payload)
+        },
+        setTier1Picks: (state, action) => {
+            state.tier1Picks = action.payload;
+        },
+        setTier2Picks: (state, action) => {
+            state.tier2Picks = action.payload;
+        },
+        setTier3Picks: (state, action) => {
+            state.tier3Picks = action.payload;
+        },
+        setTier4Picks: (state, action) => {
+            state.tier4Picks = action.payload;
         }
 
     },
@@ -190,5 +202,9 @@ export const {
     removeTier3Golfer,
     addTier4Golfer,
     removeTier4Golfer,
+    setTier1Picks,
+    setTier2Picks,
+    setTier3Picks,
+    setTier4Picks,
 } = myPicksSlice.actions
 

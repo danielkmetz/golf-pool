@@ -1,7 +1,7 @@
 import React from 'react';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-const url = `https://feeds.datagolf.com/betting-tools/outrights?market=win&odds_format=percent&${process.env.REACT_APP_DATA_GOLF_KEY}` 
+const url = `${process.env.REACT_APP_API_URL}/odds` 
 const params = {
     method: 'GET',
 }

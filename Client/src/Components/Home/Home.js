@@ -18,19 +18,19 @@ function Home() {
   };
 
   return (
-    <Grid className="home-page" sx={{ display: 'flex', justifyContent: 'space-between' }}>
-      <Grid sx={{ width: '33%', marginRight: '1rem', marginLeft: "3rem" }}>
+    <Grid container spacing={2} justifyContent="center" alignItems="flex-start">
+      <Grid item xs={12} md={4} sx={{marginTop: "1rem"}}>
         <Leaderboard />
       </Grid>
-      <Container sx={{width: "33%", marginTop: "1rem"}}>
+      <Grid item xs={12} md={4} sx={{marginTop: "1rem"}}>
         <PoolStandings />
-      </Container>
-      <Container sx={{marginTop: "2rem", width: "33%"}}>
-        <Paper sx={{width: "20%"}}>
+      </Grid>
+      <Grid item xs={12} md={4}>
+        <Paper sx={{marginTop: "1rem"}}>
           <iframe
             src="https://giphy.com/embed/qAREK41X3nzl6"
-            width="480"
-            height="320"
+            width="100%"
+            height="100%"
             frameBorder="0"
             className="giphy-embed"
             title="Giphy Embed"
@@ -46,29 +46,27 @@ function Home() {
             </Link>
           </Typography>
         </Paper>
-        <Box>
-          <Button variant="contained" onClick={handleOpenRules}>
+        <Box mt={2}>
+          <Button variant="contained" onClick={handleOpenRules} fullWidth>
             View Rules
           </Button>
           <RulesDialog isOpen={openRules} handleClose={handleCloseRules} />
         </Box>
         <Container>
-          <TournamentInfo/>
+          <TournamentInfo />
           <Weather />
         </Container>
-      </Container>
-      <Grid>
-      <Typography
-        variant="subtitle1"
-        sx={{
-          position: 'absolute',
-          right: 16,
-          bottom: 16,
-          textAlign: "right",
-        }}
-      >
-        This is a Daniel Kmetz production
-      </Typography>
+      </Grid>
+      <Grid item xs={12}>
+        <Typography
+          variant="subtitle1"
+          align="right"
+          sx={{
+            textAlign: 'right',
+          }}
+        >
+          This is a Daniel Kmetz production
+        </Typography>
       </Grid>
     </Grid>
   );

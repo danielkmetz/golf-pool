@@ -7,28 +7,42 @@ function Header() {
             sx={{
                 display: "flex",
                 backgroundColor: "green", 
-                justifyContent: "space-between"
-                }}
+                justifyContent: "space-between",
+                alignItems: "center",
+                height: { xs: 100, md: 100 },
+                paddingX: { xs: 2, md: 4 },
+                paddingTop: { xs: 2, md: 1 }, // Increased top padding on phones
+                paddingBottom: { xs: 2, md: 1 }, // Increased bottom padding on phones
+                overflow: "hidden",
+                flexDirection: { xs: 'column', md: 'row' }, // Stack on small screens, inline on larger screens
+            }}
         >
-            <Typography
-                variant="h3"
-                sx={{
-                    marginLeft: "2rem",
-                    marginTop: "1rem",
-                    marginBottom: "1rem",
-                    fontFamily: "Rock Salt"
-                }}
-            >
-               The Golf Pool
-            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center"}}>
+                <Typography
+                    variant="h4"
+                    sx={{
+                        fontFamily: "Rock Salt",
+                        color: "black",
+                        marginBottom: { xs: 1, md: 0 }, // Add margin only on small screens
+                        whiteSpace: "nowrap",
+                        textOverflow: "ellipsis",
+                    }}
+                >
+                The Golf Pool
+                </Typography>
+                <img src={require("./no-background-logo.png")} 
+                    style={{height: '70px', marginLeft: { xs: '5px', md: '10px' }}}/>
+            </Box>
             <Box className="navigation" 
                 sx={{
                     display: "flex", 
                     alignItems: "center",
-                    marginRight: "1rem", 
-                    }}
+                    flexDirection: { xs: 'row', md: 'row' }, 
+                    gap: 2, 
+                    marginLeft: { xs: 0, md: 2 },
+                }}
             >
-                <Tabs value={false}>
+                <Tabs value={false} sx={{ '& .MuiTabs-flexContainer': { flexDirection: { xs: 'row', md: 'row' } } }}>
                     <Link href="/" sx={{color: "black"}}>
                         <Tab label="Home+Rules" />
                     </Link>
@@ -45,3 +59,4 @@ function Header() {
 };
 
 export default Header;
+

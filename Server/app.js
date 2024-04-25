@@ -9,6 +9,9 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const registerRoute = require('./routes/register');
 const stripeRoute = require('./routes/stripe');
+const liveRoute = require('./routes/liveResults')
+const leaderboardRoute = require('./routes/leaderboard');
+const oddsRoute = require('./routes/odds');
 const User = require('./models/users');
 const LocalStrategy = require('passport-local').Strategy;
 const connectUserDB = require('./Config/userDB');
@@ -30,6 +33,13 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  next();
+});
 
 passport.use(new LocalStrategy(async (username, password, done) => {
   try {
@@ -72,6 +82,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/register', registerRoute);
 app.use('/api/charge', stripeRoute);
+app.use('/api/liveResults', liveRoute);
+app.use('/api/leaderboard', leaderboardRoute);
+app.use('/api/odds', oddsRoute);
 
 const PORT = process.env.PORT || 5000;
 

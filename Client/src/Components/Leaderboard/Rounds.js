@@ -34,7 +34,7 @@ function Rounds() {
     useEffect(() => {
         dispatch(fetchLiveModel());
     }, [dispatch])
-
+    console.log(liveResults);
     // Create a new array with modified current_pos values for sorting
     const sortedResults = useMemo(() => {
         const cutGolfers = liveResults.filter(golfer => golfer.current_pos === "CUT");

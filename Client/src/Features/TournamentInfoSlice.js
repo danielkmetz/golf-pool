@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getThursdayDate } from "../actions";
-import axios from 'axios';
 
 const stateAbbreviations = {
     AL: "Alabama",
@@ -56,7 +55,7 @@ const stateAbbreviations = {
   };
   
 function getFullName(abbreviation) {
-    return (stateAbbreviations[abbreviation]).toLowerCase();
+    return (stateAbbreviations[abbreviation]);
   }
 
 export const fetchTournamentInfo = createAsyncThunk(
@@ -77,23 +76,44 @@ export const fetchTournamentInfo = createAsyncThunk(
             const tournamentDatePart = tournament.StartDate.split('T')[0];
             return tournamentDatePart === thursdayDate;
         });
-        console.log(thursdayTournament)
+        //console.log(thursdayTournament)
 
         dispatch(tournamentInfoSlice.actions.setCity((thursdayTournament.City)))
         dispatch(tournamentInfoSlice.actions.setState((thursdayTournament.State)))
+        dispatch(tournamentInfoSlice.actions.setCountry((thursdayTournament.Country)))
 
         return thursdayTournament;
     }
 )
 
+export const fetchGeoCode = createAsyncThunk(
+    'tournamentInfo/fetchGeoCode',
+    async (_, { dispatch }) => {
+        const url = `https://api.api-ninjas.com/v1/geocoding?city=Augusta&state=Georgia&country=USA`
+        const params = {
+            method: 'GET',
+            headers: { 'X-Api-Key': 'MBB7nz2b4QVjtb4xfDiR7Q==By5FCpRSLrqeon9I'}
+        }
+        const response = await fetch(url, params);
+        const json = await response.json();
+        //console.log(json[0])
+        await dispatch(tournamentInfoSlice.actions.setLatitude((json[0].latitude)))
+        await dispatch(tournamentInfoSlice.actions.setLongitude((json[0].longitude)));
+
+        return json;
+    }
+)
+
 export const fetchWeather = createAsyncThunk(
     'weather/fetchWeather',
-    async (city) => {
-        const key = process.env.REACT_APP_WEATHER_KEY;
-        const weatherUrl = `http://api.weatherapi.com/v1/forecast.json?key=${key}&q=${city}` 
-        const response = await axios.get(weatherUrl)
-        console.log(response)
-        return response.data.forecast.forecastday
+    async ({lat, long}) => {
+        console.log(lat);
+        console.log(long);
+        const url = `http://api.weatherapi.com/v1/forecast.json?key=7d01763e46af4c01884213609241104&q=${lat},${long}&days=1&aqi=no&alerts=no`;
+        const response = await fetch(url);
+        const json = await response.json();
+        console.log(json.forecast.forecastday[0].hour)
+        return json.forecast.forecastday[0].hour;
     }
 );
 
@@ -102,15 +122,28 @@ const tournamentInfoSlice = createSlice({
     initialState: {
         info: [],
         weatherInfo: [],
+        geoCodeInfo: [],
         city: '',
         state: '',
+        country: '',
+        latitude: null,
+        longitude: null,
     },
     reducers: {
         setCity: (state, action) => {
             state.city = action.payload;
         },
         setState: (state, action) => {
-            state.state = action.payload;
+            state.state = getFullName(action.payload);
+        },
+        setCountry: (state, action) => {
+            state.country = action.payload;
+        },
+        setLatitude: (state, action) => {
+            state.latitude = action.payload;
+        },
+        setLongitude: (state, action) => {
+            state.longitude = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -137,6 +170,17 @@ const tournamentInfoSlice = createSlice({
                 state.error = action.error.message;
                 state.status = "failed";
             })
+            .addCase(fetchGeoCode.pending, (state) => {
+                state.status = "loading";
+            })
+            .addCase(fetchGeoCode.fulfilled, (state, action) => {
+                state.geoCodeInfo = action.payload;
+                state.status = "succeeded";
+            })
+            .addCase(fetchGeoCode.rejected, (state, action) => {
+                state.error = action.error.message;
+                state.status = "failed";
+            })
 
     },
 })
@@ -147,4 +191,9 @@ export const selectTournamentInfo = (state) => state.tournamentInfo.info;
 export const selectWeather = (state) => state.tournamentInfo.weatherInfo;
 export const selectCity = (state) => state.tournamentInfo.city;
 export const selectState = (state) => state.tournamentInfo.state;
+export const selectLong = (state) => state.tournamentInfo.longitude;
+export const selectLat = (state) => state.tournamentInfo.latitude;
+export const selectCountry = (state) => state.tournamentInfo.country;
+export const selectGeoCode = (state) => state.tournamentInfo.geoCodeInfo;
+
 
