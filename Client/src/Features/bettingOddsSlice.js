@@ -13,10 +13,11 @@ export const fetchOdds = createAsyncThunk(
         const json = await response.json();
         const odds = json.odds.map(i => i).sort((a, b) => b.draftkings - a.draftkings);
         
-        console.log(odds);
+        //console.log(odds);
         return odds
     }
 );
+
 
 export const bettingOddsSlice = createSlice({
     name: 'bettingOdds',
@@ -56,7 +57,50 @@ export const bettingOddsSlice = createSlice({
             const end = Math.floor(state.oddsResults.length + 1)
             const tier4Slice = state.oddsResults.slice((tier1 + tier2 + tier3 + 1), end);
             state.tier4Results = tier4Slice;
-        }
+        },
+        filterGolferFromTier: (state, action) => {
+            const { tier, golferName } = action.payload;
+            console.log(golferName)
+            switch (tier) {
+              case 'Tier1':
+                state.tier1Results = state.tier1Results.filter(golfer => golfer.player_name !== golferName);
+                break;
+              case 'Tier2':
+                state.tier2Results = state.tier2Results.filter(golfer => golfer.player_name !== golferName);
+                break;
+              case 'Tier3':
+                state.tier3Results = state.tier3Results.filter(golfer => golfer.player_name !== golferName);
+                break;
+              case 'Tier4':
+                state.tier4Results = state.tier4Results.filter(golfer => golfer.player_name !== golferName);
+                break;
+              default:
+                break;
+            }
+          },
+          addGolferToAvailable: (state, action) => {
+            const { tier, player_name, draftkings } = action.payload;
+            switch (tier) {
+              case 1:
+                state.tier1Results.push({player_name, draftkings});
+                state.tier1Results.sort((a, b) => b.draftkings - a.draftkings);
+                break;
+              case 'Tier2':
+                state.tier2Results.push(player_name);
+                state.tier2Results.sort((a, b) => b.draftkings - a.draftkings);
+                break;
+              case 'Tier3':
+                state.tier3Results.push(player_name);
+                state.tier3Results.sort((a, b) => b.draftkings - a.draftkings);
+                break;
+              case 'Tier4':
+                state.tier4Results.push(player_name);
+                state.tier4Results.sort((a, b) => b.draftkings - a.draftkings);
+                break;
+              default:
+                break;
+            }
+          },
     },
     extraReducers: (builder) => {
         builder
@@ -89,4 +133,7 @@ export const {
     setTier2Results, 
     setTier3Results, 
     setTier4Results,
+    filterGolferFromTier,
+    addGolferToAvailable,
 } = bettingOddsSlice.actions;
+

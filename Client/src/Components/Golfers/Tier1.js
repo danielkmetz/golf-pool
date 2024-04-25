@@ -11,6 +11,7 @@ import {
   setTier3Results,
   selectTier4Results,
   setTier4Results,
+  filterGolferFromTier,
 } from '../../Features/bettingOddsSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import BettingOdds from './bettingOdds';
@@ -29,6 +30,7 @@ function Tier1() {
   let tier3Results = useSelector(selectTier3Results);
   let tier4Results = useSelector(selectTier4Results);
   const [selectedOption, setSelectedOption] = useState('');
+  //console.log(tier1Results)
 
   useEffect(() => {
     dispatch(fetchOdds());
@@ -54,15 +56,19 @@ function Tier1() {
   function addGolfer(golfer) {
     if (selectedOption === 'Tier1') {
       dispatch(addTier1Golfer(golfer));
+      dispatch(filterGolferFromTier({ tier: 'Tier1', golferName: golfer}))
     }
     if (selectedOption === 'Tier2') {
       dispatch(addTier2Golfer(golfer));
+      dispatch(filterGolferFromTier({ tier: 'Tier2', golferName: golfer}))
     }
     if (selectedOption === 'Tier3') {
       dispatch(addTier3Golfer(golfer));
+      dispatch(filterGolferFromTier({tier: 'Tier3', golferName: golfer}))
     }
     if (selectedOption === 'Tier4') {
       dispatch(addTier4Golfer(golfer));
+      dispatch(filterGolferFromTier({ tier: 'Tier4', golferName: golfer}))
     }
   }
 
@@ -130,3 +136,5 @@ function Tier1() {
 }
 
 export default Tier1;
+
+

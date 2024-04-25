@@ -25,6 +25,7 @@ import {
   selectPaymentStatus,
   fetchPaymentStatus,
 } from '../../Features/paymentStatusSlice';
+import { addGolferToAvailable, selectOddsResults } from '../../Features/bettingOddsSlice';
 
 function MyPicks() {
   const dispatch = useDispatch();
@@ -35,6 +36,7 @@ function MyPicks() {
   const tier2Picks = useSelector(selectTier2Picks);
   const tier3Picks = useSelector(selectTier3Picks);
   const tier4Picks = useSelector(selectTier4Picks);
+  const oddsResults = useSelector(selectOddsResults);
   const paymentStatus = useSelector(selectPaymentStatus);
   const currentDate = new Date();
   const currentDay = currentDate.getDay();
@@ -97,26 +99,36 @@ function MyPicks() {
     setShowCheckout(false);
   };
 
-  function tierRemoval(tier, golfer) {
+  function findOdds(golferName) {
+    const golferOdds = oddsResults.find(golfer => golfer.player_name === golferName);
+    return golferOdds.draftkings
+  }
+  
+  function tierRemoval(tier, golferName) {
+    const odds = findOdds(golferName)
     switch (tier) {
       case 1:
-        dispatch(removeTier1Golfer(golfer));
+        dispatch(removeTier1Golfer(golferName));
+        dispatch(addGolferToAvailable({tier: tier, player_name: golferName, draftkings: odds}))
         break;
       case 2:
-        dispatch(removeTier2Golfer(golfer));
+        dispatch(removeTier2Golfer(golferName));
+        dispatch(addGolferToAvailable({tier: 'Tier2', player_name: golferName}))
         break;
       case 3:
-        dispatch(removeTier3Golfer(golfer));
+        dispatch(removeTier3Golfer(golferName));
+        dispatch(addGolferToAvailable({tier: 'Tier3', player_name: golferName}))
         break;
       case 4:
-        dispatch(removeTier4Golfer(golfer));
+        dispatch(removeTier4Golfer(golferName));
+        dispatch(addGolferToAvailable({tier: 'Tier4', player_name: golferName}))
         break;
       default:
         break;
     }
   }
 
-  console.log('payment status from myPicks', paymentStatus);
+  //console.log('payment status from myPicks', paymentStatus);
   return (
     <Container className="my-picks" sx={{ marginTop: '2rem', border: '2px solid grey', padding: '1rem', position: 'relative' }}>
       <div style={{ backgroundColor: 'lightblue', width: '100%', padding: '0.5rem .01rem', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'absolute', top: 0, left: 0 }}>
