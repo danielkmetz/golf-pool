@@ -9,7 +9,7 @@ const Login = ({ setIsLoggedIn }) => {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch(process.env.REACT_APP_API_URL_LOGIN, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -32,7 +32,7 @@ const Login = ({ setIsLoggedIn }) => {
 
   const handleRegister = async () => {
     try {
-      const response = await fetch(process.env.REACT_APP_API_URL_REGISTER, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

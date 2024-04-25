@@ -61,7 +61,7 @@ function MyPicks() {
         { tier: 'Tier4', golferName: tier4Picks.map(golfer => golfer.player_name || golfer) },
       ];
       // Send the user picks data with the username to the server
-      await axios.post(process.env.REACT_APP_API_URL_SAVE, {
+      await axios.post(`${process.env.REACT_APP_API_URL}/userpicks/save`, {
         username: username,
         userPicks: userPicks,
       });

@@ -5,7 +5,7 @@ export const fetchPaymentStatus = createAsyncThunk(
     'paymentStatus/fetchPaymentStatus',
     async (username, {dispatch}) => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL_pSTATUS}${username}`, {
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/users/paymentStatus/${username}`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
@@ -28,7 +28,7 @@ export const updatePaymentStatus = createAsyncThunk(
     async ({username, status}, {dispatch}) => {
         console.log(username, status)
         try {
-            const response = await axios.put(`${process.env.REACT_APP_API_URL_pSTATUS}${username}`, {
+            const response = await axios.put(`${process.env.REACT_APP_API_URL}/users/paymentStatus/${username}`, {
                 paymentStatus: status
             })
 
