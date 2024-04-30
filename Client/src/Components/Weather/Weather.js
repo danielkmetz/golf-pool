@@ -57,9 +57,6 @@ function Weather() {
     // Construct the date and time string in "YYYY-MM-DD HH:00" format
     const currentDateTime = `${year}-${month}-${day} ${hours}:00`;
 
-    console.log(currentDateTime);
-
-
     const filteredForecast = weather.filter((forecast) => {
         const forecastDateTime = new Date(forecast.time).getTime();
         const currentDateTime = new Date().getTime();
@@ -83,8 +80,8 @@ function Weather() {
             return cloudy;
         } else if (weatherDesc.toLowerCase().includes('overcast')) {
             return cloudy;
-        } else {
-            return null;
+        } else if (weatherDesc.toLowerCase().includes('thunder')) {
+            return rainy
         }
     };
 
@@ -99,7 +96,6 @@ function Weather() {
       
         return `${formattedHour} ${amPm}`; // Return formatted time
       };
-    console.log(weather);
     
     return (
         <Container sx={{ marginTop: '2rem', padding: '0',}}>

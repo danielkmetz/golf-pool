@@ -8,6 +8,7 @@ import {
     TableBody,
     Typography,
     Paper,
+    Avatar,
   } from '@mui/material';
 import GolfersModal from './golfersModal';
 import { fetchTotalPicks, selectTotalPicks } from '../../Features/myPicksSlice';
@@ -15,11 +16,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchLiveModel, selectLiveResults } from '../../Features/LeaderboardSlice';
 import { fetchTournamentInfo, selectTournamentInfo } from '../../Features/TournamentInfoSlice';
 import { getRoundScore } from '../../actions';
+import axios from 'axios';
 
 function PoolStandings() {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
-    const [open, setOpen] = useState(false)
+    const [open, setOpen] = useState(false);
+    const [profilePics, setProfilePics] = useState({});
     const liveResults = useSelector(selectLiveResults);
     const tournamentInfo = useSelector(selectTournamentInfo);
     const totalPicks = useSelector(selectTotalPicks);
@@ -87,6 +90,25 @@ function PoolStandings() {
         setOpen(false);
     }
 
+    useEffect(() => {
+      const fetchProfilePics = async () => {
+          const pics = {};
+          for (const user of users) {
+              try {
+                  const response = await axios.get(`${process.env.REACT_APP_API_URL}/profile-pics/${user.username}`, {
+                      responseType: 'arrayBuffer',
+                  });
+                  pics[user.username] = response.data;
+              } catch (error) {
+                  console.error(`Error fetching profile picture for ${user.username}:`, error);
+              }
+          }
+          setProfilePics(pics);
+      };
+      fetchProfilePics();
+  }, [users]);
+
+  
     return (
       <>
         <Paper sx={{ padding: '1rem', 
@@ -147,9 +169,10 @@ function PoolStandings() {
                           <TableRow key={user._id}>
                             <TableCell 
                               onClick={() => handleClick(user)} 
-                              style={{cursor: 'pointer'}}
+                              style={{cursor: 'pointer', display: 'flex', alignItems: 'center'}}
                             >
                               {user.username}
+                              <Avatar src={`${profilePics[user.username]}`} sx={{marginLeft: '.5rem'}}/>
                             </TableCell>
                             <TableCell>{calculateLowestScores(user.username, 'R1')}</TableCell>
                             <TableCell>{calculateLowestScores(user.username, 'R2')}</TableCell>

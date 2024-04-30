@@ -12,6 +12,7 @@ const stripeRoute = require('./routes/stripe');
 const liveRoute = require('./routes/liveResults')
 const leaderboardRoute = require('./routes/leaderboard');
 const oddsRoute = require('./routes/odds');
+const picsRoute = require('./routes/profilePics');
 const User = require('./models/users');
 const LocalStrategy = require('passport-local').Strategy;
 const connectUserDB = require('./Config/userDB');
@@ -85,6 +86,7 @@ app.use('/api/charge', stripeRoute);
 app.use('/api/liveResults', liveRoute);
 app.use('/api/leaderboard', leaderboardRoute);
 app.use('/api/odds', oddsRoute);
+app.use('/api/profile-pics', picsRoute);
 
 const PORT = process.env.PORT || 5000;
 

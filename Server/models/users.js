@@ -8,6 +8,8 @@ const UserSchema = new mongoose.Schema({
     password: String,
     paymentStatus: { type: Boolean, default: false }, // Default to false indicating unpaid
     paymentExpiryDate: Date,
+    email: String,
+    profilePic: String,
 });
 
 // Middleware to update payment expiry date before saving the user
@@ -22,3 +24,5 @@ UserSchema.pre('save', async function(next) {
 const User = mongoose.model('User', UserSchema);
 
 module.exports = User;
+
+

@@ -4,6 +4,7 @@ import { Button, Container, TextField, Typography } from '@mui/material';
 const Login = ({ setIsLoggedIn }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -37,7 +38,7 @@ const Login = ({ setIsLoggedIn }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, email }),
       });
       const data = await response.json();
       if (response.ok) {
@@ -69,7 +70,7 @@ const Login = ({ setIsLoggedIn }) => {
         alignItems: 'center',
         justifyContent: 'center',
         height: '100vh',
-        width: "100%",
+        width: '100%',
       }}
     >
       {isRegistering ? (
@@ -100,6 +101,18 @@ const Login = ({ setIsLoggedIn }) => {
           margin="normal"
           fullWidth
         />
+        {/* Display email input only when registering */}
+        {isRegistering && (
+          <TextField
+            type="email"
+            label="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            variant="outlined"
+            margin="normal"
+            fullWidth
+          />
+        )}
         <Button type="submit" variant="contained" color="primary" sx={{ mt: 2, px: 6 }}>
           {isRegistering ? 'Register' : 'Login'}
         </Button>

@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Avatar, Typography, Paper, Button } from '@mui/material';
+import { Box, Avatar, Typography, Paper, Button, Tooltip } from '@mui/material';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import CurrentPicks from './currentPicks'; // Assuming this is your component for displaying picks
+import CurrentPicks from './currentPicks'; 
 import { jwtDecode } from 'jwt-decode';
 import { fetchUserPicks } from '../../Features/myPicksSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAllPicks, deleteUserPicks } from '../../Features/myPicksSlice';
+import axios from 'axios';
 
 function Profile() {
     const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [userPhoto, setUserPhoto] = useState(null);
+    const [profilePicUrl, setProfilePicUrl] = useState('');
+    const [file, setFile] = useState(null);
     const allUserPicks = useSelector(selectAllPicks);
     const [tier1Picks, setTier1Picks] = useState([]);
     const [tier2Picks, setTier2Picks] = useState([]);
@@ -29,8 +35,38 @@ function Profile() {
     useEffect(() => {
         if (username) {
             dispatch(fetchUserPicks(username));
+            
         }
     }, [dispatch, username]);
+
+    useEffect(() => {
+        const fetchEmail = async () => {
+            try {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/users/email/${username}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch user email');
+                  }
+                const data = await response.json();
+                setEmail(data.email);
+            } catch (error) {
+                console.error('Error fetching user email:', error);
+            }
+        };
+
+        const fetchProfilePic = async () => {
+            try {
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/profile-pics/${username}`, {
+                    responseType: 'arrayBuffer',
+                });
+                setUserPhoto(response.data);
+            } catch (error) {
+                console.error('Error fetching profile picture:', error);
+            }
+        };
+
+        fetchProfilePic();
+        fetchEmail();
+    }, [email, username, profilePicUrl]);
 
     useEffect(() => {
         if (allUserPicks && allUserPicks.length > 0) {
@@ -47,8 +83,38 @@ function Profile() {
 
     const handleDeletePicks = () => {
         dispatch(deleteUserPicks({ username }));
-    }
+    };
 
+    const handleUpload = async (e) => {
+        const selectedFile = e.target.files[0];
+        setFile(selectedFile);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setUserPhoto(reader.result);
+        }
+        if (selectedFile) {
+            reader.readAsDataURL(selectedFile);
+        }
+        const formData = new FormData();
+        formData.append('image', selectedFile);
+        formData.append('username', username);
+        
+        try {
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/profile-pics`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+        } catch (error) {
+            console.error('Error uploading profile picture:', error);
+            if (error.response) {
+                console.error('Error response:', error.response.data);
+            }
+            alert('Error uploading profile picture. Please try again.');
+        }
+    };
+    
+    
     return (
         <Box sx={{ position: 'relative', maxWidth: 'lg', margin: 'auto' }}>
             {/* Profile Info Box */}
@@ -76,14 +142,31 @@ function Profile() {
                         width: '40%',
                     },
                 }}>
-                    <Avatar sx={{ bgcolor: 'secondary.main', width: 56, height: 56 }}>
-                        <AccountCircleIcon />
-                    </Avatar>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleUpload}
+                        style={{ display: 'none' }}
+                        id="upload-photo"
+                    />
+                    <label htmlFor="upload-photo">
+                        <Box sx={{ position: 'relative', cursor: 'pointer' }}>
+                            <Avatar sx={{ bgcolor: 'secondary.main', width: 100, height: 100 }} src={userPhoto}>
+                                {!userPhoto && <AccountCircleIcon />}
+                            </Avatar>
+                            {!userPhoto && (
+                                <Tooltip title="Upload Profile Picture">
+                                    <HelpOutlineIcon sx={{
+                                         position: 'absolute', bottom: 0, left: '-15px' }} />
+                                </Tooltip>
+                            )}
+                        </Box>
+                    </label>
                     <Typography variant="h5" component="h1" gutterBottom>
                         {username}
                     </Typography>
                     <Typography variant="subtitle1" color="textSecondary">
-                        dkmetz18@gmail.com
+                        {email}
                     </Typography>
                     <Button variant="contained" color="error" onClick={handleDeletePicks}>
                         Delete My Picks

@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 
 // Route to register a new user
 router.post('/', async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, email } = req.body;
 
   try {
     // Check if username already exists
@@ -21,6 +21,7 @@ router.post('/', async (req, res) => {
     const newUser = new User({
       username,
       password: hashedPassword,
+      email,
     });
 
     // Save user to database
