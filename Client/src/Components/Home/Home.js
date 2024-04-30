@@ -22,7 +22,7 @@ function Home() {
     // Simulate data fetching with a timer
     const timer = setTimeout(() => {
       setLoading(false); // Set loading to false after data is 'fetched'
-    }, 2000); // 2000 ms delay to mimic fetch delay
+    }, 1000); // 2000 ms delay to mimic fetch delay
 
     return () => clearTimeout(timer); // Clean up the timer
   }, []);

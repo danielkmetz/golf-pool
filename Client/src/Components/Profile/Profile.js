@@ -44,6 +44,7 @@ function Profile() {
     }, [dispatch, username]);
 
     useEffect(() => {
+        if (username) {
         const fetchEmail = async () => {
             setLoading(true)
             try {
@@ -73,6 +74,7 @@ function Profile() {
 
         fetchProfilePic();
         fetchEmail();
+        }
     }, [email, username, profilePicUrl]);
 
     useEffect(() => {
