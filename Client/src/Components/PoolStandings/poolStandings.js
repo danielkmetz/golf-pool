@@ -16,6 +16,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchLiveModel, selectLiveResults } from '../../Features/LeaderboardSlice';
 import { fetchTournamentInfo, selectTournamentInfo } from '../../Features/TournamentInfoSlice';
 import { getRoundScore } from '../../actions';
+import { fetchProfilePic, selectProfilePic } from '../../Features/userSlice';
 import axios from 'axios';
 
 function PoolStandings() {

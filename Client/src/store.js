@@ -4,6 +4,7 @@ import bettingOddsReducer from './Features/bettingOddsSlice';
 import myPicksReducer from './Features/myPicksSlice';
 import tournamentInfoReducer from "./Features/TournamentInfoSlice";
 import paymentStatusReducer from './Features/paymentStatusSlice';
+import usersReducer from './Features/userSlice';
 
 const store = configureStore({
     reducer: combineReducers({
@@ -12,6 +13,7 @@ const store = configureStore({
         myPicks: myPicksReducer,
         tournamentInfo: tournamentInfoReducer,
         paymentStatus: paymentStatusReducer,
+        users: usersReducer,
     })
 });
 

@@ -7,15 +7,18 @@ import { jwtDecode } from 'jwt-decode';
 import { fetchUserPicks } from '../../Features/myPicksSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAllPicks, deleteUserPicks } from '../../Features/myPicksSlice';
+import { fetchEmail, 
+    selectEmail, 
+    fetchProfilePic, 
+    selectProfilePic, uploadProfilePic, setUserPhoto } from '../../Features/userSlice';
 import axios from 'axios';
 
 function Profile() {
     const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
+    const email = useSelector(selectEmail);
     const [loading, setLoading] = useState(true);
-    const [userPhoto, setUserPhoto] = useState(null);
-    const [profilePicUrl, setProfilePicUrl] = useState('');
-    const [file, setFile] = useState(null);
+    const userPhoto = useSelector(selectProfilePic);
+    const [imagePreview, setImagePreview] = useState('');
     const allUserPicks = useSelector(selectAllPicks);
     const [tier1Picks, setTier1Picks] = useState([]);
     const [tier2Picks, setTier2Picks] = useState([]);
@@ -39,43 +42,11 @@ function Profile() {
         setLoading(true)
         if (username) {
             dispatch(fetchUserPicks(username));
+            dispatch(fetchEmail(username));
+            dispatch(fetchProfilePic(username))
             setLoading(false)
         }
-    }, [dispatch, username]);
-
-    useEffect(() => {
-        if (username) {
-        const fetchEmail = async () => {
-            setLoading(true)
-            try {
-                const response = await fetch(`${process.env.REACT_APP_API_URL}/users/email/${username}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch user email');
-                  }
-                const data = await response.json();
-                setEmail(data.email);
-            } catch (error) {
-                console.error('Error fetching user email:', error);
-            } finally {
-                setLoading(false)
-            }
-        };
-
-        const fetchProfilePic = async () => {
-            try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/profile-pics/${username}`, {
-                    responseType: 'arrayBuffer',
-                });
-                setUserPhoto(response.data);
-            } catch (error) {
-                console.error('Error fetching profile picture:', error);
-            }
-        };
-
-        fetchProfilePic();
-        fetchEmail();
-        }
-    }, [email, username, profilePicUrl]);
+    }, [dispatch, username, email]);
 
     useEffect(() => {
         if (allUserPicks && allUserPicks.length > 0) {
@@ -94,35 +65,23 @@ function Profile() {
         dispatch(deleteUserPicks({ username }));
     };
 
-    const handleUpload = async (e) => {
-        const selectedFile = e.target.files[0];
-        setFile(selectedFile);
+    const handleFileChange = (event) => {
+        const file = event.target.files[0];
         const reader = new FileReader();
         reader.onloadend = () => {
-            setUserPhoto(reader.result);
+            setImagePreview(reader.result);
         }
-        if (selectedFile) {
-            reader.readAsDataURL(selectedFile);
+        if (file) {
+            reader.readAsDataURL(file);
         }
-        const formData = new FormData();
-        formData.append('image', selectedFile);
-        formData.append('username', username);
-        
-        try {
-            const response = await axios.post(`${process.env.REACT_APP_API_URL}/profile-pics`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-        } catch (error) {
-            console.error('Error uploading profile picture:', error);
-            if (error.response) {
-                console.error('Error response:', error.response.data);
-            }
-            alert('Error uploading profile picture. Please try again.');
+        if (file) {
+            dispatch(uploadProfilePic({
+                file: file,
+                username: username
+            }));
         }
     };
-    
+
     
     return (
         <Box sx={{ position: 'relative', maxWidth: 'lg', margin: 'auto' }}>
@@ -160,13 +119,13 @@ function Profile() {
                     <input
                         type="file"
                         accept="image/*"
-                        onChange={handleUpload}
+                        onChange={handleFileChange}
                         style={{ display: 'none' }}
                         id="upload-photo"
                     />
                     <label htmlFor="upload-photo">
                         <Box sx={{ position: 'relative', cursor: 'pointer' }}>
-                            <Avatar sx={{ bgcolor: 'secondary.main', width: 100, height: 100 }} src={userPhoto}>
+                            <Avatar sx={{ bgcolor: 'secondary.main', width: 100, height: 100 }} src={imagePreview || userPhoto}>
                                 {!userPhoto && <AccountCircleIcon />}
                             </Avatar>
                             {!userPhoto && (

@@ -46,7 +46,6 @@ function CurrentPicks({ tier1Picks, tier2Picks, tier3Picks, tier4Picks}) {
     const totalLowestR4 = lowest4ScoresR4.reduce((total, score) => total + score, 0);
     const totalLowest = totalLowestR1 + totalLowestR2 + totalLowestR3 + totalLowestR4;
 
-    console.log(liveResults);
     return (
         <Container>
           <Typography variant="h5" align="center" gutterBottom>
