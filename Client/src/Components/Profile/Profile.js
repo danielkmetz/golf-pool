@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Avatar, Typography, Paper, Button, Tooltip } from '@mui/material';
+import { Box, Avatar, Typography, Paper, Button, Tooltip, CircularProgress } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CurrentPicks from './currentPicks'; 
@@ -12,6 +12,7 @@ import axios from 'axios';
 function Profile() {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
+    const [loading, setLoading] = useState(true);
     const [userPhoto, setUserPhoto] = useState(null);
     const [profilePicUrl, setProfilePicUrl] = useState('');
     const [file, setFile] = useState(null);
@@ -23,24 +24,28 @@ function Profile() {
     const dispatch = useDispatch();
 
     useEffect(() => {
+        setLoading(true)
         const token = localStorage.getItem('token');
         if (token) {
             const decodedToken = jwtDecode(token);
             if (decodedToken) {
                 setUsername(decodedToken.username);
+                setLoading(false)
             }
         }
     }, []);
 
     useEffect(() => {
+        setLoading(true)
         if (username) {
             dispatch(fetchUserPicks(username));
-            
+            setLoading(false)
         }
     }, [dispatch, username]);
 
     useEffect(() => {
         const fetchEmail = async () => {
+            setLoading(true)
             try {
                 const response = await fetch(`${process.env.REACT_APP_API_URL}/users/email/${username}`);
                 if (!response.ok) {
@@ -50,6 +55,8 @@ function Profile() {
                 setEmail(data.email);
             } catch (error) {
                 console.error('Error fetching user email:', error);
+            } finally {
+                setLoading(false)
             }
         };
 
@@ -117,6 +124,12 @@ function Profile() {
     
     return (
         <Box sx={{ position: 'relative', maxWidth: 'lg', margin: 'auto' }}>
+            {loading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                    <CircularProgress />
+                </Box>
+            ) : (
+            <>
             {/* Profile Info Box */}
             <Box sx={{ 
                 display: 'flex', 
@@ -184,6 +197,8 @@ function Profile() {
                     allPicks={allUserPicks}
                 />
             </Box>
+            </>
+            )}
         </Box>
     );
 }

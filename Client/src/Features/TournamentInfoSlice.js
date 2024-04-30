@@ -109,7 +109,7 @@ export const fetchWeather = createAsyncThunk(
     async ({lat, long}) => {
         console.log(lat);
         console.log(long);
-        const url = `http://api.weatherapi.com/v1/forecast.json?key=7d01763e46af4c01884213609241104&q=${lat},${long}&days=1&aqi=no&alerts=no`;
+        const url = `https://api.weatherapi.com/v1/forecast.json?key=7d01763e46af4c01884213609241104&q=${lat},${long}&days=1&aqi=no&alerts=no`;
         const response = await fetch(url);
         const json = await response.json();
         console.log(json.forecast.forecastday[0].hour)

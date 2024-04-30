@@ -41,7 +41,7 @@ function MyPicks() {
   const currentDate = new Date();
   const currentDay = currentDate.getDay();
 
-  const isSubmitDisabled = currentDay >= 4 && currentDay <= 0;
+  const isSubmitDisabled = currentDay >= 4 || currentDay === 0;
 
   // fetch username
   useEffect(() => {
