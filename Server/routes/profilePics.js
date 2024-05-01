@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const { v4: uuidv4 } = require('uuid');
+const fs = require('fs');
 const multer = require('multer');
 const crypto = require("crypto");
 const sharp = require('sharp');
@@ -26,49 +28,64 @@ const s3 = new S3Client({
 const generateFileName = (username, bytes = 32) =>
     `${username}-${crypto.randomBytes(bytes).toString("hex")}`;
 
-router.post('/', upload.single("image"), async (req, res) => {
-    try {
-        let extension = '';
-        let buffer = req.file.buffer;
-
-        if (req.file.mimetype === 'image/jpeg') {
-            extension = 'jpg';
-        } else if (req.file.mimetype === 'image/png') {
-            extension = 'png';
-        }
-
-        buffer = await sharp(req.file.buffer)
-            .jpeg()
-            .toBuffer();
-
-        const fileName = generateFileName(req.body.username, extension);
-        const params = {
-            Bucket: 'golf-pool-profile-pics',
-            Key: fileName,
-            Body: buffer,
-            ContentType: req.file.mimetype,
-            ContentEncoding: 'base64',
-            Metadata: {
-                'username': req.body.username
+    
+router.post('/', upload.single('file'), async (req, res) => {
+        try {
+            let buffer;
+            let extension = '';
+    
+            if (req.file) {
+                // Handle file upload
+                buffer = req.file.buffer;
+                if (req.file.mimetype === 'image/jpeg') {
+                    extension = 'jpg';
+                } else if (req.file.mimetype === 'image/png') {
+                    extension = 'png';
+                }
+            } else if (req.body.image && req.body.image.startsWith('data:image/jpeg;base64,')) {
+                // Handle base64-encoded image
+                buffer = Buffer.from(req.body.image.replace(/^data:image\/jpeg;base64,/, ''), 'base64');
+                extension = 'jpg';
+            } else if (req.body.image && req.body.image.startsWith('data:image/png;base64,')) {
+                // Handle base64-encoded image
+                buffer = Buffer.from(req.body.image.replace(/^data:image\/png;base64,/, ''), 'base64');
+                extension = 'png';
+            } else {
+                return res.status(400).send({ error: 'Unsupported upload format' });
             }
-        };
-
-        const command = new PutObjectCommand(params);
-        await s3.send(command);
-
-        const user = await User.findOne({ username: req.body.username });
-        if (user) {
-            user.profilePic = fileName; // Assuming you want to store the file name
-            await user.save();
-            return res.status(200).send({ message: 'Profile picture uploaded successfully', profilePic: fileName });
-        } else {
-            return res.status(404).send({ error: 'User not found' });
+    
+            buffer = await sharp(buffer)
+                .jpeg()
+                .toBuffer();
+    
+            const fileName = generateFileName(req.body.username, extension);
+            const params = {
+                Bucket: 'golf-pool-profile-pics',
+                Key: fileName,
+                Body: buffer,
+                ContentType: `image/${extension}`,
+                Metadata: {
+                    'username': req.body.username
+                }
+            };
+    
+            const command = new PutObjectCommand(params);
+            await s3.send(command);
+    
+            const user = await User.findOne({ username: req.body.username });
+            if (user) {
+                user.profilePic = fileName; // Assuming you want to store the file name
+                await user.save();
+                return res.status(200).send({ message: 'Profile picture uploaded successfully', profilePic: fileName });
+            } else {
+                return res.status(404).send({ error: 'User not found' });
+            }
+        } catch (error) {
+            console.error('Error uploading profile picture:', error);
+            return res.status(500).send({ error: 'Internal server error' });
         }
-    } catch (error) {
-        console.error('Error uploading profile picture:', error);
-        return res.status(500).send({ error: 'Internal server error' });
-    }
-});
+    });
+    
 
 router.get('/:username', async (req, res) => {
     try {
