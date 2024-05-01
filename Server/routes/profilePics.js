@@ -2,16 +2,16 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const crypto = require("crypto");
+const { fromBuffer } = require('heic-convert');
 const {
     S3Client,
     GetObjectCommand,
     PutObjectCommand,
 } = require("@aws-sdk/client-s3");
 const User = require('../models/users');
+
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-
-
 const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
 const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
 
@@ -28,12 +28,19 @@ const generateFileName = (username, bytes = 32) =>
 
 router.post('/', upload.single("image"), async (req, res) => {
     try {
-        const fileName = generateFileName(req.body.username);
+        const contentType = req.file.mimetype;
+        let extension = 'jpg';
+        let buffer = req.file.buffer;
+
+        const { data } = await fromBuffer(buffer);
+        buffer = Buffer.from(data);
+
+        const fileName = generateFileName(req.body.username, extension);
         const params = {
             Bucket: 'golf-pool-profile-pics',
             Key: fileName,
-            Body: req.file.buffer,
-            ContentType: req.file.mimetype,
+            Body: buffer,
+            ContentType: 'image/jpeg',
             ContentEncoding: 'base64',
             Metadata: {
                 'username': req.body.username

@@ -82,6 +82,8 @@ function Weather() {
             return cloudy;
         } else if (weatherDesc.toLowerCase().includes('thunder')) {
             return rainy
+        } else if (weatherDesc.toLowerCase().includes('mist')) {
+            return cloudy;
         }
     };
 

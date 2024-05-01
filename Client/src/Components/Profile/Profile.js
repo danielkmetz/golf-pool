@@ -11,7 +11,6 @@ import { fetchEmail,
     selectEmail, 
     fetchProfilePic, 
     selectProfilePic, uploadProfilePic, setUserPhoto } from '../../Features/userSlice';
-import axios from 'axios';
 
 function Profile() {
     const [username, setUsername] = useState('');

@@ -32,21 +32,6 @@ router.get('/:username', async (req, res) => {
   }
 });
 
-// Route to get a specific email by username
-router.get('/email/:username', async (req, res) => {
-  try {
-    const user = await User.findOne({username: req.params.username});
-    console.log(user);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    res.json({email: user.email});
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
 // Route to update user data (e.g., profile update)
 router.put('/:username', async (req, res) => {
   try {
@@ -79,6 +64,21 @@ router.delete('/:username', async (req, res) => {
     }
 
     res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Route to get a specific email by username
+router.get('/email/:username', async (req, res) => {
+  try {
+    const user = await User.findOne({username: req.params.username});
+    console.log(user);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json({email: user.email});
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
