@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const crypto = require("crypto");
-const { fromBuffer } = require('heic-convert');
+const sharp = require('sharp');
 const {
     S3Client,
     GetObjectCommand,
@@ -28,12 +28,12 @@ const generateFileName = (username, bytes = 32) =>
 
 router.post('/', upload.single("image"), async (req, res) => {
     try {
-        const contentType = req.file.mimetype;
         let extension = 'jpg';
         let buffer = req.file.buffer;
 
-        const { data } = await fromBuffer(buffer);
-        buffer = Buffer.from(data);
+        buffer = await sharp(req.file.buffer)
+            .jpeg()
+            .toBuffer();
 
         const fileName = generateFileName(req.body.username, extension);
         const params = {
