@@ -28,8 +28,14 @@ const generateFileName = (username, bytes = 32) =>
 
 router.post('/', upload.single("image"), async (req, res) => {
     try {
-        let extension = 'jpg';
+        let extension = '';
         let buffer = req.file.buffer;
+
+        if (req.file.mimetype === 'image/jpeg') {
+            extension = 'jpg';
+        } else if (req.file.mimetype === 'image/png') {
+            extension = 'png';
+        }
 
         buffer = await sharp(req.file.buffer)
             .jpeg()
@@ -40,7 +46,7 @@ router.post('/', upload.single("image"), async (req, res) => {
             Bucket: 'golf-pool-profile-pics',
             Key: fileName,
             Body: buffer,
-            ContentType: 'image/jpeg',
+            ContentType: req.file.mimetype,
             ContentEncoding: 'base64',
             Metadata: {
                 'username': req.body.username
