@@ -65,12 +65,12 @@ router.post('/', upload.single('image'), async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
           }
           console.log(req.file);
-          user.profilePic = await fileKey;
+          user.profilePic = fileKey;
           
           await user.save();
           return res.status(200).json({
             message: 'Profile picture uploaded successfully',
-            profilePic: req.file.key,
+            profilePic: fileKey,
             location: req.file.location,
           });
         } catch (err) {
