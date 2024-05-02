@@ -56,7 +56,7 @@ const upload = multer({
 router.post('/', upload.single('image'), async (req, res) => {
     const { username } = await req.body; // Assuming username is provided in the request body
     console.log(req.file)
-    const fileKey = req.file.transforms.find(transform => transform.id === 'original').key;
+    const fileKey = await req.file.transforms.find(transform => transform.id === 'original').key;
 
         try {
           const user = await User.findOne({ username: username });
