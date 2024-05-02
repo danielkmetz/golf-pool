@@ -15,13 +15,13 @@ const aws = require('aws-sdk');
 const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
 const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
 
-// // const s3 = new S3Client({
-// //     credentials: {
-// //         accessKeyId: accessKeyId,
-// //         secretAccessKey: secretAccessKey,
-// //     },
-// //     region: 'us-east-2',
-// });
+const S3 = new S3Client({
+    credentials: {
+        accessKeyId: accessKeyId,
+        secretAccessKey: secretAccessKey,
+    },
+    region: 'us-east-2',
+});
 
 const s3 = new aws.S3({
     accessKeyId: accessKeyId,
@@ -41,10 +41,10 @@ const upload = multer({
       transforms: [{
         id: 'original',
         key: function (req, file, cb) {
-          const uniqueFilename = `profile-${Date.now()}${path.extname(file.originalname)}`;
-          console.log("generated unique name:", uniqueFilename);
-          cb(null, uniqueFilename);
-        },
+            const uniqueFilename = `profile-${Date.now()}${path.extname(file.originalname)}`;
+            console.log("generated unique name:", uniqueFilename);
+            cb(null, uniqueFilename);
+          },
         transform: function (req, file, cb) {
           const transformer = sharp().resize(500).jpeg({ quality: 70 });
           cb(null, transformer);
@@ -54,14 +54,18 @@ const upload = multer({
 });
 
 router.post('/', upload.single('image'), async (req, res) => {
-    const { username } = req.body; // Assuming username is provided in the request body
+    const { username } = await req.body; // Assuming username is provided in the request body
+    console.log(req.file)
+    const fileKey = req.file.transforms.find(transform => transform.id === 'original').key;
+
         try {
           const user = await User.findOne({ username: username });
           console.log(user);
           if (!user) {
             return res.status(404).json({ error: 'User not found' });
           }
-          user.profilePic = req.file.key;
+          console.log(req.file);
+          user.profilePic = await fileKey;
           
           await user.save();
           return res.status(200).json({
@@ -95,7 +99,7 @@ router.get('/:username', async (req, res) => {
             Key: profilePicFileName,
         };
 
-        const data = await s3.send(new GetObjectCommand(s3Params));
+        const data = await S3.send(new GetObjectCommand(s3Params));
         const { Body } = data; // Assuming `response` is the object containing your data
         const chunks = [];
         Body.on('data', (chunk) => {
