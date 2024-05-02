@@ -65,17 +65,17 @@ function Profile() {
     };
 
     const handleFileChange = (event) => {
-        const file = event.target.files[0];
+        const image = event.target.files[0];
         const reader = new FileReader();
         reader.onloadend = () => {
             setImagePreview(reader.result);
         }
-        if (file) {
-            reader.readAsDataURL(file);
+        if (image) {
+            reader.readAsDataURL(image);
         }
-        if (file) {
+        if (image) {
             dispatch(uploadProfilePic({
-                image: file,
+                image: image,
                 username: username
             }));
         }
