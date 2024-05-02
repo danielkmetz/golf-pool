@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-const multerS3 = require('multer-s3');
+const multerS3 = require('multer-s3-transform');
 const {
     S3Client,
     GetObjectCommand,
@@ -10,17 +10,24 @@ const {
 } = require("@aws-sdk/client-s3");
 const User = require('../models/users');
 const sharp = require('sharp');
+const aws = require('aws-sdk');
 
 const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
 const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
 
-const s3 = new S3Client({
-    credentials: {
-        accessKeyId: accessKeyId,
-        secretAccessKey: secretAccessKey,
-    },
+// // const s3 = new S3Client({
+// //     credentials: {
+// //         accessKeyId: accessKeyId,
+// //         secretAccessKey: secretAccessKey,
+// //     },
+// //     region: 'us-east-2',
+// });
+
+const s3 = new aws.S3({
+    accessKeyId: accessKeyId,
+    secretAccessKey: secretAccessKey,
     region: 'us-east-2',
-});
+})
 
 // Set up Multer with S3 and Sharp for image compression
 const upload = multer({
@@ -28,19 +35,24 @@ const upload = multer({
       s3: s3,
       bucket: 'golf-pool-profile-pics',
       contentType: multerS3.AUTO_CONTENT_TYPE,
-      key: function (req, file, cb) {
-        const uniqueFilename = `profile-${Date.now()}${file.originalname}`;
-        console.log("generated unique name:", uniqueFilename);
-        cb(null, uniqueFilename);
+      shouldTransform: function (req, file, cb) {
+        cb(null, /^image/i.test(file.mimetype));
       },
-      transform: function(req, file, cb) {
-        // Here you could specify other sharp options like resizing
-        const transformer = sharp().resize(500).jpeg({ quality: 70 });
-        cb(null, transformer);
-      },
+      transforms: [{
+        id: 'original',
+        key: function (req, file, cb) {
+          const uniqueFilename = `profile-${Date.now()}${path.extname(file.originalname)}`;
+          console.log("generated unique name:", uniqueFilename);
+          cb(null, uniqueFilename);
+        },
+        transform: function (req, file, cb) {
+          const transformer = sharp().resize(500).jpeg({ quality: 70 });
+          cb(null, transformer);
+        }
+      }]
     }),
-  });
-    
+});
+
 router.post('/', upload.single('image'), async (req, res) => {
     const { username } = req.body; // Assuming username is provided in the request body
         try {
@@ -50,11 +62,11 @@ router.post('/', upload.single('image'), async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
           }
           user.profilePic = req.file.key;
-          console.log(req.file.key)
+          
           await user.save();
           return res.status(200).json({
             message: 'Profile picture uploaded successfully',
-            profilePic: req.key,
+            profilePic: req.file.key,
             location: req.file.location,
           });
         } catch (err) {
