@@ -22,15 +22,21 @@ const s3 = new S3Client({
     region: 'us-east-2',
 });
 
-// Multer middleware to handle file uploads with multer-s3
+// Set up Multer with S3 and Sharp for image compression
 const upload = multer({
     storage: multerS3({
       s3: s3,
       bucket: 'golf-pool-profile-pics',
-      contentType: multerS3.AUTO_CONTENT_TYPE, // Automatically set the content type
+      contentType: multerS3.AUTO_CONTENT_TYPE,
       key: function (req, file, cb) {
         const uniqueFilename = `profile-${Date.now()}${file.originalname}`;
+        console.log("generated unique name:", uniqueFilename);
         cb(null, uniqueFilename);
+      },
+      transform: function(req, file, cb) {
+        // Here you could specify other sharp options like resizing
+        const transformer = sharp().resize(500).jpeg({ quality: 70 });
+        cb(null, transformer);
       },
     }),
   });
