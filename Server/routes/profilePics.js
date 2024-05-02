@@ -11,8 +11,6 @@ const {
 } = require("@aws-sdk/client-s3");
 const User = require('../models/users');
 
-const storage = multer.memoryStorage();
-const upload = multer();
 const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
 const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
 
@@ -26,7 +24,7 @@ const s3 = new S3Client({
 
 function checkFileType( file, cb ){
 	// Allowed ext
-	const filetypes = /jpeg|jpg|png|gif/;
+	const filetypes = /jpeg|jpg|png|gif|heic/;
 	// Check ext
 	const extname = filetypes.test( path.extname( file.originalname ).toLowerCase());
 	// Check mime
