@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
-const fs = require('fs');
 const multer = require('multer');
-const crypto = require("crypto");
-const sharp = require('sharp');
+const path = require('path');
+const multerS3 = require('multer-s3');
 const {
     S3Client,
     GetObjectCommand,
@@ -13,7 +12,7 @@ const {
 const User = require('../models/users');
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer();
 const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
 const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
 
@@ -25,66 +24,67 @@ const s3 = new S3Client({
     region: 'us-east-2',
 });
 
-const generateFileName = (username, bytes = 32) =>
-    `${username}-${crypto.randomBytes(bytes).toString("hex")}`;
+function checkFileType( file, cb ){
+	// Allowed ext
+	const filetypes = /jpeg|jpg|png|gif/;
+	// Check ext
+	const extname = filetypes.test( path.extname( file.originalname ).toLowerCase());
+	// Check mime
+	const mimetype = filetypes.test( file.mimetype );
+	if( mimetype && extname ){
+		return cb( null, true );
+	} else {
+		cb( 'Error: Images Only!' );
+	}
+}
+
+const profileImgUpload = multer({
+	storage: multerS3({
+		s3: s3,
+		bucket: 'golf-pool-profile-pics',
+		key: function (req, file, cb) {
+			cb(null, path.basename(
+                file.originalname,
+                path.extname( file.originalname ) ) + '-' + Date.now() + path.extname( file.originalname ) )
+		}
+	}),
+	limits:{ fileSize: 2000000 }, // In bytes: 2000000 bytes = 2 MB
+	fileFilter: function( req, file, cb ){
+		checkFileType( file, cb );
+	}
+}).single('image');
 
     
-router.post('/', upload.single('file'), async (req, res) => {
+router.post('/', async (req, res) => {
+    profileImgUpload(req, res, async (error) => {
+        if (error) {
+            console.log('Error uploading profile image:', error);
+            return res.status(400).json({ error: 'Error uploading profile image' });
+        }
+
+        // If Success
+        const imageName = req.file.key;
+        const imageLocation = req.file.location;
+
+        // Save the file name into database into profile model
         try {
-            let buffer;
-            let extension = '';
-    
-            if (req.file) {
-                // Handle file upload
-                buffer = req.file.buffer;
-                if (req.file.mimetype === 'image/jpeg') {
-                    extension = 'jpg';
-                } else if (req.file.mimetype === 'image/png') {
-                    extension = 'png';
-                }
-            } else if (req.body.image && req.body.image.startsWith('data:image/jpeg;base64,')) {
-                // Handle base64-encoded image
-                buffer = Buffer.from(req.body.image.replace(/^data:image\/jpeg;base64,/, ''), 'base64');
-                extension = 'jpg';
-            } else if (req.body.image && req.body.image.startsWith('data:image/png;base64,')) {
-                // Handle base64-encoded image
-                buffer = Buffer.from(req.body.image.replace(/^data:image\/png;base64,/, ''), 'base64');
-                extension = 'png';
-            } else {
-                return res.status(400).send({ error: 'Unsupported upload format' });
-            }
-    
-            buffer = await sharp(buffer)
-                .jpeg()
-                .toBuffer();
-    
-            const fileName = generateFileName(req.body.username, extension);
-            const params = {
-                Bucket: 'golf-pool-profile-pics',
-                Key: fileName,
-                Body: buffer,
-                ContentType: `image/${extension}`,
-                Metadata: {
-                    'username': req.body.username
-                }
-            };
-    
-            const command = new PutObjectCommand(params);
-            await s3.send(command);
-    
             const user = await User.findOne({ username: req.body.username });
-            if (user) {
-                user.profilePic = fileName; // Assuming you want to store the file name
-                await user.save();
-                return res.status(200).send({ message: 'Profile picture uploaded successfully', profilePic: fileName });
-            } else {
-                return res.status(404).send({ error: 'User not found' });
+            if (!user) {
+                return res.status(404).json({ error: 'User not found' });
             }
-        } catch (error) {
-            console.error('Error uploading profile picture:', error);
-            return res.status(500).send({ error: 'Internal server error' });
+            user.profilePic = imageName;
+            await user.save();
+            return res.status(200).json({
+                message: 'Profile picture uploaded successfully',
+                profilePic: imageName,
+                location: imageLocation });
+        } catch (err) {
+            console.log('Error saving profile picture to database:', err);
+            return res.status(500).json({ error: 'Internal server error' });
         }
     });
+});
+
     
 
 router.get('/:username', async (req, res) => {

@@ -100,7 +100,7 @@ export const bettingOddsSlice = createSlice({
               default:
                 break;
             }
-          },
+        },
     },
     extraReducers: (builder) => {
         builder

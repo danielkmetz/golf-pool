@@ -23,17 +23,20 @@ export const fetchProfilePic = createAsyncThunk(
     }
 );
 
+//frontend logic
 export const uploadProfilePic = createAsyncThunk(
     'users/uploadProfilePic',
-    async ({ file, username }, { rejectWithValue, dispatch }) => {
+    async ({ image, username }, { rejectWithValue, dispatch }) => {
         try {
             const formData = new FormData();
-            formData.append('image', file);
+            formData.append('image', image);
             formData.append('username', username);
 
             const response = await axios.post(`${process.env.REACT_APP_API_URL}/profile-pics`, formData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data'
+                    'Content-Type': `multipart/form-data; boundary=${formData._boundary}`,
+                    'accept': 'application/json',
+                    'Accept-Language': 'en-US,en;q=0.8',
                 }
             });
             return response.data;

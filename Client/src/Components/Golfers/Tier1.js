@@ -20,6 +20,10 @@ import {
   addTier2Golfer,
   addTier3Golfer,
   addTier4Golfer,
+  selectTier1Picks,
+  selectTier2Picks,
+  selectTier3Picks,
+  selectTier4Picks,
 } from '../../Features/myPicksSlice';
 
 function Tier1() {
@@ -29,6 +33,10 @@ function Tier1() {
   let tier2Results = useSelector(selectTier2Results);
   let tier3Results = useSelector(selectTier3Results);
   let tier4Results = useSelector(selectTier4Results);
+  const tier1Picks = useSelector(selectTier1Picks);
+  const tier2Picks = useSelector(selectTier2Picks);
+  const tier3Picks = useSelector(selectTier3Picks);
+  const tier4Picks = useSelector(selectTier4Picks);
   const [selectedOption, setSelectedOption] = useState('');
   //console.log(tier1Results)
 
@@ -54,19 +62,19 @@ function Tier1() {
   };
 
   function addGolfer(golfer) {
-    if (selectedOption === 'Tier1') {
+    if (selectedOption === 'Tier1' && tier1Picks.length < 3) {
       dispatch(addTier1Golfer(golfer));
       dispatch(filterGolferFromTier({ tier: 'Tier1', golferName: golfer}))
     }
-    if (selectedOption === 'Tier2') {
+    if (selectedOption === 'Tier2' && tier2Picks.length < 2) {
       dispatch(addTier2Golfer(golfer));
       dispatch(filterGolferFromTier({ tier: 'Tier2', golferName: golfer}))
     }
-    if (selectedOption === 'Tier3') {
+    if (selectedOption === 'Tier3' && tier3Picks.length < 2) {
       dispatch(addTier3Golfer(golfer));
       dispatch(filterGolferFromTier({tier: 'Tier3', golferName: golfer}))
     }
-    if (selectedOption === 'Tier4') {
+    if (selectedOption === 'Tier4' && tier4Picks.length < 1) {
       dispatch(addTier4Golfer(golfer));
       dispatch(filterGolferFromTier({ tier: 'Tier4', golferName: golfer}))
     }

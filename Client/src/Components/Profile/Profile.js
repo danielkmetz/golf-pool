@@ -75,7 +75,7 @@ function Profile() {
         }
         if (file) {
             dispatch(uploadProfilePic({
-                file: file,
+                image: file,
                 username: username
             }));
         }
