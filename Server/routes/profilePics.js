@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const { v4: uuidv4 } = require('uuid');
 const multer = require('multer');
 const path = require('path');
 const multerS3 = require('multer-s3');
@@ -10,6 +9,7 @@ const {
     PutObjectCommand,
 } = require("@aws-sdk/client-s3");
 const User = require('../models/users');
+const sharp = require('sharp');
 
 const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
 const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
@@ -51,6 +51,21 @@ const profileImgUpload = multer({
 	}
 }).single('image');
 
+// Define AWS S3 upload function
+function uploadToS3(file, callback) {
+    const params = {
+        Bucket: 'golf-pool-profile-pics',
+        Key: function (req, file, cb) {
+			cb(null, path.basename(
+                file.originalname,
+                path.extname( file.originalname ) ) + '-' + Date.now() + path.extname( file.originalname ) )
+		}, // Adjust the key/path as needed
+        Body: file,
+        ContentType: 'image/jpeg', // Set the content type according to your image format
+    };
+
+    s3.upload(params, callback);
+}
     
 router.post('/', async (req, res) => {
     profileImgUpload(req, res, async (error) => {
@@ -58,30 +73,47 @@ router.post('/', async (req, res) => {
             console.log('Error uploading profile image:', error);
             return res.status(400).json({ error: 'Error uploading profile image' });
         }
+        console.log(req.file);
 
-        // If Success
-        const imageName = req.file.key;
-        const imageLocation = req.file.location;
-
-        // Save the file name into database into profile model
+        // Compress the image before uploading to S3
         try {
-            const user = await User.findOne({ username: req.body.username });
-            if (!user) {
-                return res.status(404).json({ error: 'User not found' });
-            }
-            user.profilePic = imageName;
-            await user.save();
-            return res.status(200).json({
-                message: 'Profile picture uploaded successfully',
-                profilePic: imageName,
-                location: imageLocation });
+            const compressedImage = await sharp(req.file.buffer)
+                .resize({ width: 800 }) // Adjust the resize parameters as needed
+                .toBuffer();
+            
+            uploadToS3(compressedImage, async (err, data) => {
+                if (err) {
+                    console.error('Error uploading image to S3:', err);
+                    return res.status(500).json({ error: 'Error uploading image to S3' });
+                }
+                // If Success
+                const imageName = data.key; // Use the key provided by S3
+                const imageLocation = data.Location; // Use the location provided by S3
+
+                // Save the file name into database into profile model
+                try {
+                    const user = await User.findOne({ username: req.body.username });
+                    if (!user) {
+                        return res.status(404).json({ error: 'User not found' });
+                    }
+                    user.profilePic = imageName;
+                    await user.save();
+                    return res.status(200).json({
+                        message: 'Profile picture uploaded successfully',
+                        profilePic: imageName,
+                        location: imageLocation
+                    });
+                } catch (err) {
+                    console.log('Error saving profile picture to database:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
+            });
         } catch (err) {
-            console.log('Error saving profile picture to database:', err);
-            return res.status(500).json({ error: 'Internal server error' });
+            console.error('Error compressing image:', err);
+            return res.status(500).json({ error: 'Error compressing image' });
         }
     });
 });
-
     
 
 router.get('/:username', async (req, res) => {
