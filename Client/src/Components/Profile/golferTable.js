@@ -34,7 +34,6 @@ function GolferTable({tierPicks, liveResults, tournamentInfo}) {
                     <TableRow>
                         <TableCell sx={{fontSize: '10px'}}><b>Golfer</b></TableCell>
                         <TableCell sx={{fontSize: '10px'}}><b>Position</b></TableCell>
-                        <TableCell sx={{fontSize: '10px'}}><b>Thru</b></TableCell>
                         <TableCell sx={{fontSize: '10px'}}><b>R1</b></TableCell>
                         <TableCell sx={{fontSize: '10px'}}><b>R2</b></TableCell>
                         <TableCell sx={{fontSize: '10px'}}><b>R3</b></TableCell>
@@ -47,9 +46,8 @@ function GolferTable({tierPicks, liveResults, tournamentInfo}) {
                         
                         return (
                             <TableRow key={index}>
-                                <TableCell>{name}</TableCell>
+                                <TableCell sx={{fontSize: '11px'}}>{name}</TableCell>
                                 <TableCell>{getCurrentPosition(name, liveResults)}</TableCell>
-                                <TableCell>{getGolferThru(name)}</TableCell>
                                 <TableCell>{getRoundScore(1, name, liveResults)}</TableCell>
                                 <TableCell>{getRoundScore(2, name, liveResults)}</TableCell>
                                 <TableCell>{getRoundScore(3, name, liveResults, coursePar)}</TableCell>
