@@ -32,15 +32,14 @@ function GolferTable({tierPicks, liveResults, tournamentInfo}) {
             <Table size="small">
                 <TableHead>
                     <TableRow>
-                        <TableCell><b>Golfer</b></TableCell>
-                        <TableCell><b>Tee Time</b></TableCell>
-                        <TableCell><b>Position</b></TableCell>
-                        <TableCell><b>Thru</b></TableCell>
-                        <TableCell><b>R1</b></TableCell>
-                        <TableCell><b>R2</b></TableCell>
-                        <TableCell><b>R3</b></TableCell>
-                        <TableCell><b>R4</b></TableCell>
-                        <TableCell><b>Total</b></TableCell>
+                        <TableCell sx={{fontSize: '10px'}}><b>Golfer</b></TableCell>
+                        <TableCell sx={{fontSize: '10px'}}><b>Position</b></TableCell>
+                        <TableCell sx={{fontSize: '10px'}}><b>Thru</b></TableCell>
+                        <TableCell sx={{fontSize: '10px'}}><b>R1</b></TableCell>
+                        <TableCell sx={{fontSize: '10px'}}><b>R2</b></TableCell>
+                        <TableCell sx={{fontSize: '10px'}}><b>R3</b></TableCell>
+                        <TableCell sx={{fontSize: '10px'}}><b>R4</b></TableCell>
+                        <TableCell sx={{fontSize: '10px'}}><b>Total</b></TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -49,7 +48,6 @@ function GolferTable({tierPicks, liveResults, tournamentInfo}) {
                         return (
                             <TableRow key={index}>
                                 <TableCell>{name}</TableCell>
-                                <TableCell>{}</TableCell>
                                 <TableCell>{getCurrentPosition(name, liveResults)}</TableCell>
                                 <TableCell>{getGolferThru(name)}</TableCell>
                                 <TableCell>{getRoundScore(1, name, liveResults)}</TableCell>

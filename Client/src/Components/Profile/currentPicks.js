@@ -102,16 +102,26 @@ function CurrentPicks({ tier1Picks, tier2Picks, tier3Picks, tier4Picks}) {
                 </Grid>
                 <Grid item xs={12} md={8}>
                     <Paper sx={{ p: 2 }}>
-                        <Typography variant="h6">Best 4 Scores</Typography>
+                        <Typography variant="h7">Best 4 Scores:</Typography>
                         <TableContainer>
                             <Table>
                                 <TableBody>
-                                    <TableRow>
-                                        <TableCell>R1: {totalLowestR1}</TableCell>
-                                        <TableCell>R2: {totalLowestR2}</TableCell>
-                                        <TableCell>R3: {totalLowestR3}</TableCell>
-                                        <TableCell>R4: {totalLowestR4}</TableCell>
-                                        <TableCell>Total: {totalLowest}</TableCell>
+                                    <TableRow >
+                                        <TableCell sx={{fontSize: '11px'}}>
+                                            <strong>R1:</strong> {totalLowestR1}
+                                        </TableCell>
+                                        <TableCell sx={{fontSize: '11px'}}>
+                                            <strong>R2:</strong> {totalLowestR2}
+                                        </TableCell>
+                                        <TableCell sx={{fontSize: '11px'}}>
+                                            <strong>R3:</strong> {totalLowestR3}
+                                        </TableCell>
+                                        <TableCell sx={{fontSize: '11px'}}>
+                                            <strong>R4:</strong> {totalLowestR4}
+                                        </TableCell>
+                                        <TableCell sx={{fontSize: '11px'}}>
+                                            <strong>Total:</strong> {totalLowest}
+                                        </TableCell>
                                     </TableRow>
                                 </TableBody>
                             </Table>

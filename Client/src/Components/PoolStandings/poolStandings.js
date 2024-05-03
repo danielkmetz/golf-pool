@@ -124,7 +124,7 @@ function PoolStandings() {
                   color: '#FFF', // White text color
                   fontFamily: 'Roboto, sans-serif', // Use a professional font
                   fontWeight: 'bold',
-                  fontSize: '3rem',
+                  fontSize: '2rem',
                   textAlign: 'center',
                   padding: '1rem', // Add padding for better spacing
                   borderRadius: '8px', // Rounded corners

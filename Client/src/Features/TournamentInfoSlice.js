@@ -88,8 +88,8 @@ export const fetchTournamentInfo = createAsyncThunk(
 
 export const fetchGeoCode = createAsyncThunk(
     'tournamentInfo/fetchGeoCode',
-    async (_, { dispatch }) => {
-        const url = `https://api.api-ninjas.com/v1/geocoding?city=Augusta&state=Georgia&country=USA`
+    async ({city, state, country}, { dispatch }) => {
+        const url = `https://api.api-ninjas.com/v1/geocoding?city=${city}&state=${state}&country=${country}`
         const params = {
             method: 'GET',
             headers: { 'X-Api-Key': 'MBB7nz2b4QVjtb4xfDiR7Q==By5FCpRSLrqeon9I'}

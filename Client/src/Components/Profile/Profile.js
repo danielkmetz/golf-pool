@@ -83,72 +83,87 @@ function Profile() {
 
     
     return (
-        <Box sx={{ position: 'relative', maxWidth: 'lg', margin: 'auto' }}>
-            {loading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                    <CircularProgress />
-                </Box>
-            ) : (
-            <>
-            {/* Profile Info Box */}
-            <Box sx={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                alignItems: 'center', 
-                mt: 2 
+        <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center',
+            '@media (max-width: 600px)': {
+                flexWrap: 'wrap',
+                flexDirection: 'column',
+                marginTop: '1rem',
+            },  
             }}>
-                <Paper elevation={3} sx={{
-                    width: '20%',
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    backgroundColor: "#DEB887",
-                    '@media (min-width: 600px)': {
-                        position: 'absolute',
-                        left: 0,
-                        transform: 'translateX(-50%)',
-                        top: '20px',
-                        zIndex: 1,
-                    },
-                    '@media (max-width: 600px)': {
-                        width: '40%',
-                    },
+            <Box sx={{ 
+                display: 'flex',
+                justifyContent: 'center',
+                '@media (min-width: 600px)': {
+                    flexDirection: 'row',
+                },
                 }}>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleFileChange}
-                        style={{ display: 'none' }}
-                        id="upload-photo"
-                    />
-                    <label htmlFor="upload-photo">
-                        <Box sx={{ position: 'relative', cursor: 'pointer' }}>
-                            <Avatar sx={{ bgcolor: 'secondary.main', width: 100, height: 100 }} src={imagePreview || userPhoto}>
-                                {!userPhoto && <AccountCircleIcon />}
-                            </Avatar>
-                            {!userPhoto && (
-                                <Tooltip title="Upload Profile Picture">
-                                    <HelpOutlineIcon sx={{
-                                         position: 'absolute', bottom: 0, left: '-15px' }} />
-                                </Tooltip>
-                            )}
-                        </Box>
-                    </label>
-                    <Typography variant="h5" component="h1" gutterBottom>
-                        {username}
-                    </Typography>
-                    <Typography variant="subtitle1" color="textSecondary">
-                        {email}
-                    </Typography>
-                    <Button variant="contained" color="error" onClick={handleDeletePicks}>
-                        Delete My Picks
-                    </Button>
-                </Paper>
+                {/* Profile Info Box */}
+                {loading ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                        <CircularProgress />
+                    </Box>
+                ) : (
+                    <Paper elevation={3} sx={{
+                        p: 2,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        height: '220px',
+                        backgroundColor: "#DEB887",
+                        marginTop: '2rem',
+                        '@media (min-width: 600px)': {
+                            position: 'sticky',
+                            top: '20px',
+                            zIndex: 1,
+                        },
+                        '@media (max-width: 600px)': {
+                            width: '50%',
+                            
+                        },
+                    }}>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            style={{ display: 'none' }}
+                            id="upload-photo"
+                        />
+                        <label htmlFor="upload-photo">
+                            <Box sx={{ position: 'relative', cursor: 'pointer' }}>
+                                <Avatar sx={{ bgcolor: 'secondary.main', width: 100, height: 100 }} src={imagePreview || userPhoto}>
+                                    {!userPhoto && <AccountCircleIcon />}
+                                </Avatar>
+                                {!userPhoto && (
+                                    <Tooltip title="Upload Profile Picture">
+                                        <HelpOutlineIcon sx={{
+                                            position: 'absolute', bottom: 0, left: '-15px' }} />
+                                    </Tooltip>
+                                )}
+                            </Box>
+                        </label>
+                        <Typography variant="h5" component="h1" gutterBottom>
+                            {username}
+                        </Typography>
+                        <Typography variant="subtitle1" color="textSecondary">
+                            {email}
+                        </Typography>
+                        <Button variant="contained" color="error" onClick={handleDeletePicks}>
+                            Delete My Picks
+                        </Button>
+                    </Paper>
+                )}
             </Box>
 
             {/* Main Content */}
-            <Box sx={{ mt: 2 }}>
+            <Box sx={{ width: '60%', '@media (max-width: 600px)': {
+                            marginTop: '2rem',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            width: '100%',
+                        },}}>
                 <CurrentPicks
                     tier1Picks={tier1Picks}
                     tier2Picks={tier2Picks}
@@ -157,8 +172,6 @@ function Profile() {
                     allPicks={allUserPicks}
                 />
             </Box>
-            </>
-            )}
         </Box>
     );
 }

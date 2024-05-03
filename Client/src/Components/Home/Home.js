@@ -36,10 +36,10 @@ function Home() {
       ) : (
         <>
           <Grid item xs={12} md={4} sx={{marginTop: "1rem"}}>
-            <Leaderboard />
+            <PoolStandings />
           </Grid>
           <Grid item xs={12} md={4} sx={{marginTop: "1rem"}}>
-            <PoolStandings />
+            <Leaderboard />
           </Grid>
           <Grid item xs={12} md={4}>
             <Paper sx={{marginTop: "1rem"}}>

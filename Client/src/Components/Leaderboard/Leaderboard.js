@@ -31,16 +31,20 @@ function Leaderboard() {
         <>
         <Paper sx={{ padding: '1rem', 
             marginBottom: '1.5rem', 
-            borderRadius: '8px', boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)' }}>
+            borderRadius: '8px', 
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+            display: 'flex',
+            justifyContent: 'center',
+            }}>
             <Typography
-                variant="h4"
+                variant="h6"
                 sx={{
                 marginTop: '1rem',
                 backgroundColor: '#009', // Orange background color
                 color: '#FFF', // White text color
                 fontFamily: 'Roboto, sans-serif', // Use a professional font
                 fontWeight: 'bold',
-                fontSize: '3rem',
+                fontSize: '2.5rem',
                 textAlign: 'center',
                 padding: '1rem', // Add padding for better spacing
                 borderRadius: '8px', // Rounded corners

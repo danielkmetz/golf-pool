@@ -33,10 +33,10 @@ function Weather() {
     }, [dispatch]);
 
     useEffect(() => {
-        //console.log(state)
-        //if (city && state && country) {
-            dispatch(fetchGeoCode());
-        //}
+        console.log(state)
+        if (city && state && country) {
+            dispatch(fetchGeoCode({city, state, country}));
+        }
     }, [dispatch]);
 
     useEffect(() => {
