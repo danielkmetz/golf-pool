@@ -16,7 +16,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchLiveModel, selectLiveResults } from '../../Features/LeaderboardSlice';
 import { fetchTournamentInfo, selectTournamentInfo } from '../../Features/TournamentInfoSlice';
 import { getRoundScore } from '../../actions';
-import { fetchProfilePic, selectProfilePic } from '../../Features/userSlice';
 import axios from 'axios';
 
 function PoolStandings() {
@@ -24,6 +23,7 @@ function PoolStandings() {
     const [selectedUser, setSelectedUser] = useState(null);
     const [open, setOpen] = useState(false);
     const [profilePics, setProfilePics] = useState({});
+    const [activeUsers, setActiveUsers] = useState([]);
     const liveResults = useSelector(selectLiveResults);
     const tournamentInfo = useSelector(selectTournamentInfo);
     const totalPicks = useSelector(selectTotalPicks);
@@ -90,8 +90,28 @@ function PoolStandings() {
         setSelectedUser(null);
         setOpen(false);
     }
+  
+  //Fetch users with active picks
+  useEffect(() => {
+      const fetchUsersWithPicks = async () => {
+        let active = [];
+         for (const user of users) {
+          try {
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/userpicks/${user.username}`)
+            if (response.data !== null) {
+              active.push(response.data)
+            }
+          } catch (error) {
+            console.error('Error fetching userPicks', error);
+          }
+         }
+         setActiveUsers(active);
+      };
+      fetchUsersWithPicks();
+  }, [dispatch, users]);
 
-    useEffect(() => {
+  //Fetch profile pictures  
+  useEffect(() => {
       const fetchProfilePics = async () => {
           const pics = {};
           for (const user of users) {
@@ -109,8 +129,7 @@ function PoolStandings() {
       fetchProfilePics();
   }, [users]);
 
-  
-    return (
+  return (
       <>
         <Paper sx={{ padding: '1rem', 
           marginBottom: '2rem', 
@@ -155,7 +174,7 @@ function PoolStandings() {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {users.map(user => {
+                    {activeUsers.map(user => {
                         const totalScore =
                           calculateLowestScores(user.username, 'R1') +
                           calculateLowestScores(user.username, 'R2') +
