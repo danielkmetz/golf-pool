@@ -22,6 +22,8 @@ function Leaderboard() {
     const results = useSelector(selectResults);
     const currentDate = new Date();
     const currentDay = currentDate.getDay();
+
+    console.log(results);
     
     useEffect(() => {
         dispatch(fetchLeaderboard());
@@ -63,6 +65,8 @@ function Leaderboard() {
                     top: "0px",
                     boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
                 }}>
+                {currentDay >= 4 || currentDay === 0 ? 
+                    (
                     <TableRow>
                         <TableCell>Player Name</TableCell>
                         <TableCell>Current Pos</TableCell>
@@ -74,6 +78,13 @@ function Leaderboard() {
                         <TableCell>R4</TableCell>
                         <TableCell>Total</TableCell>
                     </TableRow>
+                    ) : (
+                    <TableRow>
+                        <TableCell>Player Name</TableCell>
+                        <TableCell>Tee Time</TableCell>
+                    </TableRow>
+                    )
+                }
                 </TableHead>
                 <TableBody sx={{overflow: "scroll"}}>
                     {currentDay >= 4 || currentDay === 0 ? <Rounds />  : <Positions results={results}/>}
