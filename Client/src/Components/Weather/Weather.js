@@ -38,11 +38,16 @@ function Weather() {
         }
     }, [dispatch, city, state, country]);
 
+    // console.log(city);
+    // console.log(state);
+    // console.log(lat);
+    // console.log(long);
+
     useEffect(() => {
         if (lat && long) {
             dispatch(fetchWeather({lat, long}))
         }
-    }, [dispatch, lat, long, city, state, country])
+    }, [dispatch, lat, long]);
 
     // Get the current date and time
     const currentDate = new Date();

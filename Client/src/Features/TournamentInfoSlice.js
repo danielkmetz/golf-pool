@@ -67,12 +67,17 @@ export const fetchTournamentInfo = createAsyncThunk(
         const response = await fetch(scheduleUrl);
         const tournaments = await response.json();
         
-        //console.log(tournaments)
+        console.log(tournaments)
         const currentDate = new Date();
         const currentDay = currentDate.getDay();
         const thursdayDate = getThursdayDate(currentDay, currentDate);
 
-        const thursdayTournament = tournaments.find((tournament) => {
+        // Filter tournaments with purse > 10 million
+        const largePurseTournaments = tournaments.filter(tournament => 
+            tournament.Purse > 5000000
+        );
+        
+        const thursdayTournament = largePurseTournaments.find(tournament => {
             const tournamentDatePart = tournament.StartDate.split('T')[0];
             return tournamentDatePart === thursdayDate;
         });
@@ -81,7 +86,7 @@ export const fetchTournamentInfo = createAsyncThunk(
         dispatch(tournamentInfoSlice.actions.setCity((thursdayTournament.City)))
         dispatch(tournamentInfoSlice.actions.setState((thursdayTournament.State)))
         dispatch(tournamentInfoSlice.actions.setCountry((thursdayTournament.Country)))
-
+        
         return thursdayTournament;
     }
 )
