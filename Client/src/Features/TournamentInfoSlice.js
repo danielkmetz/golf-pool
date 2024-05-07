@@ -92,7 +92,7 @@ export const fetchGeoCode = createAsyncThunk(
         const url = `https://api.api-ninjas.com/v1/geocoding?city=${city}&state=${state}&country=${country}`
         const params = {
             method: 'GET',
-            headers: { 'X-Api-Key': 'MBB7nz2b4QVjtb4xfDiR7Q==By5FCpRSLrqeon9I'}
+            headers: { 'X-Api-Key': process.env.REACT_APP_GEOLOCA_KEY}
         }
         const response = await fetch(url, params);
         const json = await response.json();
@@ -107,9 +107,7 @@ export const fetchGeoCode = createAsyncThunk(
 export const fetchWeather = createAsyncThunk(
     'weather/fetchWeather',
     async ({lat, long}) => {
-        console.log(lat);
-        console.log(long);
-        const url = `https://api.weatherapi.com/v1/forecast.json?key=7d01763e46af4c01884213609241104&q=${lat},${long}&days=1&aqi=no&alerts=no`;
+        const url = `https://api.weatherapi.com/v1/forecast.json?key=${process.env.REACT_APP_WEATHER_KEY}&q=${lat},${long}&days=1&aqi=no&alerts=no`;
         const response = await fetch(url);
         const json = await response.json();
         console.log(json.forecast.forecastday[0].hour)

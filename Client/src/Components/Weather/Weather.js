@@ -33,19 +33,16 @@ function Weather() {
     }, [dispatch]);
 
     useEffect(() => {
-        console.log(state)
         if (city && state && country) {
             dispatch(fetchGeoCode({city, state, country}));
         }
-    }, [dispatch]);
+    }, [dispatch, city, state, country]);
 
     useEffect(() => {
-        console.log(lat)
-        console.log(long)
         if (lat && long) {
             dispatch(fetchWeather({lat, long}))
         }
-    }, [dispatch, lat, long])
+    }, [dispatch, lat, long, city, state, country])
 
     // Get the current date and time
     const currentDate = new Date();
@@ -68,9 +65,6 @@ function Weather() {
         return forecastDateTime >= currentDateTime && forecastDateTime <= sixHoursLater;
       });
       
-    console.log(currentDateTime)
-    console.log(filteredForecast)
-    
     const getWeatherImage = (weatherDesc) => {
         if (weatherDesc.toLowerCase().includes('sunny')) {
             return sunny;

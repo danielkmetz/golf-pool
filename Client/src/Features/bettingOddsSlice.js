@@ -1,4 +1,3 @@
-import React from 'react';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 const url = `${process.env.REACT_APP_API_URL}/odds` 
