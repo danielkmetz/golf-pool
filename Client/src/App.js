@@ -5,6 +5,7 @@ import Home from './Components/Home/Home';
 import Golfers from './Components/Golfers/Golfers';
 import Profile from './Components/Profile/Profile';
 import Login from './Components/Login/Login';
+import News from './Components/News/News';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -31,6 +32,7 @@ function App() {
       {isLoggedIn && <button onClick={logout}>Logout</button>} {/* Render logout button when user is logged in */}
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path='/news' element={<News/>} />
         <Route path="/golfers" element={isLoggedIn ? <Golfers /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
         <Route path="/profile" element={isLoggedIn ? <Profile /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
         {/* Add more routes as needed */}

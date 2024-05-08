@@ -29,6 +29,26 @@ function Leaderboard() {
         dispatch(fetchLeaderboard());
     }, [dispatch]);
 
+    console.log(results);
+
+    const parseTeeTime = (teeTimeStr) => {
+        const [time, period] = teeTimeStr.split(' ');
+        const [hours, minutes] = time.split(':');
+        let hours24 = parseInt(hours, 10);
+        if (period === 'PM' && hours24 !== 12) {
+            hours24 += 12;
+        } else if (period === 'AM' && hours24 === 12) {
+            hours24 = 0;
+        }
+        return new Date(2000, 0, 1, hours24, parseInt(minutes, 10));
+    };
+
+    const sortedResults = results.slice().sort((a, b) => {
+        const timeA = parseTeeTime(a.r1_teetime);
+        const timeB = parseTeeTime(b.r1_teetime);
+        return timeA - timeB;
+    });
+
     return (
         <>
         <Paper sx={{ padding: '1rem', 
@@ -87,7 +107,7 @@ function Leaderboard() {
                 }
                 </TableHead>
                 <TableBody sx={{overflow: "scroll"}}>
-                    {currentDay >= 4 || currentDay === 0 ? <Rounds />  : <Positions results={results}/>}
+                    {currentDay >= 4 || currentDay === 0 ? <Rounds />  : <Positions results={sortedResults}/>}
                 </TableBody>
             </Table>
         </TableContainer>

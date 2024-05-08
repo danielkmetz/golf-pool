@@ -46,6 +46,9 @@ function Header() {
                     <Link href="/" sx={{color: "black"}}>
                         <Tab label="Home+Rules" />
                     </Link>
+                    <Link href="/News" sx={{color: "black"}}>
+                        <Tab label="News" />
+                    </Link>
                     <Link href="/Golfers" sx={{color: "black"}}>
                         <Tab label="Golfers" />
                     </Link>
