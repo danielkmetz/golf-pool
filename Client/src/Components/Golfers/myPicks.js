@@ -46,7 +46,7 @@ function MyPicks() {
   // fetch username
   useEffect(() => {
     dispatch(fetchUsername());
-  }, []);
+  }, [dispatch]);
 
   const handleSubmission = async () => {
     try {
