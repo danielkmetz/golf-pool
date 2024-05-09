@@ -38,11 +38,6 @@ function Weather() {
         }
     }, [dispatch, city, state, country]);
 
-    // console.log(city);
-    // console.log(state);
-    // console.log(lat);
-    // console.log(long);
-
     useEffect(() => {
         if (lat && long) {
             dispatch(fetchWeather({lat, long}))
@@ -85,6 +80,8 @@ function Weather() {
             return cloudy;
         } else if (weatherDesc.toLowerCase().includes('clear')) {
             return sunny;
+        } else if (weatherDesc.toLowerCase().includes('drizzle')) {
+            return rainy;
         }
     };
 

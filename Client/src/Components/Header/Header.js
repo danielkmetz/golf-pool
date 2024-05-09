@@ -44,16 +44,16 @@ function Header() {
             >
                 <Tabs value={false} sx={{ '& .MuiTabs-flexContainer': { flexDirection: { xs: 'row', md: 'row' } } }}>
                     <Link href="/" sx={{color: "black"}}>
-                        <Tab label="Home+Rules" />
+                        <Tab label="Home+Rules" sx={{ fontSize: { xs: 12, md: 16 } }}/>
                     </Link>
                     <Link href="/News" sx={{color: "black"}}>
-                        <Tab label="News" />
+                        <Tab label="News" sx={{ fontSize: { xs: 12, md: 16 } }}/>
                     </Link>
                     <Link href="/Golfers" sx={{color: "black"}}>
-                        <Tab label="Golfers" />
+                        <Tab label="Golfers" sx={{ fontSize: { xs: 12, md: 16 } }}/>
                     </Link>
                     <Link href="/Profile" sx={{color: "black"}}>
-                        <Tab label="Profile" />
+                        <Tab label="Profile" sx={{ fontSize: { xs: 12, md: 16 } }}/>
                     </Link>
                 </Tabs>
             </Box>

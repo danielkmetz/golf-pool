@@ -82,7 +82,6 @@ export const getRoundScore = (round, name, liveResults, coursePar) => {
 
   // Check if currentPos is not a valid position or if it's "--"
   if (!currentPos || currentPos === "--") {
-    console.error("Invalid current position:", currentPos);
     return null;
   }
 

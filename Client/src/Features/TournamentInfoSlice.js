@@ -67,7 +67,6 @@ export const fetchTournamentInfo = createAsyncThunk(
         const response = await fetch(scheduleUrl);
         const tournaments = await response.json();
         
-        console.log(tournaments)
         const currentDate = new Date();
         const currentDay = currentDate.getDay();
         const thursdayDate = getThursdayDate(currentDay, currentDate);

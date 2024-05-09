@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Box, Typography, Button, Dialog, useMediaQuery } from '@mui/material';
+import { Container, Box, Typography, Button, Dialog, } from '@mui/material';
 import {
   selectTier1Picks,
   selectTier2Picks,
@@ -19,7 +19,7 @@ import {
 } from '../../Features/myPicksSlice';
 import SubmissionWindow from './submissionWindow';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
+import { fetchUsername, selectUsername } from '../../Features/userSlice';
 import CheckoutPage from '../Checkout/CheckoutPage';
 import {
   selectPaymentStatus,
@@ -30,7 +30,7 @@ import { addGolferToAvailable, selectOddsResults } from '../../Features/bettingO
 function MyPicks() {
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
-  const [username, setUsername] = useState('');
+  const username = useSelector(selectUsername);
   const [showCheckout, setShowCheckout] = useState(true);
   const tier1Picks = useSelector(selectTier1Picks);
   const tier2Picks = useSelector(selectTier2Picks);
@@ -45,14 +45,8 @@ function MyPicks() {
 
   // fetch username
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      const decodedToken = jwtDecode(token);
-      if (decodedToken) {
-        setUsername(decodedToken.username);
-      }
-    }
-  }, [username]);
+    dispatch(fetchUsername());
+  }, []);
 
   const handleSubmission = async () => {
     try {

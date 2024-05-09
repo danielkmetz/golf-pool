@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Fade, } from '@mui/material';
+import { Modal, Fade, CircularProgress} from '@mui/material';
 import './modal.css';
 import { fetchLeaderboard, selectResults, fetchLiveModel, selectLiveResults
     } from '../../Features/LeaderboardSlice';
@@ -20,32 +20,45 @@ const GolfersModal = ({ user, isOpen, handleClose }) => {
     const [tier2, setTier2] = useState([]);
     const [tier3, setTier3] = useState([]);
     const [tier4, setTier4] = useState([]);
+    const [loading, setLoading] = useState([]);
 
     //fetch user golfers and organize into their tiers
     useEffect(() => {
+        setLoading(true)
         const fetchData = async () => {
             if (user) {
                 try {
                     await dispatch(fetchUserPicks(user));
-                    const tier1Array = allUserPicks[0].golferName.map(name => name);
-                    const tier2Array = allUserPicks[1].golferName.map(name => name);
-                    const tier3Array = allUserPicks[2].golferName.map(name => name);
-                    const tier4Array = allUserPicks[3].golferName.map(name => name);
-                    setTier1(tier1Array);
-                    setTier2(tier2Array);
-                    setTier3(tier3Array);
-                    setTier4(tier4Array);
+                    setLoading(false)
                 } catch (error) {
                     console.error('Error fetching user picks:', error);
+                    setLoading(false)
                 }
             }
         };
-
         fetchData();
+    }, [dispatch, user]);
+
+    useEffect(() => {
+        setLoading(true)
+        if (allUserPicks && allUserPicks.length >= 4) {
+            const tier1Array = allUserPicks[0].golferName.map(name => name);
+            const tier2Array = allUserPicks[1].golferName.map(name => name);
+            const tier3Array = allUserPicks[2].golferName.map(name => name);
+            const tier4Array = allUserPicks[3].golferName.map(name => name);
+            setTier1(tier1Array);
+            setTier2(tier2Array);
+            setTier3(tier3Array);
+            setTier4(tier4Array);
+            setLoading(false)
+        }
+    }, [dispatch, allUserPicks]);
+
+    useEffect(() => {
         dispatch(fetchLeaderboard());
         dispatch(fetchLiveModel());
         dispatch(fetchTournamentInfo());
-    }, [dispatch, user]);
+    }, [dispatch])
 
     const coursePar = tournamentInfo.Par;
 
@@ -60,17 +73,23 @@ const GolfersModal = ({ user, isOpen, handleClose }) => {
         >
             <Fade in={isOpen}>
                 <div className={isOpen ? 'modal-container' : 'modal-container hidden'} onClick={handleClose}>
-                    <div className={`modal-content ${isOpen ? '' : 'hidden'}`}>
-                        <h2 id="popup-title">Golfers for {user}</h2>
-                        <ModalTable 
-                            tier1={tier1} 
-                            tier2={tier2} 
-                            tier3={tier3} 
-                            tier4={tier4}
-                            liveResults={liveResults}
-                            coursePar={coursePar} 
-                        />
-                    </div>
+                    {loading ? ( // Conditional rendering based on loading state
+                        <div className="loading-container">
+                            <CircularProgress /> {/* Loading icon */}
+                        </div>
+                    ) : (
+                        <div className={`modal-content ${isOpen ? '' : 'hidden'}`}>
+                            <h2 id="popup-title">Golfers for {user}</h2>
+                            <ModalTable 
+                                tier1={tier1} 
+                                tier2={tier2} 
+                                tier3={tier3} 
+                                tier4={tier4}
+                                liveResults={liveResults}
+                                coursePar={coursePar} 
+                            />
+                        </div>
+                    )}
                 </div>
             </Fade>
         </Modal>

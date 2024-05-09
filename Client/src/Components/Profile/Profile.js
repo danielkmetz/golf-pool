@@ -3,17 +3,17 @@ import { Box, Avatar, Typography, Paper, Button, Tooltip, CircularProgress } fro
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CurrentPicks from './currentPicks'; 
-import { jwtDecode } from 'jwt-decode';
 import { fetchUserPicks } from '../../Features/myPicksSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAllPicks, deleteUserPicks } from '../../Features/myPicksSlice';
+import { fetchUsername, selectUsername } from '../../Features/userSlice';
 import { fetchEmail, 
     selectEmail, 
     fetchProfilePic, 
     selectProfilePic, uploadProfilePic, setUserPhoto } from '../../Features/userSlice';
 
 function Profile() {
-    const [username, setUsername] = useState('');
+    const username = useSelector(selectUsername);
     const email = useSelector(selectEmail);
     const [loading, setLoading] = useState(true);
     const userPhoto = useSelector(selectProfilePic);
@@ -25,17 +25,13 @@ function Profile() {
     const [tier4Picks, setTier4Picks] = useState([]);
     const dispatch = useDispatch();
 
+    const currentDate = new Date();
+    const currentDay = currentDate.getDay();
+    const isSubmitDisabled = currentDay >= 4 || currentDay === 0;
+
     useEffect(() => {
-        setLoading(true)
-        const token = localStorage.getItem('token');
-        if (token) {
-            const decodedToken = jwtDecode(token);
-            if (decodedToken) {
-                setUsername(decodedToken.username);
-                setLoading(false)
-            }
-        }
-    }, []);
+        dispatch(fetchUsername());
+    }, [dispatch]);
 
     useEffect(() => {
         setLoading(true)
@@ -149,8 +145,8 @@ function Profile() {
                         <Typography variant="subtitle1" color="textSecondary">
                             {email}
                         </Typography>
-                        <Button variant="contained" color="error" onClick={handleDeletePicks}>
-                            Delete My Picks
+                        <Button variant="contained" color="error" disabled={isSubmitDisabled} onClick={handleDeletePicks}>
+                            Delete Picks
                         </Button>
                     </Paper>
                 )}
