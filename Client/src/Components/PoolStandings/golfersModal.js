@@ -60,7 +60,7 @@ const GolfersModal = ({ user, isOpen, handleClose }) => {
     }, [dispatch])
 
     const coursePar = tournamentInfo.Par;
-
+    
     //console.log(tournamentInfo.Par)
     return (
         <Modal
@@ -77,7 +77,7 @@ const GolfersModal = ({ user, isOpen, handleClose }) => {
                             <CircularProgress /> {/* Loading icon */}
                         </div>
                     ) : (
-                        <div className={`modal-content ${isOpen ? '' : 'hidden'}`}>
+                        <div className={`modal-content ${isOpen ? '' : 'hidden'}`} style={{backgroundColor: 'ForestGreen'}}>
                             <h2 id="popup-title">Golfers for {user}</h2>
                             <ModalTable 
                                 tier1={tier1} 

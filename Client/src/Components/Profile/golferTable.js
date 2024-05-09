@@ -34,11 +34,11 @@ function GolferTable({tierPicks, liveResults, tournamentInfo}) {
                     <TableRow>
                         <TableCell sx={{fontSize: '10px'}}><b>Golfer</b></TableCell>
                         <TableCell sx={{fontSize: '10px', paddingLeft: '1px'}}><b>Position</b></TableCell>
-                        <TableCell sx={{fontSize: '10px'}}><b>R1</b></TableCell>
-                        <TableCell sx={{fontSize: '10px'}}><b>R2</b></TableCell>
-                        <TableCell sx={{fontSize: '10px'}}><b>R3</b></TableCell>
-                        <TableCell sx={{fontSize: '10px'}}><b>R4</b></TableCell>
-                        <TableCell sx={{fontSize: '10px'}}><b>Total</b></TableCell>
+                        <TableCell sx={{fontSize: '10px',  paddingLeft: '1px'}}><b>R1</b></TableCell>
+                        <TableCell sx={{fontSize: '10px',  paddingLeft: '1px'}}><b>R2</b></TableCell>
+                        <TableCell sx={{fontSize: '10px',  paddingLeft: '1px'}}><b>R3</b></TableCell>
+                        <TableCell sx={{fontSize: '10px',  paddingLeft: '1px'}}><b>R4</b></TableCell>
+                        <TableCell sx={{fontSize: '10px',  paddingLeft: '1px'}}><b>Total</b></TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -48,11 +48,11 @@ function GolferTable({tierPicks, liveResults, tournamentInfo}) {
                             <TableRow key={index}>
                                 <TableCell sx={{fontSize: '11px'}}>{name}</TableCell>
                                 <TableCell sx={{fontSize: '11px',  paddingLeft: '1px'}}>{getCurrentPosition(name, liveResults)}</TableCell>
-                                <TableCell sx={{fontSize: '11px'}}>{getRoundScore(1, name, liveResults)}</TableCell>
-                                <TableCell sx={{fontSize: '11px'}}>{getRoundScore(2, name, liveResults)}</TableCell>
-                                <TableCell sx={{fontSize: '11px'}}>{getRoundScore(3, name, liveResults, coursePar)}</TableCell>
-                                <TableCell sx={{fontSize: '11px'}}>{getRoundScore(4, name, liveResults, coursePar)}</TableCell>
-                                <TableCell sx={{fontSize: '11px'}}>{getRoundScore(1, name, liveResults) + 
+                                <TableCell sx={{fontSize: '11px',  paddingLeft: '1px'}}>{getRoundScore(1, name, liveResults)}</TableCell>
+                                <TableCell sx={{fontSize: '11px',  paddingLeft: '1px'}}>{getRoundScore(2, name, liveResults)}</TableCell>
+                                <TableCell sx={{fontSize: '11px',  paddingLeft: '1px'}}>{getRoundScore(3, name, liveResults, coursePar)}</TableCell>
+                                <TableCell sx={{fontSize: '11px',  paddingLeft: '1px'}}>{getRoundScore(4, name, liveResults, coursePar)}</TableCell>
+                                <TableCell sx={{fontSize: '11px',  paddingLeft: '1px'}}>{getRoundScore(1, name, liveResults) + 
                                             getRoundScore(2, name, liveResults) + 
                                             getRoundScore(3, name, liveResults, coursePar) +
                                             getRoundScore(4, name, liveResults, coursePar)}

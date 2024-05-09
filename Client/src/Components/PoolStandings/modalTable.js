@@ -16,11 +16,20 @@ function ModalTable({ tier1, tier2, tier3, tier4, liveResults, coursePar }) {
             return;
         }
     };
+
+    const allGolfers = [
+        ...tier1.map(name => ({ name, tier: 1 })),
+        ...tier2.map(name => ({ name, tier: 2 })),
+        ...tier3.map(name => ({ name, tier: 3 })),
+        ...tier4.map(name => ({ name, tier: 4 })),
+    ].map(golfer => ({ ...golfer, score: getScore(
+        golfer.name, liveResults) === "E" ? 0 : parseInt(getScore(golfer.name, liveResults))}))
+        .sort((a, b) => a.score - b.score);
     
     const isSmallScreen = window.innerWidth <= 600;
 
     return (
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} sx={{backgroundColor: '#f0f0f0'}}>
             <Table>
                 <TableHead>
                     <TableRow  sx={{ '& > *': { fontSize: 12, lineHeight: '5px' }}}>
@@ -40,99 +49,27 @@ function ModalTable({ tier1, tier2, tier3, tier4, liveResults, coursePar }) {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {tier1.map((golfer, index) => {
+                    {allGolfers.map((golfer, index) => {
                         return (
                         <TableRow key={index} sx={{ '& > *': { fontSize: 12, lineHeight: '5px' }}}>
-                            <TableCell><b>1</b></TableCell>
-                            <TableCell>{golfer}</TableCell>
-                            <TableCell>{getPos(golfer)}</TableCell>
+                            <TableCell><b>{golfer.tier}</b></TableCell>
+                            <TableCell>{golfer.name}</TableCell>
+                            <TableCell>{getPos(golfer.name)}</TableCell>
                             {!isSmallScreen && (
                                 <>
-                                    <TableCell>{getRoundScore(1, golfer, liveResults, coursePar)}</TableCell>
-                                    <TableCell>{getRoundScore(2, golfer, liveResults, coursePar)}</TableCell>
-                                    <TableCell>{getRoundScore(3, golfer, liveResults, coursePar)}</TableCell>
-                                    <TableCell>{getRoundScore(4, golfer, liveResults, coursePar)}</TableCell>
+                                    <TableCell>{getRoundScore(1, golfer.name, liveResults, coursePar)}</TableCell>
+                                    <TableCell>{getRoundScore(2, golfer.name, liveResults, coursePar)}</TableCell>
+                                    <TableCell>{getRoundScore(3, golfer.name, liveResults, coursePar)}</TableCell>
+                                    <TableCell>{getRoundScore(4, golfer.name, liveResults, coursePar)}</TableCell>
                                     <TableCell>
-                                        {getRoundScore(1, golfer, liveResults) +
-                                            getRoundScore(2, golfer, liveResults) +
-                                            getRoundScore(3, golfer, liveResults, coursePar) +
-                                            getRoundScore(4, golfer, liveResults, coursePar)}
+                                        {getRoundScore(1, golfer.name, liveResults) +
+                                            getRoundScore(2, golfer.name, liveResults) +
+                                            getRoundScore(3, golfer.name, liveResults, coursePar) +
+                                            getRoundScore(4, golfer.name, liveResults, coursePar)}
                                     </TableCell>  
                                 </>
                             )}
-                            <TableCell>{getScore(golfer, liveResults)}</TableCell>
-                        </TableRow>
-                        )
-                    })}
-                    {tier2.map((golfer, index) => {
-                        return (
-                        <TableRow key={index} sx={{ '& > *': { fontSize: 12, lineHeight: '5px' }}}>
-                            <TableCell><b>2</b></TableCell>
-                            <TableCell>{golfer}</TableCell>
-                            <TableCell>{getPos(golfer)}</TableCell>
-                            {!isSmallScreen && (
-                                <>
-                                    <TableCell>{getRoundScore(1, golfer, liveResults, coursePar)}</TableCell>
-                                    <TableCell>{getRoundScore(2, golfer, liveResults, coursePar)}</TableCell>
-                                    <TableCell>{getRoundScore(3, golfer, liveResults, coursePar)}</TableCell>
-                                    <TableCell>{getRoundScore(4, golfer, liveResults, coursePar)}</TableCell>
-                                    <TableCell>
-                                        {getRoundScore(1, golfer, liveResults) +
-                                            getRoundScore(2, golfer, liveResults) +
-                                            getRoundScore(3, golfer, liveResults, coursePar) +
-                                            getRoundScore(4, golfer, liveResults, coursePar)}
-                                    </TableCell>  
-                                </>
-                            )}
-                            <TableCell>{getScore(golfer, liveResults)}</TableCell>
-                        </TableRow>
-                        )
-                    })}
-                    {tier3.map((golfer, index) => {
-                        return (
-                        <TableRow key={index} sx={{ '& > *': { fontSize: 12, lineHeight: '5px' }}}>
-                            <TableCell><b>3</b></TableCell>
-                            <TableCell>{golfer}</TableCell>
-                            <TableCell>{getPos(golfer)}</TableCell>
-                            {!isSmallScreen && (
-                                <>
-                                    <TableCell>{getRoundScore(1, golfer, liveResults, coursePar)}</TableCell>
-                                    <TableCell>{getRoundScore(2, golfer, liveResults, coursePar)}</TableCell>
-                                    <TableCell>{getRoundScore(3, golfer, liveResults, coursePar)}</TableCell>
-                                    <TableCell>{getRoundScore(4, golfer, liveResults, coursePar)}</TableCell>
-                                    <TableCell>
-                                        {getRoundScore(1, golfer, liveResults) +
-                                            getRoundScore(2, golfer, liveResults) +
-                                            getRoundScore(3, golfer, liveResults, coursePar) +
-                                            getRoundScore(4, golfer, liveResults, coursePar)}
-                                    </TableCell>  
-                                </>
-                            )}
-                            <TableCell>{getScore(golfer, liveResults)}</TableCell>
-                        </TableRow>
-                        )
-                    })}
-                    {tier4.map((golfer, index) => {
-                        return (
-                        <TableRow key={index} sx={{ '& > *': { fontSize: 12, lineHeight: '5px' }}}>
-                            <TableCell><b>4</b></TableCell>
-                            <TableCell>{golfer}</TableCell>
-                            <TableCell>{getPos(golfer)}</TableCell>
-                            {!isSmallScreen && (
-                                <>
-                                    <TableCell>{getRoundScore(1, golfer, liveResults, coursePar)}</TableCell>
-                                    <TableCell>{getRoundScore(2, golfer, liveResults, coursePar)}</TableCell>
-                                    <TableCell>{getRoundScore(3, golfer, liveResults, coursePar)}</TableCell>
-                                    <TableCell>{getRoundScore(4, golfer, liveResults, coursePar)}</TableCell>
-                                    <TableCell>
-                                        {getRoundScore(1, golfer, liveResults) +
-                                            getRoundScore(2, golfer, liveResults) +
-                                            getRoundScore(3, golfer, liveResults, coursePar) +
-                                            getRoundScore(4, golfer, liveResults, coursePar)}
-                                    </TableCell>  
-                                </>
-                            )}
-                            <TableCell>{getScore(golfer, liveResults)}</TableCell>
+                            <TableCell>{getScore(golfer.name, liveResults)}</TableCell>
                         </TableRow>
                         )
                     })}
