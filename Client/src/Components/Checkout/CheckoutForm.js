@@ -122,7 +122,7 @@ const CARD_ELEMENT_OPTIONS = {
               <b>Please submit payment to complete picks submission</b>
             </Typography>
             <button type="submit" disabled={!stripe} className="button">
-              Pay $30
+              Pay $32
             </button>
           </form>
       </>

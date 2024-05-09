@@ -6,7 +6,7 @@ router.post('/', async (req, res) => {
   const {email} = req.body
   try {
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: 2000,
+      amount: 500,
       currency: 'usd',
     });
 
