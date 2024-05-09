@@ -78,7 +78,7 @@ const GolfersModal = ({ user, isOpen, handleClose }) => {
                         </div>
                     ) : (
                         <div className={`modal-content ${isOpen ? '' : 'hidden'}`} style={{backgroundColor: 'ForestGreen'}}>
-                            <h2 id="popup-title">Golfers for {user}</h2>
+                            <h2 id="popup-title">{user}'s Golfers</h2>
                             <ModalTable 
                                 tier1={tier1} 
                                 tier2={tier2} 

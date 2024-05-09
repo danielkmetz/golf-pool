@@ -82,7 +82,7 @@ function Tier1() {
 
   const containerStyle = {
     marginTop: '2rem',
-    height: '100vh',
+    height: '70vh',
     overflow: 'auto',
     marginRight: '2rem',
   };
