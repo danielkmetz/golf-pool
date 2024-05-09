@@ -146,3 +146,19 @@ export const getRoundScores = (allUserPicks, liveResults, roundNumber, coursePar
   });
   return roundScores;
 };
+
+
+export const getScore = (name, liveResults) => {
+  const golfer = liveResults.find(g => g.player_name === name)
+  if (golfer) {
+    if (golfer.current_score > 0) {
+      return `+${golfer.current_score}`;
+    }
+    if (golfer.current_score === 0) {
+      return `E`;
+    }
+    return golfer.current_score; 
+  } else {
+    return;
+  }
+};

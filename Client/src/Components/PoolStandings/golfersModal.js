@@ -9,7 +9,6 @@ import { fetchUserPicks, selectAllPicks } from '../../Features/myPicksSlice';
 import { fetchTournamentInfo, 
     selectTournamentInfo } from '../../Features/TournamentInfoSlice';
 
-
 const GolfersModal = ({ user, isOpen, handleClose }) => {
     const dispatch = useDispatch();
     const results = useSelector(selectResults);
@@ -21,7 +20,7 @@ const GolfersModal = ({ user, isOpen, handleClose }) => {
     const [tier3, setTier3] = useState([]);
     const [tier4, setTier4] = useState([]);
     const [loading, setLoading] = useState([]);
-
+    
     //fetch user golfers and organize into their tiers
     useEffect(() => {
         setLoading(true)
