@@ -121,8 +121,11 @@ const CARD_ELEMENT_OPTIONS = {
             <Typography variant="h6" sx={{ textAlign: "center" }}>
               <b>Please submit payment to complete picks submission</b>
             </Typography>
+            <Typography variant="h6" sx={{ textAlign: "center" }}>
+              <b>Please note: Your purchase includes a $3 transaction fee</b>
+            </Typography>
             <button type="submit" disabled={!stripe} className="button">
-              Pay $32
+              Pay $33
             </button>
           </form>
       </>

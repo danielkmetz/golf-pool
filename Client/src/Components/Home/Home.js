@@ -5,6 +5,7 @@ import RulesDialog from './RulesDialog';
 import PoolStandings from '../PoolStandings/poolStandings';
 import Weather from '../Weather/Weather';
 import TournamentInfo from './TournamentInfo';
+import UserList from '../UserList/UserList'; 
 
 function Home() {
   const [openRules, setOpenRules] = useState(false);
@@ -43,24 +44,7 @@ function Home() {
           </Grid>
           <Grid item xs={12} md={4}>
             <Paper sx={{marginTop: "1rem"}}>
-              <iframe
-                src="https://giphy.com/embed/qAREK41X3nzl6"
-                width="100%"
-                height="100%"
-                frameBorder="0"
-                className="giphy-embed"
-                title="Giphy Embed"
-                allowFullScreen
-              ></iframe>
-              <Typography variant="body1" align="center" gutterBottom>
-                <Link
-                  href="https://giphy.com/gifs/comedy-golf-adam-sandler-qAREK41X3nzl6"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  via GIPHY
-                </Link>
-              </Typography>
+              <UserList />
             </Paper>
             <Box mt={2}>
               <Button variant="contained" onClick={handleOpenRules} fullWidth>

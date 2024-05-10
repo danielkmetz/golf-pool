@@ -2,6 +2,19 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { jwtDecode } from "jwt-decode";
 import axios from 'axios';
 
+export const fetchUsers = createAsyncThunk(
+    'users/fetchUsers',
+    async () => {
+        try {
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/users`);
+            console.log(response.data);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching users', error)
+        }
+    }
+);
+
 export const fetchEmail = createAsyncThunk(
     'user/fetchEmail',
     async (username) => {
@@ -17,10 +30,14 @@ export const fetchEmail = createAsyncThunk(
 export const fetchProfilePic = createAsyncThunk(
     'users/fetchProfilePic',
     async (username) => {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/profile-pics/${username}`, {
-            responseType: 'arrayBuffer',
-        });
-        return response.data;
+        try {
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/profile-pics/${username}`, {
+                responseType: 'arrayBuffer',
+            });
+            return response.data;
+        } catch (error) {
+            console.error(`${username} does not have a profile picture`)
+        }
     }
 );
 
@@ -68,6 +85,7 @@ const userSlice = createSlice({
         email: '',
         profilePic: null,
         username: '',
+        users: [],
     },
     reducers: {
         setUserPhoto: (state, action) => {
@@ -120,6 +138,17 @@ const userSlice = createSlice({
                 state.error = action.payload;
                 state.status = "failed";
             })
+            .addCase(fetchUsers.pending, (state) => {
+                state.status = "loading";
+            })
+            .addCase(fetchUsers.fulfilled, (state, action) => {
+                state.users = action.payload;
+                state.status = "succeeded";
+            })
+            .addCase(fetchUsers.rejected, (state, action) => {
+                state.error = action.payload;
+                state.status = "failed";
+            })
     },
 });
 
@@ -128,5 +157,6 @@ export default userSlice.reducer;
 export const selectEmail = (state) => state.users.email;
 export const selectProfilePic = (state) => state.users.profilePic;
 export const selectUsername = (state) => state.users.username;
+export const selectUsers = (state) => state.users.users;
 
 export const {setUserPhoto} = userSlice.actions;

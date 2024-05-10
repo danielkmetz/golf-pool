@@ -6,6 +6,7 @@ import Golfers from './Components/Golfers/Golfers';
 import Profile from './Components/Profile/Profile';
 import Login from './Components/Login/Login';
 import News from './Components/News/News';
+import UserProfile from './Components/UserProfile/UserProfile';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -35,6 +36,7 @@ function App() {
         <Route path='/news' element={<News/>} />
         <Route path="/golfers" element={isLoggedIn ? <Golfers /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
         <Route path="/profile" element={isLoggedIn ? <Profile /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
+        <Route path="/user-profile/:username" element={isLoggedIn ? <UserProfile /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
         {/* Add more routes as needed */}
       </Routes>
     </div>

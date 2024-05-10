@@ -1,37 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Avatar, Typography, Paper, Button, Tooltip, CircularProgress } from '@mui/material';
+import { Box, Avatar, Typography, Paper, Tooltip, CircularProgress } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import CurrentPicks from './currentPicks'; 
+import CurrentPicks from '../Profile/currentPicks'; 
 import { fetchUserPicks } from '../../Features/myPicksSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectAllPicks, deleteUserPicks } from '../../Features/myPicksSlice';
-import { fetchUsername, selectUsername } from '../../Features/userSlice';
+import { selectAllPicks,} from '../../Features/myPicksSlice';
 import { fetchEmail, 
-    selectEmail, 
-    fetchProfilePic, 
-    selectProfilePic, uploadProfilePic, } from '../../Features/userSlice';
+    selectEmail, fetchProfilePic, selectProfilePic } from '../../Features/userSlice';
+import { useParams } from 'react-router';
 
-function Profile() {
-    const username = useSelector(selectUsername);
+
+function UserProfile() {
+    const {username} = useParams();
     const email = useSelector(selectEmail);
-    const [loading, setLoading] = useState(true);
     const userPhoto = useSelector(selectProfilePic);
-    const [imagePreview, setImagePreview] = useState('');
+    const [loading, setLoading] = useState(true);
     const allUserPicks = useSelector(selectAllPicks);
     const [tier1Picks, setTier1Picks] = useState([]);
     const [tier2Picks, setTier2Picks] = useState([]);
     const [tier3Picks, setTier3Picks] = useState([]);
     const [tier4Picks, setTier4Picks] = useState([]);
     const dispatch = useDispatch();
-
-    const currentDate = new Date();
-    const currentDay = currentDate.getDay();
-    const isSubmitDisabled = currentDay >= 4 || currentDay === 0;
-
-    useEffect(() => {
-        dispatch(fetchUsername());
-    }, [dispatch]);
 
     useEffect(() => {
         setLoading(true)
@@ -56,28 +46,6 @@ function Profile() {
         }
     }, [allUserPicks]);
 
-    const handleDeletePicks = () => {
-        dispatch(deleteUserPicks({ username }));
-    };
-
-    const handleFileChange = (event) => {
-        const image = event.target.files[0];
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setImagePreview(reader.result);
-        }
-        if (image) {
-            reader.readAsDataURL(image);
-        }
-        if (image) {
-            dispatch(uploadProfilePic({
-                image: image,
-                username: username
-            }));
-        }
-    };
-
-    
     return (
         <Box sx={{ 
             display: 'flex', 
@@ -106,7 +74,7 @@ function Profile() {
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        height: '220px',
+                        height: '180px',
                         backgroundColor: "#DEB887",
                         marginTop: '2rem',
                         '@media (min-width: 600px)': {
@@ -119,16 +87,9 @@ function Profile() {
                             
                         },
                     }}>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleFileChange}
-                            style={{ display: 'none' }}
-                            id="upload-photo"
-                        />
-                        <label htmlFor="upload-photo">
+                        
                             <Box sx={{ position: 'relative', cursor: 'pointer' }}>
-                                <Avatar sx={{ bgcolor: 'secondary.main', width: 100, height: 100 }} src={imagePreview || userPhoto}>
+                                <Avatar sx={{ bgcolor: 'secondary.main', width: 100, height: 100 }} src={userPhoto}>
                                     {!userPhoto && <AccountCircleIcon />}
                                 </Avatar>
                                 {!userPhoto && (
@@ -138,16 +99,12 @@ function Profile() {
                                     </Tooltip>
                                 )}
                             </Box>
-                        </label>
                         <Typography variant="h5" component="h1" gutterBottom>
                             {username}
                         </Typography>
                         <Typography variant="subtitle1" color="textSecondary">
                             {email}
                         </Typography>
-                        <Button variant="contained" color="error" disabled={isSubmitDisabled} onClick={handleDeletePicks}>
-                            Delete Picks
-                        </Button>
                     </Paper>
                 )}
             </Box>
@@ -172,4 +129,4 @@ function Profile() {
     );
 }
 
-export default Profile;
+export default UserProfile;

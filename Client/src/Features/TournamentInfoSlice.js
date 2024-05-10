@@ -114,7 +114,7 @@ export const fetchWeather = createAsyncThunk(
         const url = `https://api.weatherapi.com/v1/forecast.json?key=${process.env.REACT_APP_WEATHER_KEY}&q=${lat},${long}&days=1&aqi=no&alerts=no`;
         const response = await fetch(url);
         const json = await response.json();
-        console.log(json.forecast.forecastday[0].hour)
+        //console.log(json.forecast.forecastday[0].hour)
         return json.forecast.forecastday[0].hour;
     }
 );
