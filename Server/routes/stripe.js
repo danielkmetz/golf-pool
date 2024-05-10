@@ -6,10 +6,10 @@ router.post('/', async (req, res) => {
   const {email} = req.body
   try {
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: 2000,
+      amount: 3300,
       currency: 'usd',
     });
-
+  
     res.send({clientSecret: paymentIntent.client_secret})
   } catch (error) {
     res.status(500).json({ error: error.message });
