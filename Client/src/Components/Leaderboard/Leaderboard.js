@@ -32,23 +32,36 @@ function Leaderboard() {
     console.log(results);
 
     const parseTeeTime = (teeTimeStr) => {
-        const [time, period] = teeTimeStr.split(' ');
-        const [hours, minutes] = time.split(':');
-        let hours24 = parseInt(hours, 10);
-        if (period === 'PM' && hours24 !== 12) {
-            hours24 += 12;
-        } else if (period === 'AM' && hours24 === 12) {
-            hours24 = 0;
+        try {
+            const [time, period] = teeTimeStr.split(' ');
+            const [hours, minutes] = time.split(':');
+            let hours24 = parseInt(hours, 10);
+            if (period === 'PM' && hours24 !== 12) {
+                hours24 += 12;
+            } else if (period === 'AM' && hours24 === 12) {
+                hours24 = 0;
+            }
+            return new Date(2000, 0, 1, hours24, parseInt(minutes, 10));
+        } catch (error) {
+            console.error('Error parsing tee time:', error);
+            return null; // or any default value indicating an error
         }
-        return new Date(2000, 0, 1, hours24, parseInt(minutes, 10));
     };
-
+    
     const sortedResults = results.slice().sort((a, b) => {
-        const timeA = parseTeeTime(a.r1_teetime);
-        const timeB = parseTeeTime(b.r1_teetime);
-        return timeA - timeB;
+        try {
+            const timeA = parseTeeTime(a.r1_teetime);
+            const timeB = parseTeeTime(b.r1_teetime);
+            if (!timeA || !timeB) {
+                return 0; // or handle the case where parsing failed
+            }
+            return timeA - timeB;
+        } catch (error) {
+            console.error('Error sorting results:', error);
+            return 0; // or handle the sorting error
+        }
     });
-
+    
     return (
         <>
         <Paper sx={{ padding: '1rem', 
