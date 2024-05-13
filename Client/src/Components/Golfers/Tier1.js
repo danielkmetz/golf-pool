@@ -38,12 +38,12 @@ function Tier1() {
   const tier3Picks = useSelector(selectTier3Picks);
   const tier4Picks = useSelector(selectTier4Picks);
   const [selectedOption, setSelectedOption] = useState('');
-  //console.log(tier1Results)
-
+  
   useEffect(() => {
     dispatch(fetchOdds());
   }, [dispatch]);
 
+  
   const handleOptionChange = (event) => {
     const selectedValue = event.target.value;
     setSelectedOption(selectedValue);

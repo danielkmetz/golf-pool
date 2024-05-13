@@ -76,11 +76,11 @@ export const fetchTournamentInfo = createAsyncThunk(
             tournament.Purse > 5000000
         );
         
-        const thursdayTournament = largePurseTournaments.find(tournament => {
+        const thursdayTournament = tournaments.find(tournament => {
             const tournamentDatePart = tournament.StartDate.split('T')[0];
             return tournamentDatePart === thursdayDate;
         });
-        //console.log(thursdayTournament)
+        console.log(thursdayTournament)
 
         dispatch(tournamentInfoSlice.actions.setCity((thursdayTournament.City)))
         dispatch(tournamentInfoSlice.actions.setState((thursdayTournament.State)))

@@ -12,7 +12,7 @@ export const fetchOdds = createAsyncThunk(
         const json = await response.json();
         const odds = json.odds.map(i => i).sort((a, b) => b.draftkings - a.draftkings);
         
-        //console.log(odds);
+        console.log(odds);
         return odds
     }
 );
@@ -38,14 +38,14 @@ export const bettingOddsSlice = createSlice({
         setTier2Results: (state) => {
             const tier1 = Math.floor((state.oddsResults.length) * .20);
             const tier2 = Math.floor((state.oddsResults.length) * .25);
-            const tier2Slice = state.oddsResults.slice(tier1, (tier1 + 1) + tier2);
+            const tier2Slice = state.oddsResults.slice(tier1, (tier1 + tier2));
             state.tier2Results = tier2Slice;
         },
         setTier3Results: (state) => {
             const tier1 = Math.floor((state.oddsResults.length) * .20);
             const tier2 = Math.floor((state.oddsResults.length) * .25);
             const tier3 = Math.floor((state.oddsResults.length) * .25);
-            const tier3Slice = state.oddsResults.slice((tier1 + tier2 + 1), (tier1 + tier2 + 1) + tier3);
+            const tier3Slice = state.oddsResults.slice((tier1 + tier2), (tier1 + tier2 + tier3));
             state.tier3Results = tier3Slice;
         },
         setTier4Results: (state) => {
@@ -54,7 +54,7 @@ export const bettingOddsSlice = createSlice({
             const tier3 = Math.floor((state.oddsResults.length) * .25);
             const tier4 = Math.floor((state.oddsResults.length) * .30);
             const end = Math.floor(state.oddsResults.length + 1)
-            const tier4Slice = state.oddsResults.slice((tier1 + tier2 + tier3 + 1), end);
+            const tier4Slice = state.oddsResults.slice((tier1 + tier2 + tier3), end);
             state.tier4Results = tier4Slice;
         },
         filterGolferFromTier: (state, action) => {

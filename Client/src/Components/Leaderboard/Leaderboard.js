@@ -23,14 +23,11 @@ function Leaderboard() {
     const currentDate = new Date();
     const currentDay = currentDate.getDay();
 
-    console.log(results);
-    
     useEffect(() => {
         dispatch(fetchLeaderboard());
     }, [dispatch]);
 
-    console.log(results);
-
+    
     const parseTeeTime = (teeTimeStr) => {
         try {
             const [time, period] = teeTimeStr.split(' ');
@@ -43,7 +40,6 @@ function Leaderboard() {
             }
             return new Date(2000, 0, 1, hours24, parseInt(minutes, 10));
         } catch (error) {
-            console.error('Error parsing tee time:', error);
             return null; // or any default value indicating an error
         }
     };
@@ -57,7 +53,6 @@ function Leaderboard() {
             }
             return timeA - timeB;
         } catch (error) {
-            console.error('Error sorting results:', error);
             return 0; // or handle the sorting error
         }
     });
