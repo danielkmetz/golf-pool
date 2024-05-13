@@ -32,6 +32,27 @@ router.post('/save', async (req, res) => {
     }
 });
 
+router.put('/update-username/:username', async (req, res) => {
+    const { newUsername } = req.body;
+    const username = req.params.username;
+  
+    try {
+      const user = await UserPick.findOne({ username });
+  
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+      user.username = newUsername;
+      await user.save();
+      
+      res.json({ username: newUsername });
+    } catch (error) {
+      // Handle errors
+      console.error('Error updating username:', error);
+      res.status(500).json({ success: false, message: 'Failed to update username' });
+    }
+  });
+
 router.delete('/delete-user-picks/:username', async (req, res) => {
     const { username } = req.params;
 

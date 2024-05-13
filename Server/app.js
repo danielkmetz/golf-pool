@@ -78,6 +78,42 @@ app.post('/api/login', passport.authenticate('local'), (req, res) => {
   res.json({ message: 'Login successful', token });
 });
 
+app.put('/api/users/:username', async (req, res) => {
+  const { newUsername } = req.body;
+  const username = req.params.username;
+
+  try {
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    user.username = newUsername;
+    await user.save();
+    const existingToken = req.headers.authorization.split(' ')[1]; // Assuming the token is sent in the Authorization header
+    console.log(existingToken);
+    // Verify the existing token
+    const decoded = jwt.verify(existingToken, secret);
+
+    // Update the payload with the new username
+    decoded.username = newUsername;
+
+    // Generate a new token with the updated payload
+    const token = jwt.sign({ username: newUsername}, secret, { expiresIn: '1h' });
+
+    // Update the token in local storage (optional)
+    // You can send the new token in the response instead of updating local storage if not needed
+    // localStorage.setItem('token', newToken);
+
+    // Send a success response with the new token and username
+    res.json({ username: newUsername, token: token });
+  } catch (error) {
+    // Handle errors
+    console.error('Error updating username:', error);
+    res.status(500).json({ success: false, message: 'Failed to update username' });
+  }
+}); 
+
 app.use('/api/userpicks', userPicksRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);

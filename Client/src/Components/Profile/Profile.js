@@ -6,11 +6,12 @@ import CurrentPicks from './currentPicks';
 import { fetchUserPicks } from '../../Features/myPicksSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAllPicks, deleteUserPicks } from '../../Features/myPicksSlice';
-import { fetchUsername, selectUsername } from '../../Features/userSlice';
+import { fetchUsername, selectUsername, setUsername } from '../../Features/userSlice';
+import ChangeInfoModal from './ChangeInfoModal';
 import { fetchEmail, 
     selectEmail, 
     fetchProfilePic, 
-    selectProfilePic, uploadProfilePic, } from '../../Features/userSlice';
+    selectProfilePic, uploadProfilePic, updateUsername, updateUsernameMyPicks, } from '../../Features/userSlice';
 
 function Profile() {
     const username = useSelector(selectUsername);
@@ -23,6 +24,8 @@ function Profile() {
     const [tier2Picks, setTier2Picks] = useState([]);
     const [tier3Picks, setTier3Picks] = useState([]);
     const [tier4Picks, setTier4Picks] = useState([]);
+    const [openModal, setOpenModal] = useState(false);
+    const [newUsername, setNewUsername] = useState('');
     const dispatch = useDispatch();
 
     const currentDate = new Date();
@@ -31,7 +34,7 @@ function Profile() {
 
     useEffect(() => {
         dispatch(fetchUsername());
-    }, [dispatch]);
+    }, [dispatch, newUsername]);
 
     useEffect(() => {
         setLoading(true)
@@ -58,6 +61,33 @@ function Profile() {
 
     const handleDeletePicks = () => {
         dispatch(deleteUserPicks({ username }));
+    };
+
+    const handleOpenModal = () => {
+        setOpenModal(true);
+    };
+    
+    const handleCloseModal = () => {
+        setOpenModal(false);
+    };
+    
+    const handleChangeUsername = (event) => {
+        setNewUsername(event.target.value);
+    };
+
+    const token = localStorage.getItem('token');
+    console.log(token)
+
+    const handleSubmitUsername = () => {
+        // Send the updated username to your backend route for updating user data
+        // For simplicity, let's assume you have a function updateUsername in your myPicksSlice
+        dispatch(updateUsername({ username, newUsername, token }));
+        dispatch(updateUsernameMyPicks({ username, newUsername}))
+        handleCloseModal();
+
+        setTimeout(() => {
+            dispatch(setUsername(newUsername));
+        }, 1000)
     };
 
     const handleFileChange = (event) => {
@@ -106,7 +136,7 @@ function Profile() {
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        height: '220px',
+                        height: '240px',
                         backgroundColor: "#DEB887",
                         marginTop: '2rem',
                         '@media (min-width: 600px)': {
@@ -148,6 +178,16 @@ function Profile() {
                         <Button variant="contained" color="error" disabled={isSubmitDisabled} onClick={handleDeletePicks}>
                             Delete Picks
                         </Button>
+                        <Button variant="contained" color="primary" onClick={handleOpenModal}>
+                            Change Username
+                        </Button>
+                        <ChangeInfoModal
+                            open={openModal}
+                            onClose={handleCloseModal}
+                            newUsername={newUsername}
+                            handleChangeUsername={handleChangeUsername}
+                            handleSubmitUsername={handleSubmitUsername}
+                        />
                     </Paper>
                 )}
             </Box>

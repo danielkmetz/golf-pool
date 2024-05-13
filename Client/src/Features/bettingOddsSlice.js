@@ -52,7 +52,6 @@ export const bettingOddsSlice = createSlice({
             const tier1 = Math.floor((state.oddsResults.length) * .20);
             const tier2 = Math.floor((state.oddsResults.length) * .25);
             const tier3 = Math.floor((state.oddsResults.length) * .25);
-            const tier4 = Math.floor((state.oddsResults.length) * .30);
             const end = Math.floor(state.oddsResults.length + 1)
             const tier4Slice = state.oddsResults.slice((tier1 + tier2 + tier3), end);
             state.tier4Results = tier4Slice;

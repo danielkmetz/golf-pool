@@ -32,28 +32,6 @@ router.get('/:username', async (req, res) => {
   }
 });
 
-// Route to update user data (e.g., profile update)
-router.put('/:username', async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const updatedUser = await User.findByIdAndUpdate(req.params.username, {
-      username,
-      password: hashedPassword,
-    });
-
-    if (!updatedUser) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    res.json({ message: 'User updated successfully' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
 // Route to delete a user
 router.delete('/:username', async (req, res) => {
   try {

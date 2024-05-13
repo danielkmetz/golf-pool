@@ -7,13 +7,58 @@ export const fetchUsers = createAsyncThunk(
     async () => {
         try {
             const response = await axios.get(`${process.env.REACT_APP_API_URL}/users`);
-            console.log(response.data);
+            //console.log(response.data);
             return response.data;
         } catch (error) {
             console.error('Error fetching users', error)
         }
     }
 );
+
+export const updateUsername = createAsyncThunk(
+    'users/updateUsername',
+    async ({ username, newUsername, token }, { dispatch }) => {
+      try {
+        const response = await axios.put(
+          `http://localhost:5000/api/users/${username}`,
+          {
+            newUsername: newUsername,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        //dispatch(userSlice.actions.setUsername(newUsername));
+        console.log(response.data)
+        localStorage.setItem('token', response.data.token)
+        return response.data;
+      } catch (error) {
+        // Handle errors
+        console.error('Error updating username:', error);
+        throw error; // Rethrow the error to be caught by the caller
+      }
+    }
+  );
+
+export const updateUsernameMyPicks = createAsyncThunk(
+    'users/updateUsernameMyPicks',
+    async ({ username, newUsername}) => {
+        try {
+            const response = axios.put(
+                `http://localhost:5000/api/userpicks/update-username/${username}`, {
+                    newUsername: newUsername,
+                })
+            
+            return response.data;
+        } catch (error) {
+
+        }
+    }
+)
+
 
 export const fetchEmail = createAsyncThunk(
     'user/fetchEmail',
@@ -90,6 +135,9 @@ const userSlice = createSlice({
     reducers: {
         setUserPhoto: (state, action) => {
             state.profilePic = action.payload;
+        },
+        setUsername: (state, action) => {
+            state.username = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -159,4 +207,4 @@ export const selectProfilePic = (state) => state.users.profilePic;
 export const selectUsername = (state) => state.users.username;
 export const selectUsers = (state) => state.users.users;
 
-export const {setUserPhoto} = userSlice.actions;
+export const {setUserPhoto, setUsername} = userSlice.actions;
