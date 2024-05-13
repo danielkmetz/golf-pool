@@ -20,7 +20,7 @@ export const updateUsername = createAsyncThunk(
     async ({ username, newUsername, token }, { dispatch }) => {
       try {
         const response = await axios.put(
-          `http://localhost:5000/api/users/${username}`,
+          `${process.env.REACT_APP_API_URL}/users/${username}`,
           {
             newUsername: newUsername,
           },
@@ -48,7 +48,7 @@ export const updateUsernameMyPicks = createAsyncThunk(
     async ({ username, newUsername}) => {
         try {
             const response = axios.put(
-                `http://localhost:5000/api/userpicks/update-username/${username}`, {
+                `${process.env.REACT_APP_API_URL}/userpicks/update-username/${username}`, {
                     newUsername: newUsername,
                 })
             
