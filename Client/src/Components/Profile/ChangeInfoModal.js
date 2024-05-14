@@ -1,7 +1,10 @@
 import React from 'react';
-import { Box, Modal, Typography, TextField, Button } from '@mui/material';
+import { Box, Modal, Typography, TextField, Button, useMediaQuery, useTheme } from '@mui/material';
 
 function ChangeInfoModal({ open, onClose, newUsername, handleChangeUsername, handleSubmitUsername }) {
+    const theme = useTheme();
+    const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
     return (
         <Modal
             open={open}
@@ -15,7 +18,8 @@ function ChangeInfoModal({ open, onClose, newUsername, handleChangeUsername, han
                 bgcolor: 'background.paper',
                 boxShadow: 24,
                 p: 4,
-                width: 400,
+                width: isSmallScreen ? 270 : 400, 
+                maxWidth: '100%', 
             }}>
                 <Typography variant="h6" component="h2" gutterBottom>
                     Change Username

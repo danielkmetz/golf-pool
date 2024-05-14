@@ -10,9 +10,7 @@ export const fetchOdds = createAsyncThunk(
     async () => {
         const response = await fetch(url, params)
         const json = await response.json();
-        const odds = json.odds.map(i => i).sort((a, b) => b.draftkings - a.draftkings);
-        
-        console.log(odds);
+        const odds = json.map(i => i).sort((a, b) => b.draftkings - a.draftkings);
         return odds
     }
 );
@@ -31,27 +29,27 @@ export const bettingOddsSlice = createSlice({
     },
     reducers: {
         setTier1Results: (state) => {
-            const tier1 = Math.floor((state.oddsResults.length) * .20);
+            const tier1 = Math.floor((state.oddsResults.length) * .21);
             const tier1Slice = state.oddsResults.slice(0, tier1);
             state.tier1Results = tier1Slice;
         },
         setTier2Results: (state) => {
-            const tier1 = Math.floor((state.oddsResults.length) * .20);
-            const tier2 = Math.floor((state.oddsResults.length) * .25);
+            const tier1 = Math.floor((state.oddsResults.length) * .21);
+            const tier2 = Math.floor((state.oddsResults.length) * .24);
             const tier2Slice = state.oddsResults.slice(tier1, (tier1 + tier2));
             state.tier2Results = tier2Slice;
         },
         setTier3Results: (state) => {
-            const tier1 = Math.floor((state.oddsResults.length) * .20);
-            const tier2 = Math.floor((state.oddsResults.length) * .25);
-            const tier3 = Math.floor((state.oddsResults.length) * .25);
+            const tier1 = Math.floor((state.oddsResults.length) * .21);
+            const tier2 = Math.floor((state.oddsResults.length) * .24);
+            const tier3 = Math.floor((state.oddsResults.length) * .26);
             const tier3Slice = state.oddsResults.slice((tier1 + tier2), (tier1 + tier2 + tier3));
             state.tier3Results = tier3Slice;
         },
         setTier4Results: (state) => {
-            const tier1 = Math.floor((state.oddsResults.length) * .20);
-            const tier2 = Math.floor((state.oddsResults.length) * .25);
-            const tier3 = Math.floor((state.oddsResults.length) * .25);
+            const tier1 = Math.floor((state.oddsResults.length) * .21);
+            const tier2 = Math.floor((state.oddsResults.length) * .24);
+            const tier3 = Math.floor((state.oddsResults.length) * .26);
             const end = Math.floor(state.oddsResults.length + 1)
             const tier4Slice = state.oddsResults.slice((tier1 + tier2 + tier3), end);
             state.tier4Results = tier4Slice;
