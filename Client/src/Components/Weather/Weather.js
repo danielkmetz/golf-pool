@@ -82,6 +82,8 @@ function Weather() {
             return sunny;
         } else if (weatherDesc.toLowerCase().includes('drizzle')) {
             return rainy;
+        } else if (weatherDesc.toLowerCase().includes('fog')) {
+            return cloudy;
         }
     };
 

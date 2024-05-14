@@ -101,11 +101,6 @@ app.put('/api/users/:username', async (req, res) => {
     // Generate a new token with the updated payload
     const token = jwt.sign({ username: newUsername}, secret, { expiresIn: '1h' });
 
-    // Update the token in local storage (optional)
-    // You can send the new token in the response instead of updating local storage if not needed
-    // localStorage.setItem('token', newToken);
-
-    // Send a success response with the new token and username
     res.json({ username: newUsername, token: token });
   } catch (error) {
     // Handle errors

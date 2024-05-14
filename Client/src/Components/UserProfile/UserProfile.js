@@ -10,7 +10,6 @@ import { fetchEmail,
     selectEmail, fetchProfilePic, selectProfilePic } from '../../Features/userSlice';
 import { useParams } from 'react-router';
 
-
 function UserProfile() {
     const {username} = useParams();
     const email = useSelector(selectEmail);
@@ -46,6 +45,13 @@ function UserProfile() {
         }
     }, [allUserPicks]);
 
+    // Function to check if the current date is before Thursday
+    const isBeforeThursday = () => {
+        const currentDate = new Date();
+        const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+        return dayOfWeek < 4; // Thursday is index 4 in JavaScript's Date object
+    };
+
     return (
         <Box sx={{ 
             display: 'flex', 
@@ -55,15 +61,15 @@ function UserProfile() {
                 flexDirection: 'column',
                 marginTop: '1rem',
             },  
-            }}>
+        }}>
+            {/* Profile Info Box */}
             <Box sx={{ 
                 display: 'flex',
                 justifyContent: 'center',
                 '@media (min-width: 600px)': {
                     flexDirection: 'row',
                 },
-                }}>
-                {/* Profile Info Box */}
+            }}>
                 {loading ? (
                     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
                         <CircularProgress />
@@ -77,28 +83,18 @@ function UserProfile() {
                         height: '180px',
                         backgroundColor: "#DEB887",
                         marginTop: '2rem',
-                        '@media (min-width: 600px)': {
-                            position: 'sticky',
-                            top: '20px',
-                            zIndex: 1,
-                        },
-                        '@media (max-width: 600px)': {
-                            width: '50%',
-                            
-                        },
                     }}>
-                        
-                            <Box sx={{ position: 'relative', cursor: 'pointer' }}>
-                                <Avatar sx={{ bgcolor: 'secondary.main', width: 100, height: 100 }} src={userPhoto}>
-                                    {!userPhoto && <AccountCircleIcon />}
-                                </Avatar>
-                                {!userPhoto && (
-                                    <Tooltip title="Upload Profile Picture">
-                                        <HelpOutlineIcon sx={{
-                                            position: 'absolute', bottom: 0, left: '-15px' }} />
-                                    </Tooltip>
-                                )}
-                            </Box>
+                        <Box sx={{ position: 'relative', cursor: 'pointer' }}>
+                            <Avatar sx={{ bgcolor: 'secondary.main', width: 100, height: 100 }} src={userPhoto}>
+                                {!userPhoto && <AccountCircleIcon />}
+                            </Avatar>
+                            {!userPhoto && (
+                                <Tooltip title="Upload Profile Picture">
+                                    <HelpOutlineIcon sx={{
+                                        position: 'absolute', bottom: 0, left: '-15px' }} />
+                                </Tooltip>
+                            )}
+                        </Box>
                         <Typography variant="h5" component="h1" gutterBottom>
                             {username}
                         </Typography>
@@ -110,18 +106,12 @@ function UserProfile() {
             </Box>
 
             {/* Main Content */}
-            <Box sx={{ width: '60%', '@media (max-width: 600px)': {
-                            marginTop: '2rem',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            width: '100%',
-                        },}}>
+            <Box sx={{ width: '60%', }}>
                 <CurrentPicks
-                    tier1Picks={tier1Picks}
-                    tier2Picks={tier2Picks}
-                    tier3Picks={tier3Picks}
-                    tier4Picks={tier4Picks}
+                    tier1Picks={isBeforeThursday() ? tier1Picks.map(() => 'Blurred Name') : tier1Picks}
+                    tier2Picks={isBeforeThursday() ? tier2Picks.map(() => 'Blurred Name') : tier2Picks}
+                    tier3Picks={isBeforeThursday() ? tier3Picks.map(() => 'Blurred Name') : tier3Picks}
+                    tier4Picks={isBeforeThursday() ? tier4Picks.map(() => 'Blurred Name') : tier4Picks}
                     allPicks={allUserPicks}
                 />
             </Box>

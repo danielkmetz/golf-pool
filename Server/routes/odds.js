@@ -1,7 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
+const cron = require('node-cron');
+
 const OddsModel = require('../models/golferOdds');
+
+cron.schedule('0 0 * * 0', async () => {
+    try {
+      // Delete all documents from the OddsModel collection
+      await OddsModel.deleteMany({});
+      console.log('Odds data deleted successfully.');
+    } catch (error) {
+      console.error('Error deleting odds data:', error);
+    }
+  });
 
 router.get('/', async (req, res) => {
     try {
@@ -38,6 +50,6 @@ router.get('/', async (req, res) => {
       res.status(500).json({ error: 'Failed to fetch data' });
     }
   });
-  
+
 module.exports = router;
 
