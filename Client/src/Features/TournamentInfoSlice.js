@@ -80,8 +80,7 @@ export const fetchTournamentInfo = createAsyncThunk(
             const tournamentDatePart = tournament.StartDate.split('T')[0];
             return tournamentDatePart === thursdayDate;
         });
-        console.log(thursdayTournament)
-
+        
         dispatch(tournamentInfoSlice.actions.setCity((thursdayTournament.City)))
         dispatch(tournamentInfoSlice.actions.setState((thursdayTournament.State)))
         dispatch(tournamentInfoSlice.actions.setCountry((thursdayTournament.Country)))

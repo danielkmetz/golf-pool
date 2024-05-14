@@ -76,8 +76,7 @@ function Profile() {
     };
 
     const token = localStorage.getItem('token');
-    console.log(token)
-
+    
     const handleSubmitUsername = () => {
         // Send the updated username to your backend route for updating user data
         // For simplicity, let's assume you have a function updateUsername in your myPicksSlice

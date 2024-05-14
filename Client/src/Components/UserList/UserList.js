@@ -33,8 +33,6 @@ function UserList() {
         fetchProfilePics();
     }, [users]);
 
-    console.log(users);
-
     // Filter users based on search query
     const filteredUsers = users.filter(user =>
         user.username.toLowerCase().includes(searchQuery.toLowerCase())
