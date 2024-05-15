@@ -83,6 +83,15 @@ function UserProfile() {
                         height: '180px',
                         backgroundColor: "#DEB887",
                         marginTop: '2rem',
+                        '@media (min-width: 600px)': {
+                            position: 'sticky',
+                            top: '20px',
+                            zIndex: 1,
+                        },
+                        '@media (max-width: 600px)': {
+                            width: '50%',
+                            
+                        },
                     }}>
                         <Box sx={{ position: 'relative', cursor: 'pointer' }}>
                             <Avatar sx={{ bgcolor: 'secondary.main', width: 100, height: 100 }} src={userPhoto}>
@@ -106,7 +115,16 @@ function UserProfile() {
             </Box>
 
             {/* Main Content */}
-            <Box sx={{ width: '60%', }}>
+            <Box sx={{ 
+                width: '60%',
+                '@media (max-width: 600px)' : {
+                    marginTop: '2rem',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: '100%',
+                } 
+                }}>
                 <CurrentPicks
                     tier1Picks={isBeforeThursday() ? tier1Picks.map(() => 'Blurred Name') : tier1Picks}
                     tier2Picks={isBeforeThursday() ? tier2Picks.map(() => 'Blurred Name') : tier2Picks}
