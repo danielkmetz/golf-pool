@@ -20,20 +20,20 @@ router.get('/', async (req, res) => {
       }
   
       // If database is empty, fetch odds data from the external API
-      const response = await axios.get('https://feeds.datagolf.com/betting-tools/outrights', {
-        params: {
-          market: 'win',
-          odds_format: 'percent',
-          key: process.env.REACT_APP_DATA_GOLF_KEY,
-        },
-      });
-      const oddsData = response.data.odds;
+      // const response = await axios.get('https://feeds.datagolf.com/betting-tools/outrights', {
+      //   params: {
+      //     market: 'win',
+      //     odds_format: 'percent',
+      //     key: process.env.REACT_APP_DATA_GOLF_KEY,
+      //   },
+      // });
+      // const oddsData = response.data.odds;
       
-      // Save the odds data directly to MongoDB
-      await OddsModel.insertMany(oddsData);
+      // // Save the odds data directly to MongoDB
+      // await OddsModel.insertMany(oddsData);
   
-      // Send the odds data as a response
-      res.json(oddsData);
+      // // Send the odds data as a response
+      // res.json(oddsData);
     } catch (error) {
       console.error('Error fetching Datagolf data:', error);
       res.status(500).json({ error: 'Failed to fetch data' });
