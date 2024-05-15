@@ -23,7 +23,7 @@ const oddsSchema = new mongoose.Schema({
     williamhill: Number,
 });
 
-const OddsModel = mongoose.model('Odds', oddsSchema);
+const OddsModel = mongoose.model('Golfer-Odds', oddsSchema);
 
 module.exports = OddsModel;
 

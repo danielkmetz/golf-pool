@@ -17,7 +17,7 @@ function BettingOdds({ oddsResults, addGolfer }) {
                     {oddsResults.map((result) => (
                         <TableRow key={result.dg_id}>
                             <TableCell>{result.player_name}</TableCell>
-                            <TableCell>{(result.draftkings * 100).toFixed(2)}%</TableCell>
+                            <TableCell>{(result.draftkings * 100).toFixed(6)}%</TableCell>
                             <Button
                                 variant="contained"
                                 onClick={() => addGolfer(result.player_name)}

@@ -1,20 +1,33 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
 
-const url = `${process.env.REACT_APP_API_URL}/odds` 
-const params = {
-    method: 'GET',
-}
+const url = `${process.env.REACT_APP_API_URL}/golfer-odds`
+const dgUrl = `${process.env.REACT_APP_API_URL}/data-golf` 
 
 export const fetchOdds = createAsyncThunk(
-    'bettingOdds/fetchOdds',
-    async () => {
-        const response = await fetch(url, params)
-        const json = await response.json();
-        const odds = json.map(i => i).sort((a, b) => b.draftkings - a.draftkings);
-        return odds
-    }
+  'bettingOdds/fetchOdds',
+  async () => {
+      const response = await axios.get(url);
+      console.log(response.data.length);
+      
+      if (response.data.length === 0) {
+          const response2 = await axios.get(dgUrl);
+          return response2.data.map(i => i).sort((a, b) => {
+              if (b.draftkings === a.draftkings) {
+                  return a.player_name.localeCompare(b.player_name);
+              }
+              return b.draftkings - a.draftkings;
+          });
+      } else {
+          return response.data.map(i => i).sort((a, b) => {
+              if (b.draftkings === a.draftkings) {
+                  return a.player_name.localeCompare(b.player_name);
+              }
+              return b.draftkings - a.draftkings;
+          });
+      }
+  }
 );
-
 
 export const bettingOddsSlice = createSlice({
     name: 'bettingOdds',
