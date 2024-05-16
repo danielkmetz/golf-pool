@@ -68,20 +68,20 @@ function Rounds() {
         <>
             {sortedResults.map((golfer) => (
                 <TableRow key={golfer.player_name}>
-                    <TableCell>{golfer.player_name}</TableCell>
-                    <TableCell>{addT(golfer.current_pos, golfer.current_pos, sortedResults)}</TableCell>
-                    <TableCell>{golfer.thru === 0 ? null : golfer.thru}</TableCell>
-                    <TableCell>{
+                    <TableCell sx={{fontSize: '12px'}}>{golfer.player_name}</TableCell>
+                    <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{addT(golfer.current_pos, golfer.current_pos, sortedResults)}</TableCell>
+                    <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{golfer.thru === 0 ? null : golfer.thru}</TableCell>
+                    <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{
                         golfer.today === 0 ?
                         "E" : golfer.today > 0 ? 
                         `+${golfer.today}` : 
                         golfer.today
                     }</TableCell>
-                    <TableCell>{golfer.R1}</TableCell>
-                    <TableCell>{golfer.R2}</TableCell>
-                    <TableCell>{golfer.R3}</TableCell>
-                    <TableCell>{golfer.R4}</TableCell>
-                    <TableCell>{golfer.R1 + golfer.R2 + golfer.R3 + golfer.R4 === 0 ?
+                    <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{golfer.R1}</TableCell>
+                    <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{golfer.R2}</TableCell>
+                    <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{golfer.R3}</TableCell>
+                    <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{golfer.R4}</TableCell>
+                    <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{golfer.R1 + golfer.R2 + golfer.R3 + golfer.R4 === 0 ?
                         null : golfer.R1 + golfer.R2 + golfer.R3 + golfer.R4}</TableCell>
                 </TableRow>
             ))}

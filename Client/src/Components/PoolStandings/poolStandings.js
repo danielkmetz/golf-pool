@@ -15,15 +15,16 @@ import { fetchTotalPicks, selectTotalPicks } from '../../Features/myPicksSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchLiveModel, selectLiveResults } from '../../Features/LeaderboardSlice';
 import { fetchTournamentInfo, selectTournamentInfo } from '../../Features/TournamentInfoSlice';
+import { fetchUsers, selectUsers, selectActiveUsers, fetchUsersWithPicks } from '../../Features/userSlice';
 import { getRoundScore } from '../../actions';
 import axios from 'axios';
 
 function PoolStandings() {
-    const [users, setUsers] = useState([]);
+    const users = useSelector(selectUsers);
+    const activeUsers = useSelector(selectActiveUsers);
     const [selectedUser, setSelectedUser] = useState(null);
     const [open, setOpen] = useState(false);
     const [profilePics, setProfilePics] = useState({});
-    const [activeUsers, setActiveUsers] = useState([]);
     const liveResults = useSelector(selectLiveResults);
     const tournamentInfo = useSelector(selectTournamentInfo);
     const totalPicks = useSelector(selectTotalPicks);
@@ -34,10 +35,7 @@ function PoolStandings() {
 
     //fetch all current users from mongoDB
     useEffect(() => {
-        fetch(`${process.env.REACT_APP_API_URL}/users`) 
-            .then(response => response.json())
-            .then(data => setUsers(data))
-            .catch(error => console.error('Error fetching users:', error));
+        dispatch(fetchUsers());
         dispatch(fetchLiveModel());
         dispatch(fetchTournamentInfo());
     }, [dispatch]);
@@ -90,24 +88,9 @@ function PoolStandings() {
         setSelectedUser(null);
         setOpen(false);
     }
-  
   //Fetch users with active picks
   useEffect(() => {
-      const fetchUsersWithPicks = async () => {
-        let active = [];
-         for (const user of users) {
-          try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/userpicks/${user.username}`)
-            if (response.data !== null) {
-              active.push(response.data)
-            }
-          } catch (error) {
-            console.error('Error fetching userPicks', error);
-          }
-         }
-         setActiveUsers(active);
-      };
-      fetchUsersWithPicks();
+      dispatch(fetchUsersWithPicks(users))
   }, [dispatch, users]);
 
   //Fetch profile pictures  
@@ -128,6 +111,10 @@ function PoolStandings() {
       };
       fetchProfilePics();
   }, [users]);
+
+  console.log(users)
+  console.log(activeUsers)
+  
 
   return (
       <>
@@ -153,7 +140,7 @@ function PoolStandings() {
                   POOL STANDINGS
               </Typography>
           </Paper>
-          <TableContainer>
+          <TableContainer sx={{maxHeight: '600px'}}>
             <Table>
                 <TableHead 
                 sx={{
@@ -165,12 +152,12 @@ function PoolStandings() {
                 }}
                 >
                     <TableRow>
-                        <TableCell>Player</TableCell>
-                        <TableCell>R1</TableCell>
-                        <TableCell>R2</TableCell>
-                        <TableCell>R3</TableCell>
-                        <TableCell>R4</TableCell>
-                        <TableCell>Total</TableCell>
+                        <TableCell sx={{ fontSize: '12px' }}>Player</TableCell>
+                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>R1</b></TableCell>
+                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>R2</b></TableCell>
+                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>R3</b></TableCell>
+                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>R4</b></TableCell>
+                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>Total</b></TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -189,16 +176,16 @@ function PoolStandings() {
                           <TableRow key={user._id}>
                             <TableCell 
                               onClick={() => handleClick(user)} 
-                              style={{cursor: 'pointer', display: 'flex', alignItems: 'center'}}
+                              style={{cursor: 'pointer', display: 'flex', alignItems: 'center',}}
                             >
                               {user.username}
                               <Avatar src={`${profilePics[user.username]}`} sx={{marginLeft: '.5rem'}}/>
                             </TableCell>
-                            <TableCell>{calculateLowestScores(user.username, 'R1')}</TableCell>
-                            <TableCell>{calculateLowestScores(user.username, 'R2')}</TableCell>
-                            <TableCell>{calculateLowestScores(user.username, 'R3')}</TableCell>
-                            <TableCell>{calculateLowestScores(user.username, 'R4')}</TableCell>
-                            <TableCell>{totalScore}</TableCell>
+                            <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{calculateLowestScores(user.username, 'R1')}</TableCell>
+                            <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{calculateLowestScores(user.username, 'R2')}</TableCell>
+                            <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{calculateLowestScores(user.username, 'R3')}</TableCell>
+                            <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{calculateLowestScores(user.username, 'R4')}</TableCell>
+                            <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{totalScore}</TableCell>
                           </TableRow>
                         )
                     )}

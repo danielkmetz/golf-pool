@@ -122,8 +122,29 @@ export const fetchUsername = createAsyncThunk(
             return decodedToken.username;
         }
     }
-)
+);
 
+export const fetchUsersWithPicks = createAsyncThunk(
+    'users/fetchUsersWithPicks',
+    async (users , { rejectWithValue }) => {
+        try {
+            const promises = users.map(user => 
+                axios.get(`${process.env.REACT_APP_API_URL}/userpicks/${user.username}`)
+                    .then(response => response.data)
+                    .catch(error => {
+                        console.error(`Error fetching picks for ${user.username}:`, error);
+                        return null; // Handle error for individual request
+                    })
+            );
+            
+            const activeUsers = await Promise.all(promises);
+            // Filter out null values if any request failed
+            return activeUsers.filter(user => user !== null);
+        } catch (error) {
+            return rejectWithValue('Error fetching user picks');
+        }
+    }
+);
 const userSlice = createSlice({
     name: 'users',
     initialState: {
@@ -131,6 +152,7 @@ const userSlice = createSlice({
         profilePic: null,
         username: '',
         users: [],
+        activeUsers: [],
     },
     reducers: {
         setUserPhoto: (state, action) => {
@@ -197,6 +219,12 @@ const userSlice = createSlice({
                 state.error = action.payload;
                 state.status = "failed";
             })
+            .addCase(fetchUsersWithPicks.fulfilled, (state, action) => {
+                state.activeUsers = action.payload;
+            })
+            .addCase(fetchUsersWithPicks.rejected, (state, action) => {
+                console.error(action.payload);
+            });
     },
 });
 
@@ -206,5 +234,6 @@ export const selectEmail = (state) => state.users.email;
 export const selectProfilePic = (state) => state.users.profilePic;
 export const selectUsername = (state) => state.users.username;
 export const selectUsers = (state) => state.users.users;
+export const selectActiveUsers = (state) => state.users.activeUsers;
 
 export const {setUserPhoto, setUsername} = userSlice.actions;

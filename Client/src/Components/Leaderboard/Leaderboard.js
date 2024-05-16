@@ -84,7 +84,7 @@ function Leaderboard() {
                 LEADERBOARD
             </Typography>
         </Paper>
-        <TableContainer sx={{maxHeight: "700px"}}>
+        <TableContainer sx={{maxHeight: "600px"}}>
             <Table>
                 <TableHead sx={{
                     backgroundColor: "blanchedalmond", 
@@ -96,15 +96,15 @@ function Leaderboard() {
                 {currentDay >= 4 || currentDay === 0 ? 
                     (
                     <TableRow>
-                        <TableCell>Player Name</TableCell>
-                        <TableCell>Current Pos</TableCell>
-                        <TableCell>Thru</TableCell>
-                        <TableCell>Today</TableCell>
-                        <TableCell>R1</TableCell>
-                        <TableCell>R2</TableCell>
-                        <TableCell>R3</TableCell>
-                        <TableCell>R4</TableCell>
-                        <TableCell>Total</TableCell>
+                        <TableCell sx={{ fontSize: '12px',}}><b>Player Name</b></TableCell>
+                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>Pos</b></TableCell>
+                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>Thru</b></TableCell>
+                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>Today</b></TableCell>
+                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>R1</b></TableCell>
+                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>R2</b></TableCell>
+                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>R3</b></TableCell>
+                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>R4</b></TableCell>
+                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>Total</b></TableCell>
                     </TableRow>
                     ) : (
                     <TableRow>
