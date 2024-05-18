@@ -28,8 +28,8 @@ function GolferTable({tierPicks, liveResults, tournamentInfo}) {
         }
     }
     
-    const coursePar = tournamentInfo.Par;
-    
+    //const coursePar = tournamentInfo.Par;
+    const coursePar = 71;
     //console.log(leaderboardResults)
     return (
         <TableContainer component={Paper} variant="outlined" square>

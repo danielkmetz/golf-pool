@@ -22,7 +22,8 @@ function CurrentPicks({ tier1Picks, tier2Picks, tier3Picks, tier4Picks}) {
     }, [dispatch]);
 
     const allUserPicks = [...tier1Picks, ...tier2Picks, ...tier3Picks, ...tier4Picks]
-    const coursePar = tournamentInfo.Par;
+    //const coursePar = tournamentInfo.Par;
+    const coursePar = 71;
 
     const round1Scores = getRoundScores(allUserPicks, liveResults, 1, coursePar);
     const round2Scores = getRoundScores(allUserPicks, liveResults, 2, coursePar);

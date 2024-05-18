@@ -33,7 +33,9 @@ function PoolStandings() {
     const dispatch = useDispatch();
     const currentDate = new Date();
     const currentDay = currentDate.getDay();
-    const coursePar = tournamentInfo.Par;
+    //const coursePar = tournamentInfo.Par;
+
+    const coursePar = 71;
 
     //fetch all current users from mongoDB
     useEffect(() => {
