@@ -15,7 +15,7 @@ function TournamentInfo() {
         setThursdayDate(getThursdayDate(currentDay, currentDate));
         
         const scheduleUrl = 
-        'https://api.sportsdata.io/golf/v2/json/Tournaments/2024?key=8d248137425947d2928a10896592f0b1';
+        `https://api.sportsdata.io/golf/v2/json/Tournaments/2024?${process.env.REACT_APP_SPORTS_DATA_KEY}`;
 
         async function fetchInfo() { 
             const response = await fetch(scheduleUrl);

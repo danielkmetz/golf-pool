@@ -12,7 +12,7 @@ function TournamentInfo() {
         dispatch(fetchTournamentInfo());
     }, [dispatch]);
 
-    
+    console.log(tournamentInfo)
     return (
         <Container sx={{marginTop: "2rem"}}>
             <Typography variant="h4">This Week's Tournmament</Typography>

@@ -4,7 +4,7 @@ const router = express.Router();
 const UserPick = require('../models/userPicks');
 const cron = require('node-cron');
 
-cron.schedule('0 0 * * 1', async () => {
+cron.schedule('0 0 * * 2', async () => {
     try {
         await deleteAllUserPicks();
         console.log('Automatic deletion of user picks executed successfully.');

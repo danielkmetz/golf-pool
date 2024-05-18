@@ -9,6 +9,7 @@ import {
     Typography,
     Paper,
     Avatar,
+    Container,
   } from '@mui/material';
 import GolfersModal from './golfersModal';
 import { fetchTotalPicks, selectTotalPicks } from '../../Features/myPicksSlice';
@@ -17,6 +18,7 @@ import { fetchLiveModel, selectLiveResults } from '../../Features/LeaderboardSli
 import { fetchTournamentInfo, selectTournamentInfo } from '../../Features/TournamentInfoSlice';
 import { fetchUsers, selectUsers, selectActiveUsers, fetchUsersWithPicks } from '../../Features/userSlice';
 import { getRoundScore } from '../../actions';
+import Payouts from '../Payouts/Payouts';
 import axios from 'axios';
 
 function PoolStandings() {
@@ -112,10 +114,6 @@ function PoolStandings() {
       fetchProfilePics();
   }, [users]);
 
-  console.log(users)
-  console.log(activeUsers)
-  
-
   return (
       <>
         <Paper sx={{ padding: '1rem', 
@@ -140,6 +138,9 @@ function PoolStandings() {
                   POOL STANDINGS
               </Typography>
           </Paper>
+          <Container>
+            <Payouts/>
+          </Container>
           <TableContainer sx={{maxHeight: '600px'}}>
             <Table>
                 <TableHead 
