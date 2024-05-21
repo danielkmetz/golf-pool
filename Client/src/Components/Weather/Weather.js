@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Grid, Typography, Card, CardContent } from '@mui/material'; // Assuming you're using Material-UI
 import { useDispatch, useSelector } from 'react-redux';
 import { 
@@ -26,17 +26,17 @@ function Weather() {
     const long = useSelector(selectLong);
     const lat = useSelector(selectLat);
 
+    const [cachedWeather, setCachedWeather] = useState([]);
+    const [cachedGeoCode, setCachedGeoCode] = useState(null);
+
     const today = new Date().toISOString().split('T')[0];
 
     useEffect(() => {
         dispatch(fetchTournamentInfo());
     }, [dispatch]);
 
-    console.log(city);
-    console.log(state);
-
     useEffect(() => {
-        if (city && state && country) {
+        if (city && state && country && !cachedGeoCode) {
             dispatch(fetchGeoCode({city, state, country}));
         }
     }, [dispatch, city, state, country]);
@@ -46,6 +46,14 @@ function Weather() {
             dispatch(fetchWeather({lat, long}))
         }
     }, [dispatch, lat, long]);
+
+    useEffect(() => {
+        // Retrieve weather data from local storage
+        const cachedData = localStorage.getItem('weatherCache');
+        if (cachedData) {
+            setCachedWeather(JSON.parse(cachedData));
+        }
+    }, []);
 
     // Get the current date and time
     const currentDate = new Date();
@@ -57,17 +65,28 @@ function Weather() {
     // Construct the date and time string in "YYYY-MM-DD HH:00" format
     const currentDateTime = `${year}-${month}-${day} ${hours}:00`;
 
-    const filteredForecast = weather.filter((forecast) => {
+    const filteredForecast = (cachedWeather && cachedWeather.data)
+    ? cachedWeather.data.filter((forecast) => {
         const forecastDateTime = new Date(forecast.time).getTime();
         const currentDateTime = new Date().getTime();
       
         // Calculate the timestamp for 6 hours from now
         const sixHoursLater = currentDateTime + (6 * 60 * 60 * 1000); // 6 hours * 60 minutes * 60 seconds * 1000 milliseconds
       
-        // Filter the forecast based on timestamps
+        // Filter the cached forecast based on timestamps
+        return forecastDateTime >= currentDateTime && forecastDateTime <= sixHoursLater;
+      })
+    : weather.filter((forecast) => {
+        const forecastDateTime = new Date(forecast.time).getTime();
+        const currentDateTime = new Date().getTime();
+      
+        // Calculate the timestamp for 6 hours from now
+        const sixHoursLater = currentDateTime + (6 * 60 * 60 * 1000); // 6 hours * 60 minutes * 60 seconds * 1000 milliseconds
+      
+        // Filter the original weather forecast based on timestamps
         return forecastDateTime >= currentDateTime && forecastDateTime <= sixHoursLater;
       });
-      
+  
     const getWeatherImage = (weatherDesc) => {
         if (weatherDesc.toLowerCase().includes('sunny')) {
             return sunny;
@@ -101,7 +120,7 @@ function Weather() {
       
         return `${formattedHour} ${amPm}`; // Return formatted time
       };
-    
+
     return (
         <Container sx={{ marginTop: '2rem', padding: '0',}}>
             <Card raised sx={{ backgroundColor: "#222", color: "white"}}>

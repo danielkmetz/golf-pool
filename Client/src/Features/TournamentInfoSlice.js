@@ -53,12 +53,27 @@ const stateAbbreviations = {
     WI: "Wisconsin",
     WY: "Wyoming",
   };
-  
-export const fetchTournamentInfo = createAsyncThunk(
+
+const geoCodeCache = {};
+const weatherCache = {};
+
+const fetchWeatherData = async (lat, long) => {
+    const url = `https://api.weatherapi.com/v1/forecast.json?key=${process.env.REACT_APP_WEATHER_KEY}&q=${lat},${long}&days=1&aqi=no&alerts=no`;
+    const response = await fetch(url);
+    const json = await response.json();
+    return json.forecast.forecastday[0].hour;
+  };
+
+  export const fetchTournamentInfo = createAsyncThunk(
     'tournamentInfo/fetchTournamentInfo',
-    async (_, { dispatch }) => {
-        const scheduleUrl = 
-        `http://localhost:5000/api/schedule`;
+    async (_, { dispatch, getState }) => {
+        const state = getState();
+        const cachedData = state.tournamentInfo.info; // Assuming you store tournament info in state
+    
+        if (cachedData.length > 0) {
+            return cachedData;
+        }
+        const scheduleUrl = `${process.env.REACT_APP_API_URL}/schedule`;
         const response = await fetch(scheduleUrl);
         const tournaments = await response.json();
         
@@ -71,42 +86,60 @@ export const fetchTournamentInfo = createAsyncThunk(
             return tournamentDatePart === thursdayDate;
         });
         
-        dispatch(tournamentInfoSlice.actions.setCity((thursdayTournament.City)))
-        dispatch(tournamentInfoSlice.actions.setState((thursdayTournament.State)))
-        dispatch(tournamentInfoSlice.actions.setCountry((thursdayTournament.Country)))
+        dispatch(tournamentInfoSlice.actions.setCity(thursdayTournament.City));
+        dispatch(tournamentInfoSlice.actions.setState(thursdayTournament.State));
+        dispatch(tournamentInfoSlice.actions.setCountry(thursdayTournament.Country));
         
         return thursdayTournament;
     }
-)
-
-export const fetchGeoCode = createAsyncThunk(
+  );
+  
+  export const fetchGeoCode = createAsyncThunk(
     'tournamentInfo/fetchGeoCode',
-    async ({city, state, country}, { dispatch }) => {
-        const url = `https://api.api-ninjas.com/v1/geocoding?city=${city}&state=${state}&country=${country}`
-        const params = {
-            method: 'GET',
-            headers: { 'X-Api-Key': process.env.REACT_APP_GEOLOCA_KEY}
-        }
-        const response = await fetch(url, params);
-        const json = await response.json();
-        //console.log(json[0])
-        await dispatch(tournamentInfoSlice.actions.setLatitude((json[0].latitude)))
-        await dispatch(tournamentInfoSlice.actions.setLongitude((json[0].longitude)));
+    async ({ city, state, country }, { dispatch, getState }) => {
+      const cacheKey = `geoCodeCache`;
+      const cachedData = localStorage.getItem(cacheKey);
+      if (cachedData) {
+        return JSON.parse(cachedData);
+      }
+      
+      const url = `https://api.api-ninjas.com/v1/geocoding?city=${city}&state=${state}&country=${country}`;
+      const params = {
+        method: 'GET',
+        headers: { 'X-Api-Key': process.env.REACT_APP_GEOLOCA_KEY }
+      };
+      const response = await fetch(url, params);
+      const json = await response.json();
+      
+      localStorage.setItem(cacheKey, JSON.stringify(json[0]));
+      dispatch(tournamentInfoSlice.actions.setLatitude(json[0].latitude));
+      dispatch(tournamentInfoSlice.actions.setLongitude(json[0].longitude));
 
-        return json;
+      localStorage.setItem(cacheKey, JSON.stringify(json[0]));
+      
+      return json[0];
     }
-)
-
-export const fetchWeather = createAsyncThunk(
+  );
+  
+  export const fetchWeather = createAsyncThunk(
     'weather/fetchWeather',
-    async ({lat, long}) => {
-        const url = `https://api.weatherapi.com/v1/forecast.json?key=${process.env.REACT_APP_WEATHER_KEY}&q=${lat},${long}&days=1&aqi=no&alerts=no`;
-        const response = await fetch(url);
-        const json = await response.json();
-        //console.log(json.forecast.forecastday[0].hour)
-        return json.forecast.forecastday[0].hour;
+    async ({ lat, long }, { dispatch }) => {
+      const cacheKey = 'weatherCache';
+      const cachedData = JSON.parse(localStorage.getItem(cacheKey));
+      
+      if (cachedData && (Date.now() - cachedData.timestamp) < 1 * 60 * 60 * 1000) {
+        return cachedData.data;
+      }
+      
+      const data = await fetchWeatherData(lat, long);
+
+      const timestampedData = { data, timestamp: Date.now() };
+      localStorage.setItem(cacheKey, JSON.stringify(timestampedData));
+      
+      return data;
     }
-);
+  );
+
 
 const tournamentInfoSlice = createSlice({
     name: 'tournamentInfo',

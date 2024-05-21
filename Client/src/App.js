@@ -20,6 +20,9 @@ function App() {
 
   const logout = () => {
     localStorage.removeItem('token'); // Remove the token from localStorage
+    localStorage.removeItem('tournamentInfoCache'); // Clear tournament info cache
+    localStorage.removeItem('geoCodeCache'); // Clear geo code cache (if you're using a single cache for all geocodes)
+    localStorage.removeItem('weatherCache'); // Clear weather cache
     setIsLoggedIn(false); // Update isLoggedIn state
   };
 
