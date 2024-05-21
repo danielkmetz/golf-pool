@@ -12,12 +12,11 @@ function TournamentInfo() {
         dispatch(fetchTournamentInfo());
     }, [dispatch]);
 
-    console.log(tournamentInfo)
     return (
         <Container sx={{marginTop: "2rem"}}>
             <Typography variant="h4">This Week's Tournmament</Typography>
             <Typography variant="h6">{tournamentInfo.Name}</Typography>
-            <Typography variant="h6">Venue: {tournamentInfo.Venue}</Typography>
+            <Typography variant="h6">Venue: {tournamentInfo.Club}</Typography>
             <Typography variant="caption">Par: {tournamentInfo.Par}</Typography>
         </Container>
     )

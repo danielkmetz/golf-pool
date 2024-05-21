@@ -32,6 +32,9 @@ function Weather() {
         dispatch(fetchTournamentInfo());
     }, [dispatch]);
 
+    console.log(city);
+    console.log(state);
+
     useEffect(() => {
         if (city && state && country) {
             dispatch(fetchGeoCode({city, state, country}));

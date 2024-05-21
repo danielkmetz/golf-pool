@@ -9,28 +9,11 @@ import {
     
 function GolferTable({tierPicks, liveResults, tournamentInfo}) {
     const [currentDate, setCurrentDate] = useState(new Date());
-    const thresholdDate = new Date('2024-05-16'); // Assuming Thursday is May 16, 2024
+    const currentDay = currentDate.getDay(); // 0 (Sunday) to 6 (Saturday)
+    const isValidDay = currentDay >= 4 || currentDay === 0; // Thursday (4) to Sunday (0)
 
-    const shouldBlur = currentDate < thresholdDate;
+    const coursePar = tournamentInfo.Par;
     
-    const getGolferThru = (name) => {
-        const currentPos = getCurrentPosition(name, liveResults);
-
-        if (currentPos === "--") {
-            return; 
-        } else {
-        const golfer = liveResults.find((g) => g.player_name === name);
-        if (golfer) {
-            return golfer.thru;
-            } else {
-                return;
-            }
-        }
-    }
-    
-    //const coursePar = tournamentInfo.Par;
-    const coursePar = 71;
-    //console.log(leaderboardResults)
     return (
         <TableContainer component={Paper} variant="outlined" square>
             <Table size="small">
@@ -47,8 +30,9 @@ function GolferTable({tierPicks, liveResults, tournamentInfo}) {
                 </TableHead>
                 <TableBody>
                     {tierPicks.map((name, index) => {
-                        const position = getCurrentPosition(name, liveResults);
-                        const round1 = getRoundScore(1, name, liveResults);
+                    if (isValidDay) {
+                        const position = getCurrentPosition(name, liveResults, isValidDay);
+                        const round1 = getRoundScore(1, name, liveResults,);
                         const round2 = getRoundScore(2, name, liveResults);
                         const round3 = getRoundScore(3, name, liveResults, coursePar);
                         const round4 = getRoundScore(4, name, liveResults, coursePar);
@@ -57,14 +41,27 @@ function GolferTable({tierPicks, liveResults, tournamentInfo}) {
                         return (
                             <TableRow key={index}>
                                 <TableCell sx={{ fontSize: '11px' }}>{name}</TableCell>
-                                <TableCell sx={{ fontSize: '11px', paddingLeft: '1px' }}>{shouldBlur ? '---' : position}</TableCell>
-                                <TableCell sx={{ fontSize: '11px', paddingLeft: '1px' }}>{shouldBlur ? '---' : round1}</TableCell>
-                                <TableCell sx={{ fontSize: '11px', paddingLeft: '1px' }}>{shouldBlur ? '---' : round2}</TableCell>
-                                <TableCell sx={{ fontSize: '11px', paddingLeft: '1px' }}>{shouldBlur ? '---' : round3}</TableCell>
-                                <TableCell sx={{ fontSize: '11px', paddingLeft: '1px' }}>{shouldBlur ? '---' : round4}</TableCell>
-                                <TableCell sx={{ fontSize: '11px', paddingLeft: '1px' }}>{shouldBlur ? '---' : totalScore}</TableCell>
+                                <TableCell sx={{ fontSize: '11px', paddingLeft: '1px' }}>{position}</TableCell>
+                                <TableCell sx={{ fontSize: '11px', paddingLeft: '1px' }}>{round1}</TableCell>
+                                <TableCell sx={{ fontSize: '11px', paddingLeft: '1px' }}>{round2}</TableCell>
+                                <TableCell sx={{ fontSize: '11px', paddingLeft: '1px' }}>{round3}</TableCell>
+                                <TableCell sx={{ fontSize: '11px', paddingLeft: '1px' }}>{round4}</TableCell>
+                                <TableCell sx={{ fontSize: '11px', paddingLeft: '1px' }}>{totalScore}</TableCell>
                             </TableRow>
                         );
+                    } else {
+                        return (
+                            <TableRow key={index}>
+                                <TableCell sx={{ fontSize: '11px' }}>{name}</TableCell>
+                                <TableCell sx={{ fontSize: '11px', paddingLeft: '1px' }}></TableCell>
+                                <TableCell sx={{ fontSize: '11px', paddingLeft: '1px' }}></TableCell>
+                                <TableCell sx={{ fontSize: '11px', paddingLeft: '1px' }}></TableCell>
+                                <TableCell sx={{ fontSize: '11px', paddingLeft: '1px' }}></TableCell>
+                                <TableCell sx={{ fontSize: '11px', paddingLeft: '1px' }}></TableCell>
+                                <TableCell sx={{ fontSize: '11px', paddingLeft: '1px' }}></TableCell>
+                            </TableRow>
+                        );
+                    }
                     })}
                 </TableBody>
             </Table>

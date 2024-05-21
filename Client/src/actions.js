@@ -69,9 +69,6 @@ export const getCurrentPosition = (name, liveResults) => {
 }
 
 export const getRoundScore = (round, name, liveResults, coursePar) => {
-  //console.log("Function called with round:", round, "name:", name);
-
-  // Check if name is empty
   if (!name) {
     console.error("Empty name provided.");
     return null;

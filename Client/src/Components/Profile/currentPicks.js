@@ -14,6 +14,10 @@ function CurrentPicks({ tier1Picks, tier2Picks, tier3Picks, tier4Picks}) {
     const leaderboardResults = useSelector(selectResults);
     const liveResults = useSelector(selectLiveResults);
     
+    const currentDate = new Date();
+    const currentDay = currentDate.getDay(); // 0 (Sunday) to 6 (Saturday)
+    const isValidDay = currentDay >= 4 || currentDay === 0; // Thursday (4) to Sunday (0)
+
     useEffect(() => {
         // Dispatch fetchLeaderboard action when the component mounts
         dispatch(fetchLeaderboard());
@@ -22,19 +26,26 @@ function CurrentPicks({ tier1Picks, tier2Picks, tier3Picks, tier4Picks}) {
     }, [dispatch]);
 
     const allUserPicks = [...tier1Picks, ...tier2Picks, ...tier3Picks, ...tier4Picks]
-    //const coursePar = tournamentInfo.Par;
-    const coursePar = 71;
-
-    const round1Scores = getRoundScores(allUserPicks, liveResults, 1, coursePar);
-    const round2Scores = getRoundScores(allUserPicks, liveResults, 2, coursePar);
-    const round3Scores = getRoundScores(allUserPicks, liveResults, 3, coursePar);
-    const round4Scores = getRoundScores(allUserPicks, liveResults, 4, coursePar);
+    const coursePar = tournamentInfo.Par;
     
-    round1Scores.sort((a, b) => a - b);
-    round2Scores.sort((a, b) => a - b);
-    round3Scores.sort((a, b) => a - b);
-    round4Scores.sort((a, b) => a - b);
-
+    let round1Scores = [];
+    let round2Scores = [];
+    let round3Scores = [];
+    let round4Scores = [];
+    
+    // Calculate round scores only if it's a valid day
+    if (isValidDay) {
+        round1Scores = getRoundScores(allUserPicks, liveResults, 1, coursePar);
+        round2Scores = getRoundScores(allUserPicks, liveResults, 2, coursePar);
+        round3Scores = getRoundScores(allUserPicks, liveResults, 3, coursePar);
+        round4Scores = getRoundScores(allUserPicks, liveResults, 4, coursePar);
+        
+        round1Scores.sort((a, b) => a - b);
+        round2Scores.sort((a, b) => a - b);
+        round3Scores.sort((a, b) => a - b);
+        round4Scores.sort((a, b) => a - b);
+    }
+    
     // Get the lowest 4 scores
     const lowest4ScoresR1 = round1Scores.slice(0, 4);
     const lowest4ScoresR2 = round2Scores.slice(0, 4);

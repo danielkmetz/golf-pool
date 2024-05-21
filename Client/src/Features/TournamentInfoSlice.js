@@ -54,30 +54,20 @@ const stateAbbreviations = {
     WY: "Wyoming",
   };
   
-function getFullName(abbreviation) {
-    return (stateAbbreviations[abbreviation]);
-  }
-
 export const fetchTournamentInfo = createAsyncThunk(
     'tournamentInfo/fetchTournamentInfo',
     async (_, { dispatch }) => {
-        const key = process.env.REACT_APP_SPORTS_DATA_KEY;
         const scheduleUrl = 
-        `https://api.sportsdata.io/golf/v2/json/Tournaments/2024?${key}`;
+        `http://localhost:5000/api/schedule`;
         const response = await fetch(scheduleUrl);
         const tournaments = await response.json();
         
         const currentDate = new Date();
         const currentDay = currentDate.getDay();
         const thursdayDate = getThursdayDate(currentDay, currentDate);
-
-        // Filter tournaments with purse > 10 million
-        const largePurseTournaments = tournaments.filter(tournament => 
-            tournament.Purse > 5000000
-        );
         
         const thursdayTournament = tournaments.find(tournament => {
-            const tournamentDatePart = tournament.StartDate.split('T')[0];
+            const tournamentDatePart = tournament.Starts.split('T')[0];
             return tournamentDatePart === thursdayDate;
         });
         
@@ -135,7 +125,7 @@ const tournamentInfoSlice = createSlice({
             state.city = action.payload;
         },
         setState: (state, action) => {
-            state.state = getFullName(action.payload);
+            state.state = action.payload;
         },
         setCountry: (state, action) => {
             state.country = action.payload;

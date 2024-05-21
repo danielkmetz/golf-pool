@@ -5,7 +5,17 @@ const router = express.Router();
 const User = require('../models/users'); // Assuming your User model is in models/User.js
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const cron = require('node-cron');
 
+cron.schedule('0 0 * * 0', async () => {
+  try {
+    // Update the paymentStatus of all users to false
+    await User.updateMany({}, { paymentStatus: false });
+    console.log('Payment statuses reset to false for all users');
+  } catch (error) {
+    console.error('Error resetting payment statuses:', error);
+  }
+});
 
 // Route to get all users (for admin purposes, optional)
 router.get('/', async (req, res) => {

@@ -33,10 +33,8 @@ function PoolStandings() {
     const dispatch = useDispatch();
     const currentDate = new Date();
     const currentDay = currentDate.getDay();
-    //const coursePar = tournamentInfo.Par;
-
-    const coursePar = 71;
-
+    const coursePar = tournamentInfo.Par;
+    
     //fetch all current users from mongoDB
     useEffect(() => {
         dispatch(fetchUsers());
@@ -68,16 +66,22 @@ function PoolStandings() {
         });
       
         const calculateLowestScores = (username, round) => {
+          if (currentDay < 4 && currentDay !== 0) return null; // Skip calculation if before Thursday and not Sunday
+
           const userScores = organizedData.filter(item => item.username === username);
-          const lowestScores = userScores.map(item => item[round]).sort((a, b) => a - b).slice(0, 4);
+          const roundScores = userScores.map(item => item[round]).filter(score => score !== null && score !== undefined);
+
+          if (roundScores.length < 8) return null; // Not enough valid scores to calculate
+
+          const lowestScores = roundScores.sort((a, b) => a - b).slice(0, 4);
           const totalLowestScore = lowestScores.reduce((total, score) => total + score, 0);
           return totalLowestScore;
-        };
+      };
       
         return { organizedData, calculateLowestScores };
       };
       
-      const { organizedData, calculateLowestScores } = organizeAndCalculateLowestScores(
+    const { organizedData, calculateLowestScores } = organizeAndCalculateLowestScores(
         totalPicks,
         liveResults,
         coursePar

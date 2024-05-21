@@ -48,8 +48,8 @@ function UserProfile() {
     // Function to check if the current date is before Thursday
     const isBeforeThursday = () => {
         const currentDate = new Date();
-        const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-        return dayOfWeek < 4; // Thursday is index 4 in JavaScript's Date object
+        const dayOfWeek = currentDate.getDay();
+        return dayOfWeek < 4 || dayOfWeek === 0;
     };
 
     return (

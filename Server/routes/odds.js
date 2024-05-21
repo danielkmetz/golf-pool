@@ -8,7 +8,6 @@ router.get('/', async (req, res) => {
     try {
       // Check if the database already has data
       const existingDataCount = await OddsModel.countDocuments();
-      console.log(existingDataCount)
       
       // If data exists in the database, send the existing data as a response
       const existingData = await OddsModel.aggregate([

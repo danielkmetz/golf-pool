@@ -14,6 +14,7 @@ const leaderboardRoute = require('./routes/leaderboard');
 const oddsRoute = require('./routes/odds');
 const dataGolfRoute = require('./routes/dataGolf');
 const picsRoute = require('./routes/profilePics');
+const scheduleRoute = require('./routes/schedule');
 const User = require('./models/users');
 const LocalStrategy = require('passport-local').Strategy;
 const connectUserDB = require('./Config/userDB');
@@ -120,6 +121,7 @@ app.use('/api/leaderboard', leaderboardRoute);
 app.use('/api/golfer-odds', oddsRoute);
 app.use('/api/profile-pics', picsRoute);
 app.use('/api/data-golf', dataGolfRoute);
+app.use('/api/schedule', scheduleRoute);
 
 const PORT = process.env.PORT || 5000;
 

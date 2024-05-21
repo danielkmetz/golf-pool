@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Box, Grid, CircularProgress } from '@mui/material';
+import { Container, Box, Grid, CircularProgress, useMediaQuery } from '@mui/material';
 import Tier1 from './Tier1';
 import MyPicks from './myPicks';
 
 function Golfers() {
     const [loading, setLoading] = useState(true);
+    const isSmallScreen = useMediaQuery('(max-width:600px)');
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -22,10 +23,10 @@ function Golfers() {
                 </Box>
             ) : (
                 <Grid container spacing={2} justifyContent="center">
-                    <Grid item xs={12} md={6}>
+                    <Grid item xs={12} md={6} order={isSmallScreen ? 2 : 1}>
                         <Tier1 />
                     </Grid>
-                    <Grid item xs={12} md={6}>
+                    <Grid item xs={12} md={6} order={isSmallScreen ? 1 : 2}>
                         <MyPicks />
                     </Grid>
                 </Grid>

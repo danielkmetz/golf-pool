@@ -121,12 +121,12 @@ function Tier1() {
         <Paper elevation={3} style={oddsContainerStyle}>
           <Typography variant="h5" gutterBottom>
             {selectedOption === 'Tier2'
-              ? 'Tier 2 Golfers'
+              ? 'Tier 2 Golfers (PICK 2)'
               : selectedOption === 'Tier3'
-              ? 'Tier 3 Golfers'
+              ? 'Tier 3 Golfers (PICK 2)'
               : selectedOption === 'Tier4'
-              ? 'Tier 4 Golfers'
-              : 'Tier 1 Golfers'}
+              ? 'Tier 4 Golfers (PICK 1)'
+              : 'Tier 1 Golfers (PICK 3)'}
           </Typography>
           {selectedOption === 'Tier2' ? (
             <BettingOdds oddsResults={tier2Results} addGolfer={addGolfer} />
