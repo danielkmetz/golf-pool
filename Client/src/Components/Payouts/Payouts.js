@@ -7,14 +7,6 @@ function Payouts() {
     const dispatch = useDispatch();
     const activeUsers = useSelector(selectActiveUsers);
 
-    useEffect(() => {
-        try {
-            dispatch(fetch(fetchUsersWithPicks()));
-        } catch (error) {
-            console.error('Error fetching active users', error)
-        }
-    }, [dispatch]);
-
     const totalActive = activeUsers.length;
     const firstPlacePayout = Math.floor((totalActive * 30) * 0.6667);
     const secondPlacePayout = Math.floor((totalActive * 30) * 0.25);

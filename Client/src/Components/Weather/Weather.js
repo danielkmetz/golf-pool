@@ -74,6 +74,7 @@ function Weather() {
         const sixHoursLater = currentDateTime + (6 * 60 * 60 * 1000); // 6 hours * 60 minutes * 60 seconds * 1000 milliseconds
       
         // Filter the cached forecast based on timestamps
+        
         return forecastDateTime >= currentDateTime && forecastDateTime <= sixHoursLater;
       })
     : weather.filter((forecast) => {
@@ -108,7 +109,7 @@ function Weather() {
             return cloudy;
         }
     };
-
+    
     const formatTime = (timeString) => {
         const [datePart, timePart] = timeString.split(' '); // Split the date and time parts
         const [hour, minute] = timePart.split(':'); // Split the time into hours and minutes
@@ -120,7 +121,7 @@ function Weather() {
       
         return `${formattedHour} ${amPm}`; // Return formatted time
       };
-
+      
     return (
         <Container sx={{ marginTop: '2rem', padding: '0',}}>
             <Card raised sx={{ backgroundColor: "#222", color: "white"}}>

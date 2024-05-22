@@ -145,6 +145,28 @@ export const fetchUsersWithPicks = createAsyncThunk(
         }
     }
 );
+
+export const fetchProfilePics = createAsyncThunk(
+    'users/fetchProfilePics',
+    async (profilePicData, { rejectWithValue }) => {
+        try {
+            const response = await axios.post(
+                `${process.env.REACT_APP_API_URL}/profile-pics/fetch-all`,
+                { profilePicData },
+                {
+                    headers: {
+                        'Content-Type': 'application/json', // Specify the Content-Type header
+                        // You can add other headers here if needed
+                    },
+                }
+            );
+            return response.data.profilePics;
+        } catch (error) {
+            return rejectWithValue(error.response.data);
+        }
+    }
+);
+
 const userSlice = createSlice({
     name: 'users',
     initialState: {
@@ -153,6 +175,7 @@ const userSlice = createSlice({
         username: '',
         users: [],
         activeUsers: [],
+        profilePics: {},
     },
     reducers: {
         setUserPhoto: (state, action) => {
@@ -224,7 +247,13 @@ const userSlice = createSlice({
             })
             .addCase(fetchUsersWithPicks.rejected, (state, action) => {
                 console.error(action.payload);
-            });
+            })
+            .addCase(fetchProfilePics.fulfilled, (state, action) => {
+                state.profilePics = action.payload;
+            })
+            .addCase(fetchProfilePics.rejected, (state, action) => {
+                console.error(action.payload);
+            })
     },
 });
 
@@ -232,6 +261,7 @@ export default userSlice.reducer;
 
 export const selectEmail = (state) => state.users.email;
 export const selectProfilePic = (state) => state.users.profilePic;
+export const selectProfilePics = (state) => state.users.profilePics;
 export const selectUsername = (state) => state.users.username;
 export const selectUsers = (state) => state.users.users;
 export const selectActiveUsers = (state) => state.users.activeUsers;

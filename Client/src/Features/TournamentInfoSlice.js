@@ -97,12 +97,6 @@ const fetchWeatherData = async (lat, long) => {
   export const fetchGeoCode = createAsyncThunk(
     'tournamentInfo/fetchGeoCode',
     async ({ city, state, country }, { dispatch, getState }) => {
-      const cacheKey = `geoCodeCache`;
-      const cachedData = localStorage.getItem(cacheKey);
-      if (cachedData) {
-        return JSON.parse(cachedData);
-      }
-      
       const url = `https://api.api-ninjas.com/v1/geocoding?city=${city}&state=${state}&country=${country}`;
       const params = {
         method: 'GET',
@@ -111,12 +105,9 @@ const fetchWeatherData = async (lat, long) => {
       const response = await fetch(url, params);
       const json = await response.json();
       
-      localStorage.setItem(cacheKey, JSON.stringify(json[0]));
       dispatch(tournamentInfoSlice.actions.setLatitude(json[0].latitude));
       dispatch(tournamentInfoSlice.actions.setLongitude(json[0].longitude));
 
-      localStorage.setItem(cacheKey, JSON.stringify(json[0]));
-      
       return json[0];
     }
   );

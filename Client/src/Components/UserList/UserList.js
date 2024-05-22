@@ -1,37 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Box, Typography, Link, Avatar, Divider, InputAdornment, TextField } from '@mui/material';
-import { fetchUsers, selectUsers } from '../../Features/userSlice';
-import { useDispatch, useSelector } from 'react-redux';
+import { selectUsers } from '../../Features/userSlice';
+import { useSelector } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
-import axios from 'axios';
+import { selectProfilePics } from '../../Features/userSlice';
 
 function UserList() {
-    const dispatch = useDispatch();
-    const [profilePics, setProfilePics] = useState({});
+    const profilePics = useSelector(selectProfilePics);
     const users = useSelector(selectUsers);
     const [searchQuery, setSearchQuery] = useState('');
-
-    useEffect(() => {
-        dispatch(fetchUsers());
-    }, [dispatch]);
-
-    useEffect(() => {
-        const fetchProfilePics = async () => {
-            const pics = {};
-            for (const user of users) {
-                try {
-                    const response = await axios.get(`${process.env.REACT_APP_API_URL}/profile-pics/${user.username}`, {
-                        responseType: 'arrayBuffer',
-                    });
-                    pics[user.username] = response.data;
-                } catch (error) {
-                    console.error(`Error fetching profile picture for ${user.username}:`, error);
-                }
-            }
-            setProfilePics(pics);
-        };
-        fetchProfilePics();
-    }, [users]);
 
     // Filter users based on search query
     const filteredUsers = users.filter(user =>
@@ -65,7 +42,7 @@ function UserList() {
             />
             <Box sx={{ maxHeight: '150px', overflowY: 'scroll', padding: '1rem', }}>
                 {filteredUsers.map(user => (
-                    <>
+                    <React.Fragment key={user.id}>
                         <Box key={user.id} sx={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
                             <Typography 
                                 variant="body1" 
@@ -93,7 +70,7 @@ function UserList() {
                             <Avatar src={`${profilePics[user.username]}`} sx={{ marginLeft: '0.5rem' }} />
                         </Box>
                         <Divider sx={{ backgroundColor: 'rgba(0, 0, 0, 0.12)', height: '1px', width: '100%', marginY: '0.5rem' }} />
-                    </>
+                    </React.Fragment>
                 ))}
             </Box>
         </Box>

@@ -5,7 +5,7 @@ function Positions({results}) {
     return (
         <>
             {results.map((position) => (
-                <Position position={position} key={position.id}/>
+                <Position position={position} key={position.dg_id}/>
             ))}
         </>
         

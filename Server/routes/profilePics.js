@@ -55,16 +55,13 @@ const upload = multer({
 
 router.post('/', upload.single('image'), async (req, res) => {
     const { username } = await req.body; // Assuming username is provided in the request body
-    console.log(req.file)
     const fileKey = await req.file.transforms.find(transform => transform.id === 'original').key;
 
         try {
           const user = await User.findOne({ username: username });
-          console.log(user);
           if (!user) {
             return res.status(404).json({ error: 'User not found' });
           }
-          console.log(req.file);
           user.profilePic = fileKey;
           
           await user.save();
@@ -119,5 +116,37 @@ router.get('/:username', async (req, res) => {
     }
 });
 
+router.post('/fetch-all', async (req, res) => {
+  try {
+      const { profilePicData } = req.body; // Assuming req.body contains profilePicData as an object with usernames and profilePic filenames
+      const profilePics = {};
+      for (const { username, profilePic } of profilePicData) {
+          const s3Params = {
+              Bucket: process.env.AWS_BUCKET_NAME,
+              Key: profilePic,
+          };
+
+          const data = await S3.send(new GetObjectCommand(s3Params));
+          const { Body } = data; // Assuming `response` is the object containing your data
+          const chunks = [];
+          Body.on('data', (chunk) => {
+              chunks.push(chunk);
+          });
+          Body.on('end', () => {
+              const imageData = Buffer.concat(chunks); // Combine all chunks into a single buffer
+              const base64ImageData = imageData.toString('base64'); // Encode as base64
+              const dataUrl = `data:${data.ContentType};base64,${base64ImageData}`; // Data URL for image
+              profilePics[username] = dataUrl; // Store the data URL in profilePics object
+              if (Object.keys(profilePics).length === profilePicData.length) {
+                  // All profile pictures fetched, send response
+                  res.status(200).json({ profilePics });
+              }
+          });
+      }
+  } catch (error) {
+      console.error('Error fetching profile pictures:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 module.exports = router;

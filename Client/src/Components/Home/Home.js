@@ -6,10 +6,39 @@ import PoolStandings from '../PoolStandings/poolStandings';
 import Weather from '../Weather/Weather';
 import TournamentInfo from './TournamentInfo';
 import UserList from '../UserList/UserList'; 
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchProfilePics, selectProfilePics, fetchUsers, selectUsers, fetchUsersWithPicks } from '../../Features/userSlice';
 
 function Home() {
   const [openRules, setOpenRules] = useState(false);
   const [loading, setLoading] = useState(true);
+  const users = useSelector(selectUsers);
+  const profilePics = useSelector(selectProfilePics);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    try {
+      dispatch(fetchUsers())
+    } catch (error) {
+      return error
+    }
+  }, [dispatch])
+
+  useEffect(() => {
+    dispatch(fetchUsersWithPicks(users))
+}, [dispatch, users]);
+
+  const userPics = users
+  .filter(user => user && user.profilePic)
+  .map(user => ({ username: user.username, profilePic: user.profilePic }));
+
+  useEffect(() => {
+    try {
+      dispatch(fetchProfilePics(userPics));
+    } catch (error) {
+      return error
+    }
+  }, [dispatch, users]);
 
   const handleOpenRules = () => {
     setOpenRules(true);

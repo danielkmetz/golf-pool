@@ -56,7 +56,6 @@ router.get('/:username', async (req, res) => {
     const { username } = req.params;
     try {
         const userPicks = await UserPick.findOne({ username: username });
-        console.log(userPicks)
         res.status(200).json(userPicks);
     } catch (error) {
         console.error(error);

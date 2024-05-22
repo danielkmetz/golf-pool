@@ -16,7 +16,7 @@ import { fetchTotalPicks, selectTotalPicks } from '../../Features/myPicksSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchLiveModel, selectLiveResults } from '../../Features/LeaderboardSlice';
 import { fetchTournamentInfo, selectTournamentInfo } from '../../Features/TournamentInfoSlice';
-import { fetchUsers, selectUsers, selectActiveUsers, fetchUsersWithPicks } from '../../Features/userSlice';
+import { fetchUsers, selectUsers, selectActiveUsers, fetchUsersWithPicks, fetchProfilePics, selectProfilePics } from '../../Features/userSlice';
 import { getRoundScore } from '../../actions';
 import Payouts from '../Payouts/Payouts';
 import axios from 'axios';
@@ -26,10 +26,11 @@ function PoolStandings() {
     const activeUsers = useSelector(selectActiveUsers);
     const [selectedUser, setSelectedUser] = useState(null);
     const [open, setOpen] = useState(false);
-    const [profilePics, setProfilePics] = useState({});
+    //const [profilePics, setProfilePics] = useState({});
     const liveResults = useSelector(selectLiveResults);
     const tournamentInfo = useSelector(selectTournamentInfo);
     const totalPicks = useSelector(selectTotalPicks);
+    const profilePics = useSelector(selectProfilePics)
     const dispatch = useDispatch();
     const currentDate = new Date();
     const currentDay = currentDate.getDay();
@@ -37,7 +38,6 @@ function PoolStandings() {
     
     //fetch all current users from mongoDB
     useEffect(() => {
-        dispatch(fetchUsers());
         dispatch(fetchLiveModel());
         dispatch(fetchTournamentInfo());
     }, [dispatch]);
@@ -96,30 +96,7 @@ function PoolStandings() {
         setSelectedUser(null);
         setOpen(false);
     }
-  //Fetch users with active picks
-  useEffect(() => {
-      dispatch(fetchUsersWithPicks(users))
-  }, [dispatch, users]);
-
-  //Fetch profile pictures  
-  useEffect(() => {
-      const fetchProfilePics = async () => {
-          const pics = {};
-          for (const user of users) {
-              try {
-                  const response = await axios.get(`${process.env.REACT_APP_API_URL}/profile-pics/${user.username}`, {
-                      responseType: 'arrayBuffer',
-                  });
-                  pics[user.username] = response.data;
-              } catch (error) {
-                  console.error(`Error fetching profile picture for ${user.username}:`, error);
-              }
-          }
-          setProfilePics(pics);
-      };
-      fetchProfilePics();
-  }, [users]);
-
+  
   return (
       <>
         <Paper sx={{ padding: '1rem', 
