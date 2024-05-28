@@ -38,11 +38,23 @@ function Header() {
                     display: "flex", 
                     alignItems: "center",
                     flexDirection: { xs: 'row', md: 'row' }, 
-                    gap: { xs: 1, md: 2 }, 
+                    gap: 2, 
                     marginLeft: { xs: 0, md: 2 },
                 }}
             >
-                <Tabs value={false} sx={{ '& .MuiTabs-flexContainer': { flexDirection: { xs: 'row', md: 'row' } } }}>
+                <Tabs
+                    value={false}
+                    sx={{
+                        '& .MuiTabs-flexContainer': {
+                            flexDirection: 'row',
+                        },
+                        '& .MuiTab-root': {
+                            fontSize: { xs: 10, md: 16 },
+                            minWidth: { xs: 'auto', md: 100 },
+                            padding: { xs: '6px 8px', md: '12px 16px' },
+                        },
+                    }}
+                >
                     <Link href="/how-to" sx={{color: "black"}}>
                         <Tab label="How To" sx={{ fontSize: { xs: 10, md: 16 } }}/>
                     </Link>
