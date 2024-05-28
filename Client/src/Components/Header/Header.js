@@ -38,25 +38,25 @@ function Header() {
                     display: "flex", 
                     alignItems: "center",
                     flexDirection: { xs: 'row', md: 'row' }, 
-                    gap: 2, 
+                    gap: { xs: 1, md: 2 }, 
                     marginLeft: { xs: 0, md: 2 },
                 }}
             >
                 <Tabs value={false} sx={{ '& .MuiTabs-flexContainer': { flexDirection: { xs: 'row', md: 'row' } } }}>
                     <Link href="/how-to" sx={{color: "black"}}>
-                        <Tab label="How To" sx={{ fontSize: { xs: 12, md: 16 } }}/>
+                        <Tab label="How To" sx={{ fontSize: { xs: 10, md: 16 } }}/>
                     </Link>
                     <Link href="/" sx={{color: "black"}}>
-                        <Tab label="Standings" sx={{ fontSize: { xs: 12, md: 16 } }}/>
+                        <Tab label="Standings" sx={{ fontSize: { xs: 10, md: 16 } }}/>
                     </Link>
                     <Link href="/News" sx={{color: "black"}}>
-                        <Tab label="News" sx={{ fontSize: { xs: 12, md: 16 } }}/>
+                        <Tab label="News" sx={{ fontSize: { xs: 10, md: 16 } }}/>
                     </Link>
                     <Link href="/Golfers" sx={{color: "black"}}>
-                        <Tab label="Golfers" sx={{ fontSize: { xs: 12, md: 16 } }}/>
+                        <Tab label="Golfers" sx={{ fontSize: { xs: 10, md: 16 } }}/>
                     </Link>
                     <Link href="/Profile" sx={{color: "black"}}>
-                        <Tab label="Profile" sx={{ fontSize: { xs: 12, md: 16 } }}/>
+                        <Tab label="Profile" sx={{ fontSize: { xs: 10, md: 16 } }}/>
                     </Link>
                 </Tabs>
             </Box>
