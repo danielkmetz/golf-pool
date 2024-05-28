@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './Components/Header/Header';
-import Home from './Components/Home/Home';
+import Standings from './Components/Standings/Standings';
 import Golfers from './Components/Golfers/Golfers';
 import Profile from './Components/Profile/Profile';
 import Login from './Components/Login/Login';
 import News from './Components/News/News';
 import UserProfile from './Components/UserProfile/UserProfile';
+import HowTo from './Components/HowTo/HowTo';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -35,7 +36,8 @@ function App() {
       <Header />
       {isLoggedIn && <button onClick={logout}>Logout</button>} {/* Render logout button when user is logged in */}
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Standings />} />
+        <Route path="/how-to" element={<HowTo />} />
         <Route path='/news' element={<News/>} />
         <Route path="/golfers" element={isLoggedIn ? <Golfers /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
         <Route path="/profile" element={isLoggedIn ? <Profile /> : <Login setIsLoggedIn={setIsLoggedIn} />} />

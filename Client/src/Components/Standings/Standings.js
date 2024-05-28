@@ -9,7 +9,7 @@ import UserList from '../UserList/UserList';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchProfilePics, selectProfilePics, fetchUsers, selectUsers, fetchUsersWithPicks } from '../../Features/userSlice';
 
-function Home() {
+function Standings() {
   const [openRules, setOpenRules] = useState(false);
   const [loading, setLoading] = useState(true);
   const users = useSelector(selectUsers);
@@ -103,4 +103,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default Standings;
