@@ -125,7 +125,7 @@ const CARD_ELEMENT_OPTIONS = {
               <b>Please note: Your purchase includes a $3 transaction fee</b>
             </Typography>
             <button type="submit" disabled={!stripe} className="button">
-              Pay $33
+              Pay $23
             </button>
           </form>
       </>

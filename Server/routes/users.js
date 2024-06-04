@@ -3,8 +3,6 @@ const getNextThursdayDate = require('../utils');
 const express = require('express');
 const router = express.Router();
 const User = require('../models/users'); // Assuming your User model is in models/User.js
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const cron = require('node-cron');
 
 cron.schedule('0 0 * * 0', async () => {
@@ -62,7 +60,6 @@ router.delete('/:username', async (req, res) => {
 router.get('/email/:username', async (req, res) => {
   try {
     const user = await User.findOne({username: req.params.username});
-    console.log(user);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
