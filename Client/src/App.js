@@ -68,18 +68,22 @@ function App() {
       <Header isLoggedIn={isLoggedIn} />
       {isLoggedIn && <button onClick={logout} >Logout</button>}
       <div className="main-content">
-        <Routes>
+      <Routes>
+        {poolName ? (
+          <Route path='/' element={<Standings />} />
+        ) : (
           <Route path='/' element={<Welcome />} />
-          <Route path="/Login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
-          <Route path="/Create-Pool" element={isLoggedIn ? <CreatePool /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
-          <Route path="/Join-Pool" element={isLoggedIn ? <JoinPool /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
-          <Route path="/Standings" element={isLoggedIn ? <Standings /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
-          <Route path="/how-to" element={isLoggedIn ? <HowTo /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
-          <Route path='/news' element={isLoggedIn ? <News /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
-          <Route path="/golfers" element={isLoggedIn ? <Golfers /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
-          <Route path="/profile" element={isLoggedIn ? <Profile /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
-          <Route path="/user-profile/:username" element={isLoggedIn ? <UserProfile /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
-        </Routes>
+        )}
+        <Route path="/Login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
+        <Route path="/Create-Pool" element={isLoggedIn ? <CreatePool /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
+        <Route path="/Join-Pool" element={isLoggedIn ? <JoinPool /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
+        <Route path="/Standings" element={isLoggedIn ? <Standings /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
+        <Route path="/how-to" element={isLoggedIn ? <HowTo /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
+        <Route path='/news' element={isLoggedIn ? <News /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
+        <Route path="/golfers" element={isLoggedIn ? <Golfers /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
+        <Route path="/profile" element={isLoggedIn ? <Profile /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
+        <Route path="/user-profile/:username" element={isLoggedIn ? <UserProfile /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
+      </Routes>
       </div>
     </div>
   );
