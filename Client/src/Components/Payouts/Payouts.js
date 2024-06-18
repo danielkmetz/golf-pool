@@ -33,7 +33,7 @@ function Payouts() {
                 variant="caption" 
                 sx={{ 
                     fontFamily: 'Rock Salt', 
-                    marginLeft: '2rem',
+                    marginLeft: '1rem',
                     fontSize: {
                         xs: '.7rem', // larger on smaller screens
                         sm: '0.7rem', 
@@ -43,13 +43,13 @@ function Payouts() {
                     }
                 }}
             >
-                1st: ${firstPlacePayout}
+                <b>1st:</b> ${firstPlacePayout}
             </Typography>
             <Typography 
                 variant="caption" 
                 sx={{ 
                     fontFamily: 'Rock Salt', 
-                    marginLeft: '2rem',
+                    marginLeft: '1rem',
                     fontSize: {
                         xs: '.7rem', // larger on smaller screens
                         sm: '.7rem', 
@@ -59,13 +59,13 @@ function Payouts() {
                     }
                 }}
             >
-                2nd: ${secondPlacePayout}
+                <b>2nd:</b> ${secondPlacePayout}
             </Typography>
             <Typography 
                 variant="caption" 
                 sx={{ 
                     fontFamily: 'Rock Salt', 
-                    marginLeft: '2rem',
+                    marginLeft: '1rem',
                     fontSize: {
                         xs: '.7rem', // larger on smaller screens
                         sm: '.7rem', 
@@ -75,7 +75,7 @@ function Payouts() {
                     }
                 }}
             >
-                3rd:  ${thirdPlacePayout}
+                <b>3rd: </b>${thirdPlacePayout}
             </Typography>
             </Card>
         </Container>

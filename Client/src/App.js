@@ -48,6 +48,8 @@ function App() {
     }
   }, [dispatch, poolName]);
 
+  console.log(poolName);
+
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('tournamentInfoCache');
