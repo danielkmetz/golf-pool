@@ -159,3 +159,85 @@ export const getScore = (name, liveResults) => {
     return;
   }
 };
+
+export const getToday = (name, liveResults) => {
+  const golfer = liveResults.find(g => g.player_name === name)
+  if (golfer) {
+    if (golfer.today > 0) {
+      return `+${golfer.today}`;
+    }
+    if (golfer.today === 0) {
+      return `E`;
+    }
+    return golfer.today; 
+  } else {
+    return;
+  }
+};
+
+export const sortUsers = (activeUsers, calculateLowestScores) => {
+  let sorted = activeUsers.map(user => {
+    const totalScore =
+      calculateLowestScores(user.username, 'R1') +
+      calculateLowestScores(user.username, 'R2') +
+      calculateLowestScores(user.username, 'R3') +
+      calculateLowestScores(user.username, 'R4');
+    const r4Score = calculateLowestScores(user.username, 'R4');
+    const r3Score = calculateLowestScores(user.username, 'R3');
+    const r2Score = calculateLowestScores(user.username, 'R2');
+    const r1Score = calculateLowestScores(user.username, 'R1');
+    return {
+      user,
+      totalScore,
+      r4Score,
+      r3Score,
+      r2Score,
+      r1Score,
+    };
+  }).sort((a, b) => {
+    if (a.totalScore === b.totalScore) {
+      if (a.r4Score === b.r4Score) {
+        if (a.r3Score === b.r3Score) {
+          if (a.r2Score === b.r2Score) {
+            return a.r1Score - b.r1Score;
+          }
+          return a.r2Score - b.r2Score;
+        }
+        return a.r3Score - b.r3Score;
+      }
+      return a.r4Score - b.r4Score;
+    }
+    return a.totalScore - b.totalScore;
+  });
+
+  // Adjust positions to handle tie-breaking and knock-on effects
+  for (let i = 0; i < sorted.length - 1; i++) {
+    let j = i + 1;
+    while (j < sorted.length && sorted[i].totalScore === sorted[j].totalScore &&
+           sorted[i].r4Score === sorted[j].r4Score &&
+           sorted[i].r3Score === sorted[j].r3Score &&
+           sorted[i].r2Score === sorted[j].r2Score &&
+           sorted[i].r1Score === sorted[j].r1Score) {
+      j++;
+    }
+    if (j > i + 1) {
+      const tieGroup = sorted.slice(i, j);
+      tieGroup.sort((a, b) => {
+        if (a.r4Score === b.r4Score) {
+          if (a.r3Score === b.r3Score) {
+            if (a.r2Score === b.r2Score) {
+              return a.r1Score - b.r1Score;
+            }
+            return a.r2Score - b.r2Score;
+          }
+          return a.r3Score - b.r3Score;
+        }
+        return a.r4Score - b.r4Score;
+      });
+      sorted.splice(i, tieGroup.length, ...tieGroup);
+      i = j - 1;
+    }
+  }
+
+  return sorted;
+};

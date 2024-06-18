@@ -1,6 +1,4 @@
 import React, {useEffect, useState} from 'react';
-import { Container } from '@mui/material';
-import { useDispatch } from 'react-redux';
 import { getThursdayDate } from '../../actions';
 
 function TournamentInfo() {
@@ -29,7 +27,6 @@ function TournamentInfo() {
             
             setTournamentInfo(tournaments);
             setCurrentTournament(thursdayTournament)
-            console.log(currentTournament)
         }
         fetchInfo();
     }, []);

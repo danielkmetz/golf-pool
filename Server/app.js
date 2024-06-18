@@ -12,10 +12,13 @@ const stripeRoute = require('./routes/stripe');
 const liveRoute = require('./routes/liveResults')
 const leaderboardRoute = require('./routes/leaderboard');
 const oddsRoute = require('./routes/odds');
-const dataGolfRoute = require('./routes/dataGolf');
 const picsRoute = require('./routes/profilePics');
 const scheduleRoute = require('./routes/schedule');
 const tutorial = require('./routes/tutorial');
+const createPool = require('./routes/createPool');
+const http = require('http');
+const socketIo = require('socket.io').Server;
+const Message = require('./models/messages');
 const User = require('./models/users');
 const LocalStrategy = require('passport-local').Strategy;
 const connectUserDB = require('./Config/userDB');
@@ -27,6 +30,47 @@ connectUserDB();
 
 const secret = uuid();
 const app = express();
+
+const server = http.createServer(app);
+const io = new socketIo(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST']
+  }
+});
+
+io.on('connection', (socket) => {
+  console.log('A user connected:', socket.id);
+
+  socket.on('joinPool', (poolName) => {
+      socket.join(poolName);
+      console.log(`User joined pool: ${poolName}`);
+  });
+
+  socket.on('chatMessage', async (msg) => {
+      console.log('Received chat message:', msg);
+      const newMessage = new Message({
+          username: msg.username,
+          message: msg.message,
+          poolName: msg.poolName,
+      });
+      try {
+          await newMessage.save();
+          io.to(msg.poolName).emit('chatMessage', {
+              username: newMessage.username,
+              message: newMessage.message,
+              poolName: newMessage.poolName
+          });
+          console.log('Emitted chat message to pool:', msg.poolName);
+      } catch (err) {
+          console.error('Error saving message:', err);
+      }
+  });
+
+  socket.on('disconnect', () => {
+      console.log('User disconnected:', socket.id);
+  });
+});
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -121,12 +165,50 @@ app.use('/api/liveResults', liveRoute);
 app.use('/api/leaderboard', leaderboardRoute);
 app.use('/api/golfer-odds', oddsRoute);
 app.use('/api/profile-pics', picsRoute);
-app.use('/api/data-golf', dataGolfRoute);
 app.use('/api/schedule', scheduleRoute);
 app.use('/api/video-tutorial', tutorial);
+app.use('/api/create-pool', createPool);
+
+app.post('/api/chat', async (req, res) => {
+  try {
+    const { username, message, poolName } = req.body;
+
+    // Create a new message instance
+    const newMessage = new Message({
+      username,
+      message,
+      poolName,
+    });
+
+    // Save the message to the database
+    await newMessage.save();
+
+    // Emit the message to all clients in the same pool
+    io.to(poolName).emit('chatMessage', newMessage);
+
+    res.status(200).json({ success: true, message: 'Message sent successfully' });
+  } catch (error) {
+    console.error('Error sending message:', error);
+    res.status(500).json({ success: false, message: 'Failed to send message' });
+  }
+});
+
+app.get('/api/chat', async (req, res) => {
+  try {
+    const { poolName } = req.query;
+
+    // Fetch messages from the database for the specified poolName
+    const messages = await Message.find({ poolName }).sort({ createdAt: 1 });
+
+    res.status(200).json({ success: true, messages });
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch messages' });
+  }
+});
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

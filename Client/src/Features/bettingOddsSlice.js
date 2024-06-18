@@ -2,30 +2,19 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 const url = `${process.env.REACT_APP_API_URL}/golfer-odds`
-const dgUrl = `${process.env.REACT_APP_API_URL}/data-golf` 
 
 export const fetchOdds = createAsyncThunk(
   'bettingOdds/fetchOdds',
   async () => {
       const response = await axios.get(url);
-      console.log(response.data.length);
-      
-      if (response.data.length === 0) {
-          const response2 = await axios.get(dgUrl);
-          return response2.data.map(i => i).sort((a, b) => {
-              if (b.draftkings === a.draftkings) {
-                  return a.player_name.localeCompare(b.player_name);
-              }
-              return b.draftkings - a.draftkings;
-          });
-      } else {
-          return response.data.map(i => i).sort((a, b) => {
-              if (b.draftkings === a.draftkings) {
-                  return a.player_name.localeCompare(b.player_name);
-              }
-              return b.draftkings - a.draftkings;
-          });
-      }
+
+      // Sort the data before returning it
+      return response.data.map(i => i).sort((a, b) => {
+          if (b.draftkings === a.draftkings) {
+              return a.player_name.localeCompare(b.player_name);
+          }
+          return b.draftkings - a.draftkings;
+      });
   }
 );
 
@@ -91,20 +80,40 @@ export const bettingOddsSlice = createSlice({
             const { tier, player_name, draftkings } = action.payload;
             switch (tier) {
               case 1:
-                state.tier1Results.push({player_name, draftkings});
-                state.tier1Results.sort((a, b) => b.draftkings - a.draftkings);
+                state.tier1Results.push({ player_name, draftkings });
+                state.tier1Results.sort((a, b) => {
+                    if (a.draftkings === b.draftkings) {
+                        return a.player_name.localeCompare(b.player_name);
+                    }
+                    return b.draftkings - a.draftkings;
+                });
                 break;
               case 'Tier2':
-                state.tier2Results.push(player_name);
-                state.tier2Results.sort((a, b) => b.draftkings - a.draftkings);
+                state.tier2Results.push({player_name, draftkings});
+                state.tier2Results.sort((a, b) => {
+                    if (a.draftkings === b.draftkings) {
+                        return a.player_name.localeCompare(b.player_name);
+                    }
+                    return b.draftkings - a.draftkings;
+                });
                 break;
               case 'Tier3':
-                state.tier3Results.push(player_name);
-                state.tier3Results.sort((a, b) => b.draftkings - a.draftkings);
+                state.tier3Results.push({player_name, draftkings});
+                state.tier3Results.sort((a, b) => {
+                    if (a.draftkings === b.draftkings) {
+                        return a.player_name.localeCompare(b.player_name);
+                    }
+                    return b.draftkings - a.draftkings;
+                });
                 break;
               case 'Tier4':
-                state.tier4Results.push(player_name);
-                state.tier4Results.sort((a, b) => b.draftkings - a.draftkings);
+                state.tier4Results.push({player_name, draftkings});
+                state.tier4Results.sort((a, b) => {
+                    if (a.draftkings === b.draftkings) {
+                        return a.player_name.localeCompare(b.player_name);
+                    }
+                    return b.draftkings - a.draftkings;
+                });
                 break;
               default:
                 break;

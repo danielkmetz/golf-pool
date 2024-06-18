@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { Box, Typography, Link, Avatar, Divider, InputAdornment, TextField } from '@mui/material';
-import { selectUsers } from '../../Features/userSlice';
+import { selectPoolUsers } from '../../Features/poolsSlice';
 import { useSelector } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
 import { selectProfilePics } from '../../Features/userSlice';
 
 function UserList() {
     const profilePics = useSelector(selectProfilePics);
-    const users = useSelector(selectUsers);
+    const poolUsers = useSelector(selectPoolUsers);
     const [searchQuery, setSearchQuery] = useState('');
 
     // Filter users based on search query
-    const filteredUsers = users.filter(user =>
+    const filteredUsers = poolUsers.filter(user =>
         user.username.toLowerCase().includes(searchQuery.toLowerCase())
     );
 

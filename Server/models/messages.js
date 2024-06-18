@@ -1,0 +1,13 @@
+const mongoose = require('mongoose');
+
+const messageSchema = new mongoose.Schema({
+    username: String,
+    message: String,
+    timestamp: { type: Date, default: Date.now },
+    poolName: String,
+  });
+
+const Message = mongoose.model('Message', messageSchema);
+
+module.exports = Message;
+

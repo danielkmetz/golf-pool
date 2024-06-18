@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Box, Typography, Button, Dialog, } from '@mui/material';
+import { Container, Box, Typography, Button, Dialog, Card, Paper } from '@mui/material';
 import {
   selectTier1Picks,
   selectTier2Picks,
@@ -19,7 +19,7 @@ import {
 } from '../../Features/myPicksSlice';
 import SubmissionWindow from './submissionWindow';
 import axios from 'axios';
-import { fetchUsername, selectUsername } from '../../Features/userSlice';
+import { selectUsername } from '../../Features/userSlice';
 import CheckoutPage from '../Checkout/CheckoutPage';
 import {
   selectPaymentStatus,
@@ -30,6 +30,7 @@ import { addGolferToAvailable, selectOddsResults } from '../../Features/bettingO
 function MyPicks() {
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
+  const [goodluck, setGoodluck] = useState(false);
   const username = useSelector(selectUsername);
   const [showCheckout, setShowCheckout] = useState(true);
   const tier1Picks = useSelector(selectTier1Picks);
@@ -44,11 +45,6 @@ function MyPicks() {
   const totalPicksLength = tier1Picks.length + tier2Picks.length + tier3Picks.length + tier4Picks.length;
 
   const isSubmitDisabled = currentDay >= 4 || currentDay === 0 || totalPicksLength < 8;
-
-  // fetch username
-  useEffect(() => {
-    dispatch(fetchUsername());
-  }, [dispatch]);
 
   const handleSubmission = async () => {
     try {
@@ -89,6 +85,7 @@ function MyPicks() {
 
   const handleClose = () => {
     setOpen(false);
+    setGoodluck(false);
   };
 
   const handleCloseCheckout = () => {
@@ -109,61 +106,102 @@ function MyPicks() {
         break;
       case 2:
         dispatch(removeTier2Golfer(golferName));
-        dispatch(addGolferToAvailable({tier: 'Tier2', player_name: golferName}))
+        dispatch(addGolferToAvailable({tier: 'Tier2', player_name: golferName, draftkings: odds}))
         break;
       case 3:
         dispatch(removeTier3Golfer(golferName));
-        dispatch(addGolferToAvailable({tier: 'Tier3', player_name: golferName}))
+        dispatch(addGolferToAvailable({tier: 'Tier3', player_name: golferName, draftkings: odds}))
         break;
       case 4:
         dispatch(removeTier4Golfer(golferName));
-        dispatch(addGolferToAvailable({tier: 'Tier4', player_name: golferName}))
+        dispatch(addGolferToAvailable({tier: 'Tier4', player_name: golferName, draftkings: odds}))
         break;
       default:
         break;
     }
   }
 
-  //console.log('payment status from myPicks', paymentStatus);
   return (
-    <Container className="my-picks" sx={{ marginTop: '2rem', border: '2px solid grey', padding: '1rem', position: 'relative' }}>
-      <div style={{ backgroundColor: 'lightblue', width: '100%', padding: '0.5rem .01rem', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'absolute', top: 0, left: 0 }}>
-        <Typography variant="h5" style={{ color: 'black', marginLeft: "1rem" }}>My Picks</Typography>
-        <Button variant="contained" onClick={handleClickOpen} disabled={isSubmitDisabled} sx={{marginRight: "1rem"}}>
-          SUBMIT
-        </Button>
-      </div>
-      <Container sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', marginTop: '3rem' }}>
-        <SubmissionWindow isOpen={open} handleSubmission={handleSubmission}>
-          <Typography sx={{ textAlign: 'center' }}>Your picks have been saved to your profile</Typography>
-          <Typography sx={{ textAlign: 'center' }}>Good luck!</Typography>
-        </SubmissionWindow>
-      </Container>
-      {/* Render checkout page as a popup */}
-      {!paymentStatus && showCheckout && (
-        <Dialog open={open} maxWidth="md" fullWidth>
-          <CheckoutPage handleSubmission={handleSubmission} onClose={handleCloseCheckout} />
-        </Dialog>
-      )}
-      {[tier1Picks, tier2Picks, tier3Picks, tier4Picks].map((tierPicks, index) => (
-        <Box key={index} className="picks-by-tier" sx={{ marginTop: '1rem' }}>
-          <Typography variant="caption">Tier {index + 1}:</Typography>
-          {tierPicks.map((golfer, golferIndex) => (
-            <Box key={golferIndex} sx={{ display: 'flex', alignItems: 'center', marginTop: '0.5rem' }}>
-              <Typography variant="body1" sx={{ flexGrow: 1 }}>
-                {golfer.player_name || golfer}
-              </Typography>
-              <Button variant="contained" size="small" onClick={() => tierRemoval(index + 1, golfer)}>
-                -
-              </Button>
-            </Box>
-          ))}
-        </Box>
-      ))}
-    </Container>
+    <Card className="my-picks" 
+      sx={{ 
+        marginTop: '2rem', 
+        backgroundColor: '#f5f5f5', 
+        padding: '1rem', 
+        position: 'relative' }}>
+        <div style={{ 
+          backgroundColor: 'lightgreen', 
+          width: '100%', 
+          padding: '0.5rem .01rem', 
+          marginBottom: '1rem', 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          position: 'absolute', top: 0, left: 0 }}>
+          <Typography variant="h5" style={{ color: 'black', marginLeft: "1rem", fontFamily: 'Rock Salt' }}>
+            My Picks
+          </Typography>
+          <Button 
+            variant="contained" 
+            onClick={() => {
+              if (paymentStatus) {
+                handleSubmission();
+                setGoodluck(true);
+              } else {
+                setOpen(true);
+                setGoodluck(true);
+              }
+            }} 
+            disabled={isSubmitDisabled} 
+            sx={{
+              marginRight: "1rem", 
+              backgroundColor: 'red',
+              '&:hover': {
+                backgroundColor: 'darkred',
+              }
+            }}
+          >
+            SUBMIT
+          </Button>
+        </div>
+        <Container sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', marginTop: '3rem' }}>
+          <SubmissionWindow isOpen={goodluck} handleClose={handleClose}>
+            <Typography sx={{ textAlign: 'center' }}>Your picks have been saved to your profile</Typography>
+            <Typography sx={{ textAlign: 'center' }}>Good luck!</Typography>
+          </SubmissionWindow>
+        </Container>
+        {/* Render checkout page as a popup */}
+        {!paymentStatus && showCheckout && (
+          <Dialog open={open} maxWidth="md" fullWidth>
+            <CheckoutPage handleSubmission={handleSubmission} onClose={handleCloseCheckout} />
+          </Dialog>
+        )}
+        {[tier1Picks, tier2Picks, tier3Picks, tier4Picks].map((tierPicks, index) => (
+          <Box key={index} className="picks-by-tier" sx={{ marginTop: '1rem' }}>
+            <Typography variant="h7" sx={{textDecoration: 'underline'}}><b>Tier {index + 1}:</b></Typography>
+            {tierPicks.map((golfer, golferIndex) => (
+              <Box key={golferIndex} sx={{ display: 'flex', alignItems: 'center', marginTop: '0.5rem' }}>
+                <Typography variant="body1" sx={{ flexGrow: 1 }}>
+                  {golfer.player_name || golfer}
+                </Typography>
+                <Button 
+                  variant="contained" 
+                  size="small" 
+                  onClick={() => tierRemoval(index + 1, golfer)}
+                  sx={{
+                    backgroundColor: '#222',
+                    '&:hover': {
+                      backgroundColor: 'DarkGreen',
+                    }
+                  }}  
+                >
+                  -
+                </Button>
+              </Box>
+            ))}
+          </Box>
+        ))}
+    </Card>
   );
-  
 }
 
 export default MyPicks;
-

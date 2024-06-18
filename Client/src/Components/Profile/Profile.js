@@ -6,12 +6,19 @@ import CurrentPicks from './currentPicks';
 import { fetchUserPicks } from '../../Features/myPicksSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAllPicks, deleteUserPicks } from '../../Features/myPicksSlice';
-import { fetchUsername, selectUsername, setUsername } from '../../Features/userSlice';
 import ChangeInfoModal from './ChangeInfoModal';
 import { fetchEmail, 
     selectEmail, 
     fetchProfilePic, 
-    selectProfilePic, uploadProfilePic, updateUsername, updateUsernameMyPicks, } from '../../Features/userSlice';
+    selectProfilePic, 
+    uploadProfilePic, 
+    updateUsername, 
+    updateUsernameMyPicks,
+    updateUsernamePool,
+    setUsername,
+    selectUsername,
+    fetchUsername,
+ } from '../../Features/userSlice';
 
 function Profile() {
     const username = useSelector(selectUsername);
@@ -34,7 +41,7 @@ function Profile() {
 
     useEffect(() => {
         dispatch(fetchUsername());
-    }, [dispatch, newUsername]);
+    }, [dispatch, newUsername, username]);
 
     useEffect(() => {
         setLoading(true)
@@ -78,15 +85,17 @@ function Profile() {
     const token = localStorage.getItem('token');
     
     const handleSubmitUsername = () => {
+        // Trim the new username before dispatching the actions
+        const trimmedUsername = newUsername.trim();
         // Send the updated username to your backend route for updating user data
-        // For simplicity, let's assume you have a function updateUsername in your myPicksSlice
-        dispatch(updateUsername({ username, newUsername, token }));
-        dispatch(updateUsernameMyPicks({ username, newUsername}))
+        dispatch(updateUsername({ username, newUsername: trimmedUsername, token }));
+        dispatch(updateUsernameMyPicks({ username, newUsername: trimmedUsername }));
+        dispatch(updateUsernamePool({ username, newUsername: trimmedUsername }));
         handleCloseModal();
-
+    
         setTimeout(() => {
-            dispatch(setUsername(newUsername));
-        }, 1000)
+            dispatch(setUsername(trimmedUsername));
+        }, 1000);
     };
 
     const handleFileChange = (event) => {
@@ -177,7 +186,17 @@ function Profile() {
                         <Button variant="contained" color="error" disabled={isSubmitDisabled} onClick={handleDeletePicks}>
                             Delete Picks
                         </Button>
-                        <Button variant="contained" color="primary" onClick={handleOpenModal}>
+                        <Button 
+                            variant="contained" 
+                            color="primary" 
+                            onClick={handleOpenModal}
+                            sx={{
+                                backgroundColor: '#222',
+                                '&:hover': {
+                                    backgroundColor: 'DarkGreen',
+                                }
+                            }}
+                        >
                             Change Username
                         </Button>
                         <ChangeInfoModal

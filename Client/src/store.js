@@ -6,6 +6,8 @@ import tournamentInfoReducer from "./Features/TournamentInfoSlice";
 import paymentStatusReducer from './Features/paymentStatusSlice';
 import usersReducer from './Features/userSlice';
 import NewsReducer from './Features/NewsSlice';
+import PoolsReducer from './Features/poolsSlice';
+import chatReducer from './Features/chatSlice';
 
 const store = configureStore({
     reducer: combineReducers({
@@ -16,6 +18,8 @@ const store = configureStore({
         paymentStatus: paymentStatusReducer,
         users: usersReducer,
         news: NewsReducer,
+        pools: PoolsReducer,
+        chat: chatReducer,
     })
 });
 

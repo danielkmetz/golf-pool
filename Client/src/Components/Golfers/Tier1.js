@@ -42,7 +42,6 @@ function Tier1() {
   useEffect(() => {
     dispatch(fetchOdds());
   }, [dispatch]);
-
   
   const handleOptionChange = (event) => {
     const selectedValue = event.target.value;
@@ -83,7 +82,6 @@ function Tier1() {
   const containerStyle = {
     marginTop: '2rem',
     height: '70vh',
-    overflow: 'auto',
     marginRight: '2rem',
   };
 
@@ -93,10 +91,12 @@ function Tier1() {
   };
 
   const oddsContainerStyle = {
-    marginTop: '2rem',
+    marginTop: '.5rem',
     padding: '1rem',
     backgroundColor: '#f5f5f5',
     borderRadius: '8px',
+    overflow: 'auto',
+    height: '57vh',
   };
 
   return (
@@ -119,14 +119,14 @@ function Tier1() {
       </Select>
       {selectedOption && (
         <Paper elevation={3} style={oddsContainerStyle}>
-          <Typography variant="h5" gutterBottom>
+          <Typography variant="h5" gutterBottom sx={{textDecoration: 'underline'}}>
             {selectedOption === 'Tier2'
-              ? 'Tier 2 Golfers (PICK 2)'
+              ? 'Pick 2 from Tier 2'
               : selectedOption === 'Tier3'
-              ? 'Tier 3 Golfers (PICK 2)'
+              ? 'Pick 2 from Tier 3'
               : selectedOption === 'Tier4'
-              ? 'Tier 4 Golfers (PICK 1)'
-              : 'Tier 1 Golfers (PICK 3)'}
+              ? 'Pick 1 from Tier 4'
+              : 'Pick 3 from Tier 1'}
           </Typography>
           {selectedOption === 'Tier2' ? (
             <BettingOdds oddsResults={tier2Results} addGolfer={addGolfer} />

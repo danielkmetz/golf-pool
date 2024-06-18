@@ -4,17 +4,28 @@ import {
     Dialog,
     DialogActions,
     DialogContent,
-    DialogTitle
+    DialogTitle,
 } from '@mui/material';
 
-function SubmissionWindow({isOpen, handleClose, title, children, handleSubmission}) {
-
+function SubmissionWindow({isOpen, handleClose, title, children}) {
     return (
-        <Dialog open={isOpen} onClose={handleClose}>
+        <Dialog open={isOpen}>
             <DialogTitle>{title}</DialogTitle>
             <DialogContent>{children}</DialogContent>
             <DialogActions>
-                <Button onClick={handleSubmission}>Close</Button>
+                <Button 
+                    variant='conatained' 
+                    onClick={handleClose}
+                    sx={{
+                        backgroundColor: 'DarkGreen',
+                        color: 'white',
+                        '&:hover': {
+                            backgroundColor: 'green',
+                        }
+                    }}
+                >
+                    Close
+                </Button>
             </DialogActions>
         </Dialog>
     )

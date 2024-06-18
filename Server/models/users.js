@@ -10,6 +10,10 @@ const UserSchema = new mongoose.Schema({
     paymentExpiryDate: Date,
     email: String,
     profilePic: String,
+    lastReadMessageTimestamp: {
+      type: Date,
+      default: Date.now,
+  },
 });
 
 // Middleware to update payment expiry date before saving the user

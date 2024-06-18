@@ -1,10 +1,9 @@
-import React, { useEffect } from 'react';
-import { Container, Typography } from '@mui/material';
-import { useDispatch, useSelector } from 'react-redux';
-import { selectActiveUsers, fetchUsersWithPicks } from '../../Features/userSlice';
+import React from 'react';
+import { Container, Typography, Card } from '@mui/material';
+import { useSelector } from 'react-redux';
+import { selectActiveUsers, } from '../../Features/userSlice';
 
 function Payouts() {
-    const dispatch = useDispatch();
     const activeUsers = useSelector(selectActiveUsers);
 
     const totalActive = activeUsers.length;
@@ -13,7 +12,8 @@ function Payouts() {
     const thirdPlacePayout = Math.floor((totalActive * 30) * 0.084);
 
     return (
-        <Container sx={{ marginBottom: '1rem', marginTop: '-1rem', display: 'flex', justifyContent: 'center' }}>
+        <Container sx={{ marginBottom: '.5rem', marginTop: '-1.5rem', display: 'flex', justifyContent: 'center' }}>
+            <Card sx={{padding: '.5rem'}}>
             <Typography 
                 variant="h7" 
                 sx={{ 
@@ -77,6 +77,7 @@ function Payouts() {
             >
                 3rd:  ${thirdPlacePayout}
             </Typography>
+            </Card>
         </Container>
     );
 }

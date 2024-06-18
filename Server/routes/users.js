@@ -4,6 +4,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/users'); // Assuming your User model is in models/User.js
 const cron = require('node-cron');
+const Pool = require('../models/createPool')
 
 cron.schedule('0 0 * * 0', async () => {
   try {
@@ -105,6 +106,40 @@ router.get('/paymentStatus/:username', async (req, res) => {
       paymentStatus: user.paymentStatus,
       paymentExpiryDate: user.paymentExpiryDate,
     });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.put('/lastReadTimestamp/:username', async (req, res) => {
+  try {
+    const now = new Date();
+    const updatedUser = await User.findOneAndUpdate(
+      { username: req.params.username },
+      { lastReadMessageTimestamp: now },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({ success: true, user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.get('/lastReadTimestamp/:username', async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.params.username });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ lastReadTimestamp: user.lastReadMessageTimestamp });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });

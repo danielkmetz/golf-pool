@@ -42,7 +42,15 @@ function RulesDialog({ isOpen, handleClose }) {
         </Typography>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose} color="primary">
+        <Button 
+          onClick={handleClose} 
+          sx={{
+            backgroundColor: '#222', 
+            color: 'white',
+            '&:hover': {
+              backgroundColor: '#004d00',
+            }
+            }}>
           Close
         </Button>
       </DialogActions>

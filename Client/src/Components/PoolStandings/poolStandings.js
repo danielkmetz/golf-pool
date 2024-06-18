@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
     TableContainer, 
     Table, 
@@ -14,37 +14,61 @@ import {
 import GolfersModal from './golfersModal';
 import { fetchTotalPicks, selectTotalPicks } from '../../Features/myPicksSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchLiveModel, selectLiveResults } from '../../Features/LeaderboardSlice';
-import { fetchTournamentInfo, selectTournamentInfo } from '../../Features/TournamentInfoSlice';
-import { fetchUsers, selectUsers, selectActiveUsers, fetchUsersWithPicks, fetchProfilePics, selectProfilePics } from '../../Features/userSlice';
-import { getRoundScore } from '../../actions';
+import { selectLiveResults } from '../../Features/LeaderboardSlice';
+import { selectTournamentInfo } from '../../Features/TournamentInfoSlice';
+import { selectProfilePics, selectActiveUsers, 
+  selectUsers, fetchProfilePics, 
+  fetchUsersWithPicks, } from '../../Features/userSlice';
+import { selectPoolUsers } from '../../Features/poolsSlice';
+import { getRoundScore, sortUsers, } from '../../actions';
 import Payouts from '../Payouts/Payouts';
-import axios from 'axios';
+import PoolInfo from '../PoolInfo/PoolInfo';
+import Results from '../Results/Results';
 
 function PoolStandings() {
-    const users = useSelector(selectUsers);
-    const activeUsers = useSelector(selectActiveUsers);
     const [selectedUser, setSelectedUser] = useState(null);
     const [open, setOpen] = useState(false);
-    //const [profilePics, setProfilePics] = useState({});
     const liveResults = useSelector(selectLiveResults);
     const tournamentInfo = useSelector(selectTournamentInfo);
+    const poolUsers = useSelector(selectPoolUsers);
     const totalPicks = useSelector(selectTotalPicks);
     const profilePics = useSelector(selectProfilePics)
+    const users = useSelector(selectUsers);
     const dispatch = useDispatch();
+    const activeUsers = useSelector(selectActiveUsers);
+    const [podiumOpen, setPodiumOpen] = useState(false);
+  
     const currentDate = new Date();
     const currentDay = currentDate.getDay();
     const coursePar = tournamentInfo.Par;
-    
-    //fetch all current users from mongoDB
-    useEffect(() => {
-        dispatch(fetchLiveModel());
-        dispatch(fetchTournamentInfo());
+
+   useEffect(() => {
+        dispatch(fetchTotalPicks());
     }, [dispatch]);
 
     useEffect(() => {
-        dispatch(fetchTotalPicks());
-    }, [dispatch])
+      if (poolUsers.length > 0) {
+        dispatch(fetchUsersWithPicks(poolUsers));
+      }
+    }, [dispatch, poolUsers]);
+    
+    const poolUserProfilePics = useMemo(() => {
+      return poolUsers.map(user => {
+        const profilePicObj = users.find(profile => profile.username === user.username);
+        const profilePic = profilePicObj ? profilePicObj.profilePic : '';
+        return { ...user, profilePic };
+      });
+    }, [users, poolUsers]);
+  
+    const userPics = poolUserProfilePics
+      .filter(user => user && user.profilePic)
+      .map(user => ({ username: user.username, profilePic: user.profilePic }));
+  
+    useEffect(() => {
+      if (userPics.length > 0) {
+        dispatch(fetchProfilePics(userPics));
+      }
+    }, [dispatch, poolUsers]);  
 
     const organizeAndCalculateLowestScores = (userData, resultsData, coursePar) => {
         let organizedData = [];
@@ -86,6 +110,10 @@ function PoolStandings() {
         liveResults,
         coursePar
       );
+
+    const allGolfersHaveR4Score = useMemo(() => {
+        return organizedData.every(golfer => golfer.R4 !== null && golfer.R4 !== undefined);
+      }, [organizedData]);
       
     const handleClick = (user) => {
         setSelectedUser(user.username);
@@ -96,24 +124,38 @@ function PoolStandings() {
         setSelectedUser(null);
         setOpen(false);
     }
+
+    const handlePodiumClose = () => {
+      setPodiumOpen(false);
+    }
+
+    useEffect(() => {
+      if (currentDay === 0 && allGolfersHaveR4Score) {
+        setPodiumOpen(true);
+      }
+    }, [currentDay, allGolfersHaveR4Score]);
+
+    const sortedUsers = useMemo(() => sortUsers(activeUsers, calculateLowestScores), [activeUsers, calculateLowestScores]);
+
+    const topThreeUsers = sortedUsers.slice(0, 3);
   
-  return (
+    return (
       <>
         <Paper sx={{ padding: '1rem', 
-          marginBottom: '2rem', 
-          borderRadius: '8px', 
+          marginBottom: '.5rem', 
+          borderRadius: '8px',
+          backgroundColor: 'LightGray', 
           boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)' }}>
               <Typography
                   variant="h4"
                   sx={{
-                  marginTop: '1rem',
-                  backgroundColor: '#009688', // Orange background color
+                  backgroundColor: '#222', // Orange background color
                   color: '#FFF', // White text color
                   fontFamily: 'Roboto, sans-serif', // Use a professional font
                   fontWeight: 'bold',
                   fontSize: '2rem',
                   textAlign: 'center',
-                  padding: '1rem', // Add padding for better spacing
+                  padding: '.5rem', // Add padding for better spacing
                   borderRadius: '8px', // Rounded corners
                   boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)', // Soft shadow for depth
                   }}
@@ -122,6 +164,7 @@ function PoolStandings() {
               </Typography>
           </Paper>
           <Container>
+            <PoolInfo />
             <Payouts/>
           </Container>
           <TableContainer sx={{maxHeight: '600px'}}>
@@ -156,7 +199,7 @@ function PoolStandings() {
                           user,
                           totalScore,
                         };
-                    }).sort((a, b) => a.totalScore - b.totalScore).map(({ user, totalScore }) => (
+                        }).sort((a, b) => a.totalScore - b.totalScore).map(({ user, totalScore }) => (
                           <TableRow key={user._id}>
                             <TableCell 
                               onClick={() => handleClick(user)} 
@@ -177,6 +220,11 @@ function PoolStandings() {
             </Table>
             { currentDay >= 4 || currentDay === 0 ? <GolfersModal user={selectedUser} isOpen={open} handleClose={handleClose}/> : null }
         </TableContainer>
+        <Results
+          podiumOpen={podiumOpen}
+          handlePodiumClose={handlePodiumClose}
+          topThreeUsers={topThreeUsers}
+        />
       </>
     );
 }

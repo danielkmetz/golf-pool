@@ -1,14 +1,9 @@
 import React, {useState} from 'react';
 import { Container, Button, Menu, MenuItem } from '@mui/material';
-import { selectOddsResults } from '../../Features/bettingOddsSlice';
-import { useSelector } from 'react-redux';
-
 
 function TierNavBar() {
     const [anchor, setAnchor] = useState(null);
     const open = Boolean(anchor);
-    const oddsResults = useSelector(selectOddsResults);
-
     
     const handleClick = (event) => {
         setAnchor(event.currentTarget);

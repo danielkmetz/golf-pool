@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Box, Grid, CircularProgress, useMediaQuery } from '@mui/material';
+import { Container, Box, Grid, useMediaQuery } from '@mui/material';
 import Tier1 from './Tier1';
 import MyPicks from './myPicks';
+import GolfBallLoading from '../GolfBallLoading/GolfBallLoading';
 
 function Golfers() {
     const [loading, setLoading] = useState(true);
@@ -9,17 +10,17 @@ function Golfers() {
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            setLoading(false); // Set loading to false after data is 'fetched'
-        }, 1000); // 2000 ms delay to mimic fetch delay
+            setLoading(false);
+        }, 1000); 
 
-        return () => clearTimeout(timer); // Clean up the timer
+        return () => clearTimeout(timer);
     }, []);
 
     return (
         <Container>
             {loading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                    <CircularProgress />
+                    <GolfBallLoading />
                 </Box>
             ) : (
                 <Grid container spacing={2} justifyContent="center">

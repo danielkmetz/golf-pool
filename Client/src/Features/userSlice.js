@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, createSelector } from "@reduxjs/toolkit";
 import { jwtDecode } from "jwt-decode";
 import axios from 'axios';
 
@@ -32,7 +32,6 @@ export const updateUsername = createAsyncThunk(
         );
 
         //dispatch(userSlice.actions.setUsername(newUsername));
-        console.log(response.data)
         localStorage.setItem('token', response.data.token)
         return response.data;
       } catch (error) {
@@ -47,7 +46,7 @@ export const updateUsernameMyPicks = createAsyncThunk(
     'users/updateUsernameMyPicks',
     async ({ username, newUsername}) => {
         try {
-            const response = axios.put(
+            const response = await axios.put(
                 `${process.env.REACT_APP_API_URL}/userpicks/update-username/${username}`, {
                     newUsername: newUsername,
                 })
@@ -59,6 +58,21 @@ export const updateUsernameMyPicks = createAsyncThunk(
     }
 )
 
+export const updateUsernamePool = createAsyncThunk(
+    'users/updateUsernamePool',
+    async ({ username, newUsername}) => {
+        try {
+            const response = await axios.put(
+                `${process.env.REACT_APP_API_URL}/create-pool/update-username/${username}`, {
+                    newUsername: newUsername,
+                })
+            
+            return response.data;
+        } catch (error) {
+
+        }
+    }
+)
 
 export const fetchEmail = createAsyncThunk(
     'user/fetchEmail',
@@ -94,7 +108,6 @@ export const uploadProfilePic = createAsyncThunk(
             const formData = new FormData();
             formData.append('image', image);
             formData.append('username', username);
-            console.log(image)
             const response = await axios.post(`${process.env.REACT_APP_API_URL}/profile-pics`, formData, {
                 headers: {
                     'accept': 'application/json',
@@ -167,15 +180,48 @@ export const fetchProfilePics = createAsyncThunk(
     }
 );
 
+export const updateLastReadTimestamp = createAsyncThunk(
+    'users/updateLastReadTimestamp', 
+    async (username, { dispatch }) => {
+        try {
+            // Your logic to update the last read timestamp in the backend
+            const response = await axios.put(`${process.env.REACT_APP_API_URL}/users/lastReadTimestamp/${username}`);
+            const lastReadTimestamp = response.data.lastReadTimestamp;
+            
+            // Dispatch action to set last read timestamp in Redux state
+            dispatch(setLastReadTimestamp(lastReadTimestamp));
+        } catch (error) {
+            console.error('Error updating last read timestamp:', error);
+            throw error;
+        }
+    }
+);
+
+export const fetchTimestamp = createAsyncThunk(
+    'users/fetchTimeStamp',
+    async (username) => {
+        try {
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/users/lastReadTimestamp/${username}`);
+            return response.data.lastReadTimestamp;
+        } catch (error) {
+            console.error(error)
+        }
+    }
+);
+
+
 const userSlice = createSlice({
     name: 'users',
     initialState: {
         email: '',
         profilePic: null,
-        username: '',
+        username: null,
         users: [],
         activeUsers: [],
         profilePics: {},
+        usernameStatus: 'idle',
+        unreadMessages: 0,
+        lastReadTimestamp: null,
     },
     reducers: {
         setUserPhoto: (state, action) => {
@@ -183,7 +229,19 @@ const userSlice = createSlice({
         },
         setUsername: (state, action) => {
             state.username = action.payload;
-        }
+        },
+        resetActiveUsers: (state, action) => {
+            state.activeUsers = [];
+        },
+        setLastReadTimestamp: (state, action) => {
+            state.lastReadTimestamp = action.payload;
+        },
+        incrementUnreadMessages: (state) => {
+            state.unreadMessages += 1;
+        },
+        resetUnreadMessages: (state) => {
+            state.unreadMessages = 0;
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -221,15 +279,15 @@ const userSlice = createSlice({
                 state.status = "failed";
             })
             .addCase(fetchUsername.pending, (state) => {
-                state.status = "loading";
+                state.usernameStatus = "loading";
             })
             .addCase(fetchUsername.fulfilled, (state, action) => {
                 state.username = action.payload;
-                state.status = "succeeded";
+                state.usernameStatus = "succeeded";
             })
             .addCase(fetchUsername.rejected, (state, action) => {
                 state.error = action.payload;
-                state.status = "failed";
+                state.usernameStatus = "failed";
             })
             .addCase(fetchUsers.pending, (state) => {
                 state.status = "loading";
@@ -254,7 +312,13 @@ const userSlice = createSlice({
             .addCase(fetchProfilePics.rejected, (state, action) => {
                 console.error(action.payload);
             })
-    },
+            .addCase(fetchTimestamp.fulfilled, (state, action) => {
+                state.lastReadTimestamp = action.payload;
+            })
+            .addCase(fetchTimestamp.rejected, (state, action) => {
+                console.error(action.payload);
+            })
+        },
 });
 
 export default userSlice.reducer;
@@ -265,5 +329,7 @@ export const selectProfilePics = (state) => state.users.profilePics;
 export const selectUsername = (state) => state.users.username;
 export const selectUsers = (state) => state.users.users;
 export const selectActiveUsers = (state) => state.users.activeUsers;
+export const selectUsernameStataus = (state) => state.users.usernameStatus;
+export const selectTimestamp = (state) => state.users.lastReadTimestamp;
 
-export const {setUserPhoto, setUsername} = userSlice.actions;
+export const { setUsername, setUserPhoto, resetActiveUsers, setLastReadTimestamp, incrementUnreadMessages, resetUnreadMessages } = userSlice.actions;

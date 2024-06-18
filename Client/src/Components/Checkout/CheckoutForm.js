@@ -1,12 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
 import axios from 'axios';
 import './CheckoutForm.css';
 import { Typography } from '@mui/material';
-import { jwtDecode } from "jwt-decode";
+import { selectUsername } from '../../Features/userSlice';
 import { updatePaymentStatus, selectPaymentStatus } from '../../Features/paymentStatusSlice';
-import { useDispatch } from 'react-redux';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  selectTier1Picks,
+  selectTier2Picks,
+  selectTier3Picks,
+  selectTier4Picks,
+  setTier1Picks,
+  setTier2Picks,
+  setTier3Picks,
+  setTier4Picks,
+} from '../../Features/myPicksSlice';
 
 const CARD_ELEMENT_OPTIONS = {
     style: {
@@ -30,6 +39,7 @@ const CARD_ELEMENT_OPTIONS = {
     const stripe = useStripe();
     const elements = useElements();
     const dispatch = useDispatch();
+    const [open, setOpen] = useState(false);
     const paymentStatus = useSelector(selectPaymentStatus);
     // State for billing details and form visibility
     const [name, setName] = useState('');
@@ -39,18 +49,42 @@ const CARD_ELEMENT_OPTIONS = {
     const [state, setState] = useState('');
     const [postalCode, setPostalCode] = useState('');
     const [phone, setPhone] = useState('');
-    const [username, setUsername] = useState(null);
+    const username = useSelector(selectUsername);
     const [submitted, setSubmitted] = useState(false)
-    
-    useEffect(() => {
-      const token = localStorage.getItem('token');
-  
-      if (token) {
-        const decodedToken = jwtDecode(token);
-        setUsername(decodedToken.username);
-      }
-    }, [username]);
+    const tier1Picks = useSelector(selectTier1Picks);
+    const tier2Picks = useSelector(selectTier2Picks);
+    const tier3Picks = useSelector(selectTier3Picks);
+    const tier4Picks = useSelector(selectTier4Picks);
 
+    const handleSubmission = async () => {
+      try {
+        const userPicks = [
+          { tier: 'Tier1', golferName: tier1Picks.map(golfer => golfer.player_name || golfer) },
+          { tier: 'Tier2', golferName: tier2Picks.map(golfer => golfer.player_name || golfer) },
+          { tier: 'Tier3', golferName: tier3Picks.map(golfer => golfer.player_name || golfer) },
+          { tier: 'Tier4', golferName: tier4Picks.map(golfer => golfer.player_name || golfer) },
+        ];
+        // Send the user picks data with the username to the server
+        await axios.post(`${process.env.REACT_APP_API_URL}/userpicks/save`, {
+          username: username,
+          userPicks: userPicks,
+        });
+  
+        dispatch(setTier1Picks([]));
+        dispatch(setTier2Picks([]));
+        dispatch(setTier3Picks([]));
+        dispatch(setTier4Picks([]));
+  
+        setOpen(false);
+      } catch (error) {
+        console.error('Error saving picks:', error);
+  
+        if (error.message) {
+          console.error('server responded with', error.response);
+        }
+      }
+    };  
+    
     const handleUpdateStatus = async (username, status) => {
       try {
         await dispatch(updatePaymentStatus({username, status}))
@@ -92,7 +126,8 @@ const CARD_ELEMENT_OPTIONS = {
       } else {
         if (result.paymentIntent.status === 'succeeded') {
           console.log('Payment successful!');
-          handleUpdateStatus(username, true);
+          await handleUpdateStatus(username, true);
+          await handleSubmission();
           onClose();
           setSubmitted(true)
           window.close();
@@ -125,7 +160,7 @@ const CARD_ELEMENT_OPTIONS = {
               <b>Please note: Your purchase includes a $3 transaction fee</b>
             </Typography>
             <button type="submit" disabled={!stripe} className="button">
-              Pay $23
+              Pay $33
             </button>
           </form>
       </>

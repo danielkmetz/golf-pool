@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Grid, Typography, Card, CardContent } from '@mui/material'; // Assuming you're using Material-UI
+import { Container, Grid, Typography, Card, CardContent, } from '@mui/material'; // Assuming you're using Material-UI
 import { useDispatch, useSelector } from 'react-redux';
 import { 
     fetchTournamentInfo, 
@@ -123,7 +123,8 @@ function Weather() {
       };
       
     return (
-        <Container sx={{ marginTop: '2rem', padding: '0',}}>
+        <Container sx={{ marginTop: '1rem', padding: '0',}}>
+            <Typography variant="h6" sx={{fontFamily: 'Rock Salt', mb: '.5rem'}}>Hourly Weather Report</Typography>
             <Card raised sx={{ backgroundColor: "#222", color: "white"}}>
                 <CardContent>
                     <Grid container spacing={.7}>

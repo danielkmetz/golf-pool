@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import { 
     Typography, 
     Table, 
@@ -13,7 +13,8 @@ import {
     fetchLeaderboard,
     selectResults, 
 } from '../../Features/LeaderboardSlice';
-import { useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useMediaQuery } from '@mui/material';
 import Positions from './Positions';
 import Rounds from './Rounds';
 
@@ -22,12 +23,12 @@ function Leaderboard() {
     const results = useSelector(selectResults);
     const currentDate = new Date();
     const currentDay = currentDate.getDay();
+    const isMobile = useMediaQuery('(max-width:600px)'); // Adjust the max-width as needed
 
     useEffect(() => {
         dispatch(fetchLeaderboard());
     }, [dispatch]);
 
-    
     const parseTeeTime = (teeTimeStr) => {
         try {
             const [time, period] = teeTimeStr.split(' ');
@@ -43,7 +44,7 @@ function Leaderboard() {
             return null; // or any default value indicating an error
         }
     };
-    
+
     const sortedResults = results.slice().sort((a, b) => {
         try {
             const timeA = parseTeeTime(a.r1_teetime);
@@ -56,72 +57,75 @@ function Leaderboard() {
             return 0; // or handle the sorting error
         }
     });
-    
+
+    const fontSize = isMobile ? '10px' : '12px';
+
     return (
         <>
-        <Paper sx={{ padding: '1rem', 
-            marginBottom: '1.5rem', 
-            borderRadius: '8px', 
-            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-            display: 'flex',
-            justifyContent: 'center',
+            <Paper sx={{ 
+                padding: '.5rem', 
+                marginBottom: '1rem', 
+                borderRadius: '8px', 
+                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                display: 'flex',
+                justifyContent: 'center',
+                backgroundColor: 'LightGray'
             }}>
-            <Typography
-                variant="h6"
-                sx={{
-                marginTop: '1rem',
-                backgroundColor: '#009', // Orange background color
-                color: '#FFF', // White text color
-                fontFamily: 'Roboto, sans-serif', // Use a professional font
-                fontWeight: 'bold',
-                fontSize: '2.5rem',
-                textAlign: 'center',
-                padding: '1rem', // Add padding for better spacing
-                borderRadius: '8px', // Rounded corners
-                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)', // Soft shadow for depth
-                }}
-            >
-                LEADERBOARD
-            </Typography>
-        </Paper>
-        <TableContainer sx={{maxHeight: "600px"}}>
-            <Table>
-                <TableHead sx={{
-                    backgroundColor: "blanchedalmond", 
-                    position: "sticky", 
-                    zIndex: 3, 
-                    top: "0px",
-                    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-                }}>
-                {currentDay >= 4 || currentDay === 0 ? 
-                    (
-                    <TableRow>
-                        <TableCell sx={{ fontSize: '12px',}}><b>Player Name</b></TableCell>
-                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>Pos</b></TableCell>
-                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>Thru</b></TableCell>
-                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>Today</b></TableCell>
-                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>R1</b></TableCell>
-                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>R2</b></TableCell>
-                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>R3</b></TableCell>
-                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>R4</b></TableCell>
-                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>Total</b></TableCell>
-                    </TableRow>
-                    ) : (
-                    <TableRow>
-                        <TableCell>Player Name</TableCell>
-                        <TableCell>Tee Time</TableCell>
-                    </TableRow>
-                    )
-                }
-                </TableHead>
-                <TableBody sx={{overflow: "scroll"}}>
-                    {currentDay >= 4 || currentDay === 0 ? <Rounds />  : <Positions results={sortedResults}/>}
-                </TableBody>
-            </Table>
-        </TableContainer>
+                <Typography
+                    variant="h6"
+                    sx={{
+                        marginTop: '.5rem',
+                        marginBottom: '.5rem',
+                        backgroundColor: '#222',
+                        color: '#FFF', // White text color
+                        fontFamily: 'Roboto, sans-serif', // Use a professional font
+                        fontWeight: 'bold',
+                        fontSize: '2.5rem',
+                        textAlign: 'center',
+                        paddingLeft: '1.5rem',
+                        paddingRight: '1.5rem',
+                        borderRadius: '8px', // Rounded corners
+                        boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)', // Soft shadow for depth
+                    }}
+                >
+                    LEADERBOARD
+                </Typography>
+            </Paper>
+            <TableContainer sx={{ maxHeight: "550px" }}>
+                <Table>
+                    <TableHead sx={{
+                        backgroundColor: "blanchedalmond", 
+                        position: "sticky", 
+                        zIndex: 3, 
+                        top: "0px",
+                        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+                    }}>
+                        {currentDay >= 4 || currentDay === 0 ? (
+                            <TableRow>
+                                <TableCell sx={{ fontSize }}><b>Player Name</b></TableCell>
+                                <TableCell sx={{ fontSize, paddingLeft: '.5px' }}><b>Pos</b></TableCell>
+                                <TableCell sx={{ fontSize, paddingLeft: '.5px' }}><b>Score</b></TableCell>
+                                <TableCell sx={{ fontSize, paddingLeft: '.5px' }}><b>Thru</b></TableCell>
+                                <TableCell sx={{ fontSize, paddingLeft: '.5px' }}><b>Today</b></TableCell>
+                                <TableCell sx={{ fontSize, paddingLeft: '.5px' }}><b>R1</b></TableCell>
+                                <TableCell sx={{ fontSize, paddingLeft: '.5px' }}><b>R2</b></TableCell>
+                                <TableCell sx={{ fontSize, paddingLeft: '.5px' }}><b>R3</b></TableCell>
+                                <TableCell sx={{ fontSize, paddingLeft: '.5px' }}><b>R4</b></TableCell>
+                            </TableRow>
+                        ) : (
+                            <TableRow>
+                                <TableCell sx={{ fontSize }}><b>Player Name</b></TableCell>
+                                <TableCell sx={{ fontSize }}><b>Tee Time</b></TableCell>
+                            </TableRow>
+                        )}
+                    </TableHead>
+                    <TableBody sx={{ overflow: "scroll" }}>
+                        {currentDay >= 4 || currentDay === 0 ? <Rounds /> : <Positions results={sortedResults} />}
+                    </TableBody>
+                </Table>
+            </TableContainer>
         </>
-    )
-};
+    );
+}
 
 export default Leaderboard;
-

@@ -1,7 +1,12 @@
 import React from 'react';
-import { Box, Typography, Tabs, Tab, Link } from '@mui/material';
+import { Box, Typography, Tabs, Tab } from '@mui/material';
+import { selectPoolName } from '../../Features/poolsSlice';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 
-function Header() {
+function Header({isLoggedIn}) {
+    const poolName = useSelector(selectPoolName);
+
     return (
         <Box className="header" 
             sx={{
@@ -52,24 +57,26 @@ function Header() {
                             fontSize: { xs: 10, md: 16 },
                             minWidth: { xs: 'auto', md: 100 },
                             padding: { xs: '6px 8px', md: '12px 16px' },
+                            color: "black",
                         },
                     }}
                 >
-                    <Link href="/how-to" sx={{color: "black"}}>
-                        <Tab label="How To" sx={{ fontSize: { xs: 10, md: 16 } }}/>
-                    </Link>
-                    <Link href="/" sx={{color: "black"}}>
-                        <Tab label="Standings" sx={{ fontSize: { xs: 10, md: 16 } }}/>
-                    </Link>
-                    <Link href="/News" sx={{color: "black"}}>
-                        <Tab label="News" sx={{ fontSize: { xs: 10, md: 16 } }}/>
-                    </Link>
-                    <Link href="/Golfers" sx={{color: "black"}}>
-                        <Tab label="Golfers" sx={{ fontSize: { xs: 10, md: 16 } }}/>
-                    </Link>
-                    <Link href="/Profile" sx={{color: "black"}}>
-                        <Tab label="Profile" sx={{ fontSize: { xs: 10, md: 16 } }}/>
-                    </Link>
+                    {!isLoggedIn || poolName === null ? (
+                    <>
+                        <Tab label="Welcome" component={Link} to="/" />
+                        <Tab label="Create Pool" component={Link} to="/Create-Pool"/>
+                        <Tab label="Join Pool" component={Link} to="/Join-Pool"/>
+                        {!isLoggedIn && <Tab label="Login" component={Link} to="/Login"/>}
+                    </>
+                    ) : (
+                    <>
+                        <Tab label="How To" component={Link} to="/how-to"/>
+                        <Tab label="Standings" component={Link} to="/Standings"/>
+                        <Tab label="News" component={Link} to="/News"/>
+                        <Tab label="Golfers" component={Link} to="/Golfers"/>
+                        <Tab label="Profile" component={Link} to="/Profile"/>
+                    </>
+                    )}
                 </Tabs>
             </Box>
         </Box>
@@ -77,4 +84,3 @@ function Header() {
 };
 
 export default Header;
-
