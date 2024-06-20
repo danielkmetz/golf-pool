@@ -63,7 +63,10 @@ function JoinPool() {
                 width: '55%',
                 height: '490px',
                 borderRadius: '8px',
-                overflowY: 'auto'  // Add scroll bar for overflow
+                overflowY: 'auto',
+                '@media (max-width: 600px)': {
+                    width: '87%'
+                },
             }}>
                 <List>
                     {filteredPools.map((pool, index) => {
@@ -75,7 +78,11 @@ function JoinPool() {
                                     borderBottom: '1px solid black', 
                                     display: 'flex', 
                                     justifyContent: 'space-between',
-                                    alignItems: 'center'
+                                    alignItems: 'center',
+                                    '@media (max-width: 600px)': {
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                    },
                                 }}
                             >
                                 <ListItemText 

@@ -25,7 +25,7 @@ function MyPool() {
     const thirdPlace = info.payouts?.[0]?.third * 100 || 0;
 
     const currentDay = new Date().getDay();
-    const isButtonDisabled = currentDay >= 5 || currentDay === 0;
+    const isButtonDisabled = currentDay >= 4 || currentDay === 0;
 
     return (
         <>
@@ -87,7 +87,7 @@ function MyPool() {
                         Change Settings
                     </Button>
                 )}
-                {isButtonDisabled && ( // Render a message if the button is disabled
+                {isButtonDisabled && isAdmin && ( // Render a message if the button is disabled
                     <Typography variant="body2" color="textSecondary" sx={{textAlign: 'center', fontSize: '11px', mt: '.5rem'}}>
                         Settings can't be changed from Thursday through Sunday.
                     </Typography>
