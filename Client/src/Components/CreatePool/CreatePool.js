@@ -184,9 +184,11 @@ function CreatePool() {
                                     sx={{}}
                                 >
                                     <MenuItem value={1}>100%</MenuItem>
+                                    <MenuItem value={.8}>80%</MenuItem>
                                     <MenuItem value={0.75}>75%</MenuItem>
                                     <MenuItem value={0.70}>70%</MenuItem>
                                     <MenuItem value={0.65}>65%</MenuItem>
+                                    <MenuItem value={1}>60%</MenuItem>
                                 </Select>
                             </FormControl>
                             {firstPayout === 1 ? null :
@@ -200,9 +202,11 @@ function CreatePool() {
                                             label='second-place-payout'
                                             sx={{}}
                                         >
-                                            <MenuItem value={0.2}>20%</MenuItem>
-                                            <MenuItem value={0.25}>25%</MenuItem>
                                             <MenuItem value={0.3}>30%</MenuItem>
+                                            <MenuItem value={0.25}>25%</MenuItem>
+                                            <MenuItem value={0.2}>20%</MenuItem>
+                                            <MenuItem value={0.15}>15%</MenuItem>
+                                            <MenuItem value={0.1}>10%</MenuItem>
                                         </Select>
                                     </FormControl>
                                     <FormControl sx={{ width: '25%', marginTop: '.75rem', marginLeft: '2rem' }}>
@@ -214,6 +218,7 @@ function CreatePool() {
                                             label='third-place-payout'
                                             sx={{}}
                                         >
+                                            <MenuItem value={0.15}>15%</MenuItem>
                                             <MenuItem value={0.1}>10%</MenuItem>
                                             <MenuItem value={0.05}>5%</MenuItem>
                                             <MenuItem value={0}>0%</MenuItem>
