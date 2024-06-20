@@ -66,34 +66,62 @@ function JoinPool() {
                 overflowY: 'auto'  // Add scroll bar for overflow
             }}>
                 <List>
-                    {filteredPools.map((pool, index) => (
-                        <ListItem 
-                            key={index} 
-                            sx={{ 
-                                borderBottom: '1px solid black', 
-                                display: 'flex', 
-                                justifyContent: 'space-between' 
-                            }}
-                        >
-                            <ListItemText 
-                                primary={pool.poolName} 
-                                secondary={`Users: ${pool.users.length}`} 
-                            />
-                            <Button 
-                                variant="contained" 
+                    {filteredPools.map((pool, index) => {
+                        const isDisabled = pool.maxUsers !== null && pool.users.length >= pool.maxUsers;
+                        return (
+                            <ListItem 
+                                key={index} 
                                 sx={{ 
-                                    marginLeft: '1rem',
-                                    backgroundColor: '#222',
-                                    '&:hover': {
-                                        backgroundColor: 'DarkGreen',
-                                    }
+                                    borderBottom: '1px solid black', 
+                                    display: 'flex', 
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center'
                                 }}
-                                onClick={() => handleJoinPool(pool.poolName, username)}
                             >
-                                Join
-                            </Button>
-                        </ListItem>
-                    ))}
+                                <ListItemText 
+                                    primary={
+                                        <Typography variant='h6'><b>{pool.poolName}</b></Typography>
+                                    } 
+                                    secondary={
+                                        <>
+                                            <Typography component="span" variant='caption'>
+                                                Users: {pool.users.length} / {pool.maxUsers === null ? 'No Max' : pool.maxUsers}
+                                            </Typography>
+                                            <br />
+                                            <Typography component="span" variant='caption'>
+                                                Buy-In: ${pool.buyIn}
+                                            </Typography>
+                                            <br />
+                                            <Typography variant='caption'>
+                                                Payout Structure: 1st: {pool.payouts[0].first * 100}% / 2nd: {pool.payouts[0].second * 100}% / 3rd: {pool.payouts[0].third * 100}%
+                                            </Typography>
+                                        </>
+                                    }
+                                />
+                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                    {isDisabled && (
+                                        <Typography variant="caption" color="error" sx={{ marginLeft: '0.5rem' }}>
+                                            Pool has reached max users allowed
+                                        </Typography>
+                                    )}
+                                    <Button 
+                                        variant="contained" 
+                                        sx={{ 
+                                            marginLeft: '1rem',
+                                            backgroundColor: '#222',
+                                            '&:hover': {
+                                                backgroundColor: 'DarkGreen',
+                                            }
+                                        }}
+                                        onClick={() => handleJoinPool(pool.poolName, username)}
+                                        disabled={isDisabled}
+                                    >
+                                        Join
+                                    </Button>
+                                </Box>
+                            </ListItem>
+                        );
+                    })}
                 </List>
             </Box>
         </Container>

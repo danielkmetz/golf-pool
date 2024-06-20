@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const Pool = require('../models/createPool');
 
 router.post('/', async (req, res) => {
-    const { admin, email, poolName, users } = req.body;
+    const { admin, email, poolName, maxUsers, buyIn, payouts, users } = req.body;
 
     try {
         // Check if a pool with the same username and pool name already exists
@@ -18,6 +18,9 @@ router.post('/', async (req, res) => {
             admin,
             email,
             poolName,
+            maxUsers,
+            buyIn,
+            payouts,
             users,
         });
 
@@ -82,6 +85,25 @@ router.get('/user-pool-name', async (req, res) => {
   
       // Return the pool name where the user is found
       res.json({ poolName: pool.poolName });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+  
+// Route to get the pool name of the current user
+router.get('/my-pool-info', async (req, res) => {
+    const { poolName } = req.query;
+  
+    try {
+      // Find a pool where the user's username exists in the users array
+      const pool = await Pool.findOne({ poolName });
+      if (!pool) {
+        return res.status(404).json({ message: 'User not found in any pool' });
+      }
+  
+      // Return the pool name where the user is found
+      res.json({ pool });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Server error' });
@@ -229,6 +251,48 @@ router.delete('/pool', async (req, res) => {
         res.status(200).json({ message: 'User removed from the pool.', pool });
     } catch (error) {
         res.status(500).json({ message: 'Error removing user from pool', error });
+    }
+});
+
+router.put('/edit-pool', async (req, res) => {
+    const { oldPoolName, newPoolName, newAdmin, newBuyIn, maxUsersValue, newPayouts } = req.body;
+
+    try {
+        // Find the pool by old pool name
+        const pool = await Pool.findOne({ poolName: oldPoolName });
+        if (!pool) {
+            return res.status(404).json({ message: 'Pool not found.' });
+        }
+
+        // Update the pool name if newPoolName is provided
+        if (newPoolName) {
+            pool.poolName = newPoolName;
+        }
+
+        // Update the admin if newAdmin is provided
+        if (newAdmin) {
+            pool.admin = newAdmin;
+        }
+
+        if (newBuyIn) {
+            pool.buyIn = newBuyIn;
+        }
+
+        // Update the maxUsers if newMaxUsers is provided
+        if (maxUsersValue || maxUsersValue === null) {
+            pool.maxUsers = maxUsersValue;
+        }
+
+        // Update the payouts if newPayouts is provided
+        if (newPayouts) {
+            pool.payouts = newPayouts;
+        }
+
+        await pool.save();
+
+        res.status(200).json(pool);
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating pool', error });
     }
 });
 

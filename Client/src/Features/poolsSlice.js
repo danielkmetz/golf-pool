@@ -25,6 +25,22 @@ export const fetchPoolUsers = createAsyncThunk(
     }
 );
 
+export const fetchPoolInfo = createAsyncThunk(
+    'pools/fetchPoolInfo',
+    async (poolName) => {
+        try {
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/create-pool/my-pool-info`, {
+                params: {
+                    poolName: poolName,
+                }
+            });
+            return response.data.pool;
+        } catch (error) {
+            console.error('Error fetching users', error)
+        }
+    }
+);
+
 export const removeUserFromPool = createAsyncThunk(
     'pools/removeUserFromPool',
     async ({ poolName, username }) => {
@@ -92,6 +108,19 @@ export const deletePool = createAsyncThunk(
     }
 );
 
+export const editPoolSettings = createAsyncThunk(
+    'pools/editPoolSettings',
+    async (data, { rejectWithValue }) => {
+        console.log(data);
+        try {
+            const response = await axios.put(`${process.env.REACT_APP_API_URL}/create-pool/edit-pool`, data);
+            return response.data; // Assuming the backend returns updated pool data
+        } catch (error) {
+            return rejectWithValue(error.response.data);
+        }
+    }
+);
+
 const poolSlice = createSlice({
     name: 'pools',
     initialState: {
@@ -102,6 +131,7 @@ const poolSlice = createSlice({
         poolName: null,
         poolNameStatus: 'idle',
         poolAdmin: null,
+        userPoolData: [],
     },
     reducers: {
         resetPoolData: (state, action) => {
@@ -113,8 +143,14 @@ const poolSlice = createSlice({
         resetPoolName: (state, action) => {
             state.poolName = null;
         },
+        resetUserPoolData: (state, action) => {
+            state.userPoolData = [];
+        },
         setPoolName: (state, action) => {
             state.poolName = action.payload;
+        },
+        setUserPoolData: (state, action) => {
+            state.userPoolData = action.payload;
         },
     },
     extraReducers: (builder) => {
@@ -188,6 +224,26 @@ const poolSlice = createSlice({
                 state.error = action.payload;
                 state.status = "failed";
             })
+            .addCase(fetchPoolInfo.fulfilled, (state, action) => {
+                state.userPoolData = action.payload;
+            })
+            .addCase(fetchPoolInfo.rejected, (state, action) => {
+                state.error = action.payload;
+                state.status = "failed";
+            })
+            .addCase(editPoolSettings.pending, (state) => {
+                state.status = "loading";
+            })
+            .addCase(editPoolSettings.fulfilled, (state, action) => {
+                state.status = "succeeded";
+                state.userPoolData = action.payload;
+                // Optionally update the state if needed
+                // For example, update poolData with the updated pool settings
+            })
+            .addCase(editPoolSettings.rejected, (state, action) => {
+                state.error = action.payload;
+                state.status = "failed";
+            });
     },
 });
 
@@ -198,6 +254,7 @@ export const selectPoolUsers = (state) => state.pools.poolUsers;
 export const selectPoolName = (state) => state.pools.poolName;
 export const selectPoolNameStatus = (state) => state.pools.poolNameStatus;
 export const selectPoolAdmin = (state) => state.pools.poolAdmin;
+export const selectUserPoolData = (state) => state.pools.userPoolData;
 
 export const { resetPoolData, 
-    resetPoolUsers, resetPoolName, setPoolName } = poolSlice.actions;
+    resetPoolUsers, resetPoolName, setPoolName, resetUserPoolData, setUserPoolData } = poolSlice.actions;

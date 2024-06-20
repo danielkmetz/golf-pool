@@ -7,6 +7,7 @@ import { fetchUserPicks } from '../../Features/myPicksSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAllPicks, deleteUserPicks } from '../../Features/myPicksSlice';
 import ChangeInfoModal from './ChangeInfoModal';
+import MyPool from './MyPool';
 import { fetchEmail, 
     selectEmail, 
     fetchProfilePic, 
@@ -225,6 +226,16 @@ function Profile() {
                     tier4Picks={tier4Picks}
                     allPicks={allUserPicks}
                 />
+            </Box>
+            <Box 
+                sx={{
+                    display: 'flex', 
+                    justifyContent: 'center',
+                    '@media (max-width: 600px)': {
+                        width: '100%',
+                    }
+                    }}>
+                <MyPool />
             </Box>
         </Box>
     );

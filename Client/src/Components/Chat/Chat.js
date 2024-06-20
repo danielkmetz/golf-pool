@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import { useDispatch, useSelector } from 'react-redux';
-import { Drawer, TextField, List, ListItem, ListItemText, Button, Box, Container, Avatar, ListItemAvatar } from '@mui/material';
+import { Drawer, TextField, List, ListItem, ListItemText, Button, Box, Container, Avatar, ListItemAvatar, useMediaQuery } from '@mui/material';
 import { selectPoolName } from '../../Features/poolsSlice';
 import { selectUsername, selectProfilePics, selectTimestamp, updateLastReadTimestamp, fetchTimestamp } from '../../Features/userSlice';
 import { 
@@ -31,16 +31,18 @@ function Chat() {
 
     const messagesEndRef = useRef(null);
 
+    const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down('sm'));
+
     useEffect(() => {
         dispatch(fetchMessages(poolName));
     }, [open, dispatch]);
 
     useEffect(() => {
         dispatch(fetchTimestamp(username));
-    }, [dispatch, messages]);
+    }, [dispatch, messages, username]);
 
     useEffect(() => {
-       if (timestamp < lastMessageTimestamp && !open) {
+       if (timestamp < lastMessageTimestamp && !open || !timestamp && !open && messages.length > 0) {
             setUnread(true);
        }
     }, [messages, timestamp]);
@@ -86,6 +88,8 @@ function Chat() {
         }
     }, [messages, open]);
 
+    console.log(timestamp);
+
     return (
         <Container sx={{ marginLeft: '-5px' }}>
             <Box
@@ -96,7 +100,7 @@ function Chat() {
                     bottom: open ? '50vh' : '0px',
                     left: '20px',
                     zIndex: '1000',
-                    width: '320px',
+                    width: isSmallScreen ? '160px' : '320px', // Adjust width based on screen size
                     cursor: 'pointer',
                     backgroundColor: 'green',
                     color: 'white',

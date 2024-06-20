@@ -5,6 +5,7 @@ import './CheckoutForm.css';
 import { Typography } from '@mui/material';
 import { selectUsername } from '../../Features/userSlice';
 import { updatePaymentStatus, selectPaymentStatus } from '../../Features/paymentStatusSlice';
+import { selectUserPoolData } from '../../Features/poolsSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   selectTier1Picks,
@@ -55,6 +56,9 @@ const CARD_ELEMENT_OPTIONS = {
     const tier2Picks = useSelector(selectTier2Picks);
     const tier3Picks = useSelector(selectTier3Picks);
     const tier4Picks = useSelector(selectTier4Picks);
+    const poolInfo = useSelector(selectUserPoolData);
+
+    const buyIn = poolInfo.buyIn + 3 || 0;
 
     const handleSubmission = async () => {
       try {
@@ -103,6 +107,8 @@ const CARD_ELEMENT_OPTIONS = {
       const cardElement = elements.getElement(CardElement);
   
       const { data } = await axios.post(`${process.env.REACT_APP_API_URL}/charge`, {
+        email: email,
+        buyIn: buyIn,
       });
       const result = await stripe.confirmCardPayment(data.clientSecret, {
         payment_method: {
@@ -160,7 +166,7 @@ const CARD_ELEMENT_OPTIONS = {
               <b>Please note: Your purchase includes a $3 transaction fee</b>
             </Typography>
             <button type="submit" disabled={!stripe} className="button">
-              Pay $33
+              Pay ${buyIn}
             </button>
           </form>
       </>

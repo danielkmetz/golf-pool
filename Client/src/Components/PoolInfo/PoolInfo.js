@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Typography, Button, Modal, Box, Select, MenuItem, Card } from '@mui/material';
 import { selectUsername, resetActiveUsers } from '../../Features/userSlice';
-import { removeUserFromPool, resetPoolUsers, selectPoolName, resetPoolName, fetchPoolAdmin, updateAdmin, selectPoolAdmin, selectPoolUsers, deletePool } from '../../Features/poolsSlice'; // Updated import statements
+import { removeUserFromPool, resetPoolUsers, selectUserPoolData, resetPoolName, fetchPoolAdmin, updateAdmin, selectPoolAdmin, selectPoolUsers, deletePool, resetUserPoolData } from '../../Features/poolsSlice'; // Updated import statements
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 
 function PoolInfo() {
     const dispatch = useDispatch();
-    const poolName = useSelector(selectPoolName);
+    const info = useSelector(selectUserPoolData);
     const username = useSelector(selectUsername);
     const admin = useSelector(selectPoolAdmin);
     const poolUsers = useSelector(selectPoolUsers);
@@ -15,6 +15,7 @@ function PoolInfo() {
     const [newAdmin, setNewAdmin] = useState('');
     const [openAdminModal, setOpenAdminModal] = useState(false);
     const navigate = useNavigate();
+    const poolName = info.poolName;
 
     const currentDate = new Date();
     const currentDay = currentDate.getDay();
@@ -41,6 +42,7 @@ function PoolInfo() {
                 await dispatch(resetPoolName());
                 await dispatch(resetPoolUsers());
                 await dispatch(resetActiveUsers());
+                await dispatch(resetUserPoolData());
                 navigate('/Join-Pool');
             } else {
                 setOpenAdminModal(true);
