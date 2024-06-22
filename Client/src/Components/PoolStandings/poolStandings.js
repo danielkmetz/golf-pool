@@ -18,9 +18,10 @@ import { selectLiveResults } from '../../Features/LeaderboardSlice';
 import { selectTournamentInfo } from '../../Features/TournamentInfoSlice';
 import { selectProfilePics, selectActiveUsers, 
   selectUsers, fetchProfilePics, 
-  fetchUsersWithPicks, } from '../../Features/userSlice';
+  fetchUsersWithPicks, selectUsername} from '../../Features/userSlice';
 import { selectPoolUsers } from '../../Features/poolsSlice';
 import { getRoundScore, sortUsers, } from '../../actions';
+import { sendUserPositionMap } from '../../Features/pastResultsSlice';
 import Payouts from '../Payouts/Payouts';
 import PoolInfo from '../PoolInfo/PoolInfo';
 import Results from '../Results/Results';
@@ -34,6 +35,7 @@ function PoolStandings() {
     const totalPicks = useSelector(selectTotalPicks);
     const profilePics = useSelector(selectProfilePics)
     const users = useSelector(selectUsers);
+    const username = useSelector(selectUsername);
     const dispatch = useDispatch();
     const activeUsers = useSelector(selectActiveUsers);
     const [podiumOpen, setPodiumOpen] = useState(false);
@@ -41,6 +43,8 @@ function PoolStandings() {
     const currentDate = new Date();
     const currentDay = currentDate.getDay();
     const coursePar = tournamentInfo.Par;
+    const tournamentName = tournamentInfo.Name;
+    console.log(currentDate);
 
    useEffect(() => {
         dispatch(fetchTotalPicks());
@@ -114,6 +118,9 @@ function PoolStandings() {
     const allGolfersHaveR4Score = useMemo(() => {
         return organizedData.every(golfer => golfer.R4 !== null && golfer.R4 !== undefined);
       }, [organizedData]);
+    
+    const isSundayComplete =
+      currentDate.getDay() === 0 && allGolfersHaveR4Score;
       
     const handleClick = (user) => {
         setSelectedUser(user.username);
@@ -138,7 +145,38 @@ function PoolStandings() {
     const sortedUsers = useMemo(() => sortUsers(activeUsers, calculateLowestScores), [activeUsers, calculateLowestScores]);
 
     const topThreeUsers = sortedUsers.slice(0, 3);
+
+    const userPositionMap = sortedUsers.reduce((acc, user, index, array) => {
+      let position = index + 1;
+      if (index > 0 && user.totalScore === array[index - 1].totalScore) {
+          position = `T${position}`;
+      }
+      acc[user.user.username] = position;
+      return acc;
+    }, {});
+
+    const date = currentDate;
   
+    useEffect(() => {
+      // Check if all necessary info is available
+      if (username && currentDate && tournamentName && userPositionMap && isSundayComplete) {
+          // Iterate over the entries of userPositionMap
+          Object.entries(userPositionMap).forEach(([username, position]) => {
+              // Dispatch sendUserPositionMap action for each user
+              dispatch(
+                  sendUserPositionMap({
+                      username,
+                      results: [{
+                          date: new Date(),
+                          tournamentName,
+                          position,
+                      }],
+                  })
+              );
+          });
+      }
+    }, [isSundayComplete]);
+    
     return (
       <>
         <Paper sx={{ padding: '1rem', 
@@ -179,7 +217,8 @@ function PoolStandings() {
                 }}
                 >
                     <TableRow>
-                        <TableCell sx={{ fontSize: '12px' }}>Player</TableCell>
+                        <TableCell sx={{ fontSize: '12px' }}><b>Pos</b></TableCell>
+                        <TableCell sx={{ fontSize: '12px' }}><b>Player</b></TableCell>
                         <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>R1</b></TableCell>
                         <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>R2</b></TableCell>
                         <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}><b>R3</b></TableCell>
@@ -188,7 +227,7 @@ function PoolStandings() {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {activeUsers.map(user => {
+                    {activeUsers.map((user, index) => {
                         const totalScore =
                           calculateLowestScores(user.username, 'R1') +
                           calculateLowestScores(user.username, 'R2') +
@@ -201,6 +240,7 @@ function PoolStandings() {
                         };
                         }).sort((a, b) => a.totalScore - b.totalScore).map(({ user, totalScore }) => (
                           <TableRow key={user._id}>
+                            <TableCell sx={{ fontSize: '12px' }}>{userPositionMap[user.username]}</TableCell>
                             <TableCell 
                               onClick={() => handleClick(user)} 
                               style={{cursor: 'pointer', display: 'flex', alignItems: 'center',}}

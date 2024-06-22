@@ -135,14 +135,12 @@ function ChangeSettingsModal({ open, handleClose }) {
                         ))}
                     </Select>
                 </FormControl>
-                <FormControl sx={{ marginTop: '1rem'}}>
-                    <InputLabel id="max-users-label">Max Users</InputLabel>
+                <FormControl sx={{ marginTop: '1rem',}}>
+                    <Typography variant="caption">Max Users:</Typography>
                     <Select
-                        labelId="max-users-label"
                         value={newMaxUsers}
                         onChange={(e) => setNewMaxUsers(e.target.value)}
-                        label="Max Users"
-                        sx={{ width: '100%' }} // Set the width of the Select component to 100% within the FormControl
+                        sx={{ width: '100%',}} // Set the width of the Select component to 100% within the FormControl
                     >
                         <MenuItem value="No Max">No Max</MenuItem>
                         {[20, 25, 30, 35, 40, 50].map((num) => (

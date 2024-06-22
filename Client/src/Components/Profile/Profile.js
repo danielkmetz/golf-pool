@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Avatar, Typography, Paper, Button, Tooltip, CircularProgress } from '@mui/material';
+import { Box, Avatar, Typography, Paper, Button, Tooltip, CircularProgress, Tab, Tabs, Snackbar, Alert } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CurrentPicks from './currentPicks'; 
 import { fetchUserPicks } from '../../Features/myPicksSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router';
 import { selectAllPicks, deleteUserPicks } from '../../Features/myPicksSlice';
 import ChangeInfoModal from './ChangeInfoModal';
 import MyPool from './MyPool';
+import PastResults from './PastResults';
 import { fetchEmail, 
     selectEmail, 
     fetchProfilePic, 
@@ -16,10 +18,14 @@ import { fetchEmail,
     updateUsername, 
     updateUsernameMyPicks,
     updateUsernamePool,
+    updateUsernamePastResults,
+    updateUsernameChats,
     setUsername,
     selectUsername,
     fetchUsername,
+    resetUsername,
  } from '../../Features/userSlice';
+import { fetchPastResults } from '../../Features/pastResultsSlice';
 
 function Profile() {
     const username = useSelector(selectUsername);
@@ -34,7 +40,10 @@ function Profile() {
     const [tier4Picks, setTier4Picks] = useState([]);
     const [openModal, setOpenModal] = useState(false);
     const [newUsername, setNewUsername] = useState('');
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [tabValue, setTabValue] = useState(0);
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const currentDate = new Date();
     const currentDay = currentDate.getDay();
@@ -49,7 +58,8 @@ function Profile() {
         if (username) {
             dispatch(fetchUserPicks(username));
             dispatch(fetchEmail(username));
-            dispatch(fetchProfilePic(username))
+            dispatch(fetchProfilePic(username));
+            dispatch(fetchPastResults(username));
             setLoading(false)
         }
     }, [dispatch, username, email]);
@@ -92,13 +102,19 @@ function Profile() {
         dispatch(updateUsername({ username, newUsername: trimmedUsername, token }));
         dispatch(updateUsernameMyPicks({ username, newUsername: trimmedUsername }));
         dispatch(updateUsernamePool({ username, newUsername: trimmedUsername }));
+        dispatch(updateUsernamePastResults({ username, newUsername: trimmedUsername }));
+        dispatch(updateUsernameChats({ username, newUsername: trimmedUsername }));
         handleCloseModal();
+        setSnackbarOpen(true);
     
+        // Delay the navigation and other actions by a few seconds (e.g., 3 seconds)
         setTimeout(() => {
-            dispatch(setUsername(trimmedUsername));
-        }, 1000);
+            localStorage.removeItem('token');
+            dispatch(resetUsername());
+            navigate('/Login');
+        }, 3000); // 3000 milliseconds = 3 seconds
     };
-
+    
     const handleFileChange = (event) => {
         const image = event.target.files[0];
         const reader = new FileReader();
@@ -116,6 +132,13 @@ function Profile() {
         }
     };
 
+    const handleChangeTab = (event, newValue) => {
+        setTabValue(newValue);
+    };
+
+    const handleTabChange = (value) => {
+        setTabValue(value);
+    };
     
     return (
         <Box sx={{ 
@@ -210,7 +233,6 @@ function Profile() {
                     </Paper>
                 )}
             </Box>
-
             {/* Main Content */}
             <Box sx={{ width: '60%', '@media (max-width: 600px)': {
                             marginTop: '2rem',
@@ -219,13 +241,82 @@ function Profile() {
                             alignItems: 'center',
                             width: '100%',
                         },}}>
-                <CurrentPicks
-                    tier1Picks={tier1Picks}
-                    tier2Picks={tier2Picks}
-                    tier3Picks={tier3Picks}
-                    tier4Picks={tier4Picks}
-                    allPicks={allUserPicks}
-                />
+                <Box>
+                    <Tabs
+                        value={tabValue}
+                        onChange={handleChangeTab}
+                        sx={{
+                            marginLeft: '13rem',
+                            height: '.75rem',
+                            '@media (max-width: 600px)': {
+                                        marginLeft: '2rem',
+                                    },
+                            '@media (max-width: 1400px)': {
+                                        marginLeft: '8rem',
+                                    }
+                        }}
+                    >
+                        <Button 
+                            variant="contained"
+                            onClick={() => handleTabChange(0)}
+                            sx={{
+                                backgroundColor: '#222',
+                                '&:hover': {
+                                    backgroundColor: 'DarkGreen',
+                                },
+                                '@media (max-width: 600px)': {
+                                        width: '27%',
+                                        height: '2rem',
+                                        marginTop: '20px',
+                                    }
+                            }}
+                        >
+                            <Tab label="Current Picks"
+                                sx={{
+                                    '@media (max-width: 600px)': {
+                                        fontSize: '11px',
+                                    }
+                                }}
+                            />
+                        </Button>
+                        <Button 
+                            variant="contained"
+                            sx={{
+                                marginLeft: '1rem',
+                                backgroundColor: '#222',
+                                '&:hover': {
+                                    backgroundColor: 'DarkGreen',
+                                },
+                                '@media (max-width: 600px)': {
+                                        width: '27%',
+                                        height: '2rem',
+                                        marginTop: '20px',
+                                    }
+                            }}
+                            onClick={() => handleTabChange(1)}
+                        >
+                            <Tab label="Past Results"
+                                sx={{
+                                    '@media (max-width: 600px)': {
+                                        fontSize: '11px',
+                                    }
+                                }}
+                            />
+                        </Button>
+                    </Tabs>
+                    {tabValue === 0 && (
+                    <CurrentPicks
+                        tier1Picks={tier1Picks}
+                        tier2Picks={tier2Picks}
+                        tier3Picks={tier3Picks}
+                        tier4Picks={tier4Picks}
+                        allPicks={allUserPicks}
+                    />
+                    )}
+                    {tabValue === 1 && (
+                        <PastResults username={username}/>
+                    )}
+                </Box>
             </Box>
             <Box 
                 sx={{
@@ -237,6 +328,16 @@ function Profile() {
                     }}>
                 <MyPool />
             </Box>
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={() => setSnackbarOpen(false)}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert onClose={() => setSnackbarOpen(false)} severity="info" sx={{ width: '100%' }}>
+                    Username changed successfully. Please log in again with your new username.
+                </Alert>
+            </Snackbar>
         </Box>
     );
 }

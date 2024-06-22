@@ -8,6 +8,7 @@ import usersReducer from './Features/userSlice';
 import NewsReducer from './Features/NewsSlice';
 import PoolsReducer from './Features/poolsSlice';
 import chatReducer from './Features/chatSlice';
+import pastResultsReducer from './Features/pastResultsSlice';
 
 const store = configureStore({
     reducer: combineReducers({
@@ -20,6 +21,7 @@ const store = configureStore({
         news: NewsReducer,
         pools: PoolsReducer,
         chat: chatReducer,
+        pastResults: pastResultsReducer,
     })
 });
 

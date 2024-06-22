@@ -59,10 +59,7 @@ function CurrentPicks({ tier1Picks, tier2Picks, tier3Picks, tier4Picks}) {
     const totalLowest = totalLowestR1 + totalLowestR2 + totalLowestR3 + totalLowestR4;
 
     return (
-        <Container>
-          <Typography variant="h5" align="center" gutterBottom>
-              Current Picks
-          </Typography>
+        <Container >
           <Grid container justifyContent="center" alignItems="center" spacing={.5}>
                 {/* Tier 1 Picks */}
                 <Grid item xs={12} md={8}>

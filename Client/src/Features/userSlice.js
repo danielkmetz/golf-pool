@@ -74,6 +74,38 @@ export const updateUsernamePool = createAsyncThunk(
     }
 )
 
+export const updateUsernamePastResults = createAsyncThunk(
+    'users/updateUsernamePastResults',
+    async ({ username, newUsername}) => {
+        try {
+            const response = await axios.put(
+                `${process.env.REACT_APP_API_URL}/past-results/update-username/${username}`, {
+                    newUsername: newUsername,
+                })
+            console.log(response.data);
+            return response.data;
+        } catch (error) {
+
+        }
+    }
+);
+
+export const updateUsernameChats = createAsyncThunk(
+    'users/updateUsernameChats',
+    async ({ username, newUsername}) => {
+        try {
+            const response = await axios.put(
+                `${process.env.REACT_APP_API_URL}/chat/update-username/${username}`, {
+                    newUsername: newUsername,
+                })
+            console.log(response.data);
+            return response.data;
+        } catch (error) {
+
+        }
+    }
+);
+
 export const fetchEmail = createAsyncThunk(
     'user/fetchEmail',
     async (username) => {
@@ -242,6 +274,9 @@ const userSlice = createSlice({
         resetUnreadMessages: (state) => {
             state.unreadMessages = 0;
         },
+        resetUsername: (state, action) => {
+            state.username = null;
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -332,4 +367,4 @@ export const selectActiveUsers = (state) => state.users.activeUsers;
 export const selectUsernameStataus = (state) => state.users.usernameStatus;
 export const selectTimestamp = (state) => state.users.lastReadTimestamp;
 
-export const { setUsername, setUserPhoto, resetActiveUsers, setLastReadTimestamp, incrementUnreadMessages, resetUnreadMessages } = userSlice.actions;
+export const { setUsername, setUserPhoto, resetActiveUsers, setLastReadTimestamp, incrementUnreadMessages, resetUnreadMessages, resetUsername } = userSlice.actions;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Avatar, Typography, Paper, Tooltip, CircularProgress } from '@mui/material';
+import { Box, Avatar, Typography, Paper, Tooltip, CircularProgress, Tabs, Tab, Button } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CurrentPicks from '../Profile/currentPicks'; 
@@ -9,6 +9,7 @@ import { selectAllPicks,} from '../../Features/myPicksSlice';
 import { fetchEmail, 
     selectEmail, fetchProfilePic, selectProfilePic } from '../../Features/userSlice';
 import { useParams } from 'react-router';
+import PastResults from '../Profile/PastResults';
 
 function UserProfile() {
     const {username} = useParams();
@@ -20,7 +21,10 @@ function UserProfile() {
     const [tier2Picks, setTier2Picks] = useState([]);
     const [tier3Picks, setTier3Picks] = useState([]);
     const [tier4Picks, setTier4Picks] = useState([]);
+    const [tabValue, setTabValue] = useState(0);
     const dispatch = useDispatch();
+
+    console.log(username)
 
     useEffect(() => {
         setLoading(true)
@@ -50,6 +54,14 @@ function UserProfile() {
         const currentDate = new Date();
         const dayOfWeek = currentDate.getDay();
         return dayOfWeek < 4 || dayOfWeek === 0;
+    };
+
+    const handleChangeTab = (event, newValue) => {
+        setTabValue(newValue);
+    };
+
+    const handleTabChange = (value) => {
+        setTabValue(value);
     };
 
     return (
@@ -115,26 +127,118 @@ function UserProfile() {
             </Box>
 
             {/* Main Content */}
-            <Box sx={{ 
-                width: '60%',
-                '@media (max-width: 600px)' : {
-                    marginTop: '2rem',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    width: '100%',
-                } 
-                }}>
-                <CurrentPicks
-                    tier1Picks={isBeforeThursday() ? tier1Picks.map(() => 'Blurred Name') : tier1Picks}
-                    tier2Picks={isBeforeThursday() ? tier2Picks.map(() => 'Blurred Name') : tier2Picks}
-                    tier3Picks={isBeforeThursday() ? tier3Picks.map(() => 'Blurred Name') : tier3Picks}
-                    tier4Picks={isBeforeThursday() ? tier4Picks.map(() => 'Blurred Name') : tier4Picks}
-                    allPicks={allUserPicks}
-                />
+            <Box sx={{ width: '60%', '@media (max-width: 600px)': {
+                            marginTop: '2rem',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            width: '100%',
+                        },}}>
+                <Box>
+                    <Tabs
+                        value={tabValue}
+                        onChange={handleChangeTab}
+                        TabIndicatorProps={{
+                            style: {
+                                backgroundColor: 'green',
+                                height: '8px' // Adjust the height value to make the line thicker
+                            }
+                        }}
+                        sx={{
+                            marginLeft: '13rem',
+                            height: '.75rem',
+                            '@media (max-width: 600px)': {
+                                        marginLeft: '2rem',
+                                    },
+                            '@media (max-width: 1400px)': {
+                                        marginLeft: '8rem',
+                                    }
+                        }}
+                    >
+                        <Button 
+                            variant="contained"
+                            onClick={() => handleTabChange(0)}
+                            sx={{
+                                backgroundColor: '#222',
+                    
+                                '&:hover': {
+                                    backgroundColor: 'DarkGreen',
+                                },
+                                '@media (max-width: 600px)': {
+                                        width: '29%',
+                                        height: '2rem',
+                                        marginTop: '20px',
+                                    }
+                            }}
+                        >
+                            <Tab label="Current Picks"
+                                sx={{
+                                    '@media (max-width: 600px)': {
+                                        fontSize: '11px',
+                                    }
+                                }}
+                            />
+                        </Button>
+                        <Button 
+                            variant="contained"
+                            sx={{
+                                marginLeft: '1rem',
+                                backgroundColor: '#222',
+                                '&:hover': {
+                                    backgroundColor: 'DarkGreen',
+                                },
+                                '@media (max-width: 600px)': {
+                                        width: '29%',
+                                        height: '2rem',
+                                        marginTop: '20px',
+                                    }
+                            }}
+                            onClick={() => handleTabChange(1)}
+                        >
+                            <Tab label="Past Results"
+                                sx={{
+                                    '@media (max-width: 600px)': {
+                                        fontSize: '11px',
+                                    }
+                                }}
+                            />
+                        </Button>
+                    </Tabs>
+                    {tabValue === 0 && (
+                    <CurrentPicks
+                        tier1Picks={isBeforeThursday() ? tier1Picks.map(() => 'Blurred Name') : tier1Picks}
+                        tier2Picks={isBeforeThursday() ? tier2Picks.map(() => 'Blurred Name') : tier2Picks}
+                        tier3Picks={isBeforeThursday() ? tier3Picks.map(() => 'Blurred Name') : tier3Picks}
+                        tier4Picks={isBeforeThursday() ? tier4Picks.map(() => 'Blurred Name') : tier4Picks}
+                        allPicks={allUserPicks}
+                    />
+                    )}
+                    {tabValue === 1 && (
+                        <PastResults username={username}/>
+                    )}
+                </Box>
             </Box>
         </Box>
     );
 }
 
 export default UserProfile;
+
+            // <Box sx={{ 
+            //     width: '60%',
+            //     '@media (max-width: 600px)' : {
+            //         marginTop: '2rem',
+            //         display: 'flex',
+            //         justifyContent: 'center',
+            //         alignItems: 'center',
+            //         width: '100%',
+            //     } 
+            //     }}>
+            //     <CurrentPicks
+            //         tier1Picks={isBeforeThursday() ? tier1Picks.map(() => 'Blurred Name') : tier1Picks}
+            //         tier2Picks={isBeforeThursday() ? tier2Picks.map(() => 'Blurred Name') : tier2Picks}
+            //         tier3Picks={isBeforeThursday() ? tier3Picks.map(() => 'Blurred Name') : tier3Picks}
+            //         tier4Picks={isBeforeThursday() ? tier4Picks.map(() => 'Blurred Name') : tier4Picks}
+            //         allPicks={allUserPicks}
+            //     />
+            // </Box>

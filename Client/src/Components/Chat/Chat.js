@@ -42,9 +42,9 @@ function Chat() {
     }, [dispatch, messages, username]);
 
     useEffect(() => {
-       if (timestamp < lastMessageTimestamp && !open || !timestamp && !open && messages.length > 0) {
+        if (timestamp < lastMessageTimestamp && !open && messages.length > 0) {
             setUnread(true);
-       }
+        }
     }, [messages, timestamp]);
 
     useEffect(() => {
@@ -57,7 +57,7 @@ function Chat() {
     useEffect(() => {
         socket.on('chatMessage', (msg) => {
             dispatch(addMessage(msg));
-            if (!open) {
+            if (!open && msg.username !== username) {
                 setUnread(true);
             }
         });
@@ -65,7 +65,7 @@ function Chat() {
         return () => {
             socket.off('chatMessage');
         };
-    }, [open]);
+    }, [open, username]);
 
     const toggleDrawer = () => {
         setOpen((prevOpen) => !prevOpen);

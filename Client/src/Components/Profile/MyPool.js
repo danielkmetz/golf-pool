@@ -25,7 +25,7 @@ function MyPool() {
     const thirdPlace = info.payouts?.[0]?.third * 100 || 0;
 
     const currentDay = new Date().getDay();
-    const isButtonDisabled = currentDay >= 4 || currentDay === 0;
+    const isButtonDisabled = currentDay >= 5 || currentDay === 0;
 
     return (
         <>
@@ -52,10 +52,15 @@ function MyPool() {
                     },
                 }}
             >
-                <Paper sx={{ padding: '.5rem' }}>
-                    <Typography variant="h7" sx={{ fontFamily: 'Rock Salt' }}>Pool Info & Settings</Typography>
+                <Paper sx={{ padding: '.5rem', backgroundColor: 'lightgray' }}>
+                    <Typography 
+                        variant="h7" 
+                        sx={{ fontFamily: 'Rock Salt' }}
+                    >
+                        Pool Info & Settings
+                    </Typography>
                 </Paper>
-                <Paper sx={{ marginTop: '1rem', padding: '1rem' }}>
+                <Paper sx={{ marginTop: '1rem', padding: '1rem', backgroundColor: 'lightgray' }}>
                     <Typography><b>Name: </b>{info.poolName}</Typography>
                     <br />
                     <Typography><b>Admin: </b>{info.admin}</Typography>
@@ -71,7 +76,7 @@ function MyPool() {
                         <Typography>3rd: {thirdPlace}%</Typography>
                     </Typography>
                 </Paper>
-                {isAdmin && ( // Render the button only if the user is the admin
+                {isAdmin && (
                     <Button
                         variant="contained"
                         disabled={isButtonDisabled}
