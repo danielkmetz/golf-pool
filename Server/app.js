@@ -24,6 +24,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const connectUserDB = require('./Config/userDB');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const pastResults = require('./routes/pastResults');
 const { uuid } = require('uuidv4');
 
 connectUserDB();
@@ -168,6 +169,7 @@ app.use('/api/profile-pics', picsRoute);
 app.use('/api/schedule', scheduleRoute);
 app.use('/api/video-tutorial', tutorial);
 app.use('/api/create-pool', createPool);
+app.use('/api/past-results', pastResults);
 
 app.post('/api/chat', async (req, res) => {
   try {
@@ -204,6 +206,29 @@ app.get('/api/chat', async (req, res) => {
   } catch (error) {
     console.error('Error fetching messages:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch messages' });
+  }
+});
+
+app.put('/api/chat/update-username/:username', async (req, res) => {
+  try {
+    const oldUsername = req.params.username
+    const { newUsername } = req.body;
+
+    if (!oldUsername || !newUsername) {
+      return res.status(400).json({ success: false, message: 'Both oldUsername and newUsername are required' });
+    }
+
+    // Update all messages with the old username to the new username
+    const result = await Message.updateMany({ username: oldUsername }, { username: newUsername });
+
+    if (result.nModified > 0) {
+      res.status(200).json({ success: true, message: 'Username updated successfully on all messages' });
+    } else {
+      res.status(404).json({ success: false, message: 'No messages found for the old username' });
+    }
+  } catch (error) {
+    console.error('Error updating username on messages:', error);
+    res.status(500).json({ success: false, message: 'Failed to update username on messages' });
   }
 });
 
