@@ -37,7 +37,6 @@ function PoolInfo() {
     const handleConfirm = async () => {
         if (isAdmin(username, admin)) {
             if (poolUsers.length === 1) {
-                // If the user is the admin and the only user in the pool, delete the pool
                 await dispatch(deletePool({poolName, username}));
                 await dispatch(resetPoolName());
                 await dispatch(resetPoolUsers());
@@ -80,18 +79,41 @@ function PoolInfo() {
                 height: '2rem',
                 display: 'flex',
                 alignItems: 'center',
+                width: '190px',
+                '@media (min-width: 600px) and (max-width: 1200px)': {
+                    width: 'fitContent', // Allow width to adjust within the media query range
+                    mr: '20px',
+                    ml: '-20px',
+                },
             }}>
                 <Typography variant="caption" 
                     sx={{ 
                         flexGrow: 1,
-                        margin: '20px', 
+                        margin: '20px',
+                        whiteSpace: 'nowrap',
+                        '@media (min-width: 600px) and (max-width: 1200px)': {
+                            fontSize: '11px',
+                            mr: '1rem',
+                        },
                     }}
+                    
                 >
                     <span style={{ fontFamily: 'Rock Salt' }}>Pool Name:</span> <b>{poolName}</b>
                 </Typography>
             </Card>
             <Button variant="contained" 
-                sx={{ backgroundColor: 'red', '&:hover': { backgroundColor: 'darkred' } }} 
+                sx={{ 
+                    backgroundColor: 'red',
+                    height: '30px',
+                    whiteSpace: 'nowrap',
+                    '@media (max-width: 1200px)': {
+                        width: '85px',
+                        fontSize: '11px',
+                    }, 
+                    '&:hover': { 
+                        backgroundColor: 'darkred' 
+                    } 
+                }} 
                 onClick={handleOpen}
                 disabled={isButtonDisabled}
             >

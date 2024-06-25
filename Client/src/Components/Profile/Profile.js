@@ -6,6 +6,7 @@ import CurrentPicks from './currentPicks';
 import { fetchUserPicks } from '../../Features/myPicksSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
+import { resetPoolUsers } from '../../Features/poolsSlice';
 import { selectAllPicks, deleteUserPicks } from '../../Features/myPicksSlice';
 import ChangeInfoModal from './ChangeInfoModal';
 import MyPool from './MyPool';
@@ -20,10 +21,11 @@ import { fetchEmail,
     updateUsernamePool,
     updateUsernamePastResults,
     updateUsernameChats,
-    setUsername,
+    resetActiveUsers,
     selectUsername,
     fetchUsername,
     resetUsername,
+    setUsername,
  } from '../../Features/userSlice';
 import { fetchPastResults } from '../../Features/pastResultsSlice';
 
@@ -104,15 +106,15 @@ function Profile() {
         dispatch(updateUsernamePool({ username, newUsername: trimmedUsername }));
         dispatch(updateUsernamePastResults({ username, newUsername: trimmedUsername }));
         dispatch(updateUsernameChats({ username, newUsername: trimmedUsername }));
+        dispatch(resetPoolUsers());
+        dispatch(resetActiveUsers());
         handleCloseModal();
         setSnackbarOpen(true);
     
-        // Delay the navigation and other actions by a few seconds (e.g., 3 seconds)
         setTimeout(() => {
-            localStorage.removeItem('token');
-            dispatch(resetUsername());
-            navigate('/Login');
-        }, 3000); // 3000 milliseconds = 3 seconds
+            dispatch(setUsername(trimmedUsername));
+            setSnackbarOpen(false);
+        }, 2000);
     };
     
     const handleFileChange = (event) => {
@@ -245,8 +247,14 @@ function Profile() {
                     <Tabs
                         value={tabValue}
                         onChange={handleChangeTab}
+                        TabIndicatorProps={{
+                            style: {
+                                backgroundColor: 'lightgreen',
+                                height: '6px',
+                            }
+                        }}
                         sx={{
-                            marginLeft: '13rem',
+                            marginLeft: '16rem',
                             height: '.75rem',
                             '@media (max-width: 600px)': {
                                         marginLeft: '2rem',
@@ -265,17 +273,22 @@ function Profile() {
                                     backgroundColor: 'DarkGreen',
                                 },
                                 '@media (max-width: 600px)': {
-                                        width: '27%',
+                                        width: '6.5rem',
                                         height: '2rem',
                                         marginTop: '20px',
-                                    }
+                                },
+                                '@media (max-width: 1400px)': {
+                                        width: '8.5rem',
+                                        height: '3rem',
+                                },
                             }}
                         >
                             <Tab label="Current Picks"
                                 sx={{
                                     '@media (max-width: 600px)': {
                                         fontSize: '11px',
-                                    }
+                                        mb: '1rem',
+                                    },
                                 }}
                             />
                         </Button>
@@ -288,10 +301,14 @@ function Profile() {
                                     backgroundColor: 'DarkGreen',
                                 },
                                 '@media (max-width: 600px)': {
-                                        width: '27%',
+                                        width: '6.5rem',
                                         height: '2rem',
                                         marginTop: '20px',
-                                    }
+                                },
+                                '@media (max-width: 1400px)': {
+                                        width: '8.5rem',
+                                        height: '3rem',
+                                },
                             }}
                             onClick={() => handleTabChange(1)}
                         >
@@ -299,6 +316,7 @@ function Profile() {
                                 sx={{
                                     '@media (max-width: 600px)': {
                                         fontSize: '11px',
+                                        mb: '1rem',
                                     }
                                 }}
                             />
@@ -335,7 +353,7 @@ function Profile() {
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
                 <Alert onClose={() => setSnackbarOpen(false)} severity="info" sx={{ width: '100%' }}>
-                    Username changed successfully. Please log in again with your new username.
+                    Username changed successfully
                 </Alert>
             </Snackbar>
         </Box>

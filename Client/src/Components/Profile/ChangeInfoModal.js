@@ -36,7 +36,14 @@ function ChangeInfoModal({ open, onClose, newUsername, handleChangeUsername, han
                     <Button onClick={onClose} color="secondary" sx={{ mr: 2 }}>
                         Cancel
                     </Button>
-                    <Button onClick={handleSubmitUsername} variant="contained" color="primary">
+                    <Button onClick={handleSubmitUsername} variant="contained" color="primary"
+                        sx={{
+                            backgroundColor: '#222',
+                            '&:hover': {
+                                backgroundColor: 'DarkGreen',
+                            }
+                        }}
+                    >
                         Submit
                     </Button>
                 </Box>

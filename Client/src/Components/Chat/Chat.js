@@ -12,7 +12,7 @@ import {
     addMessage } from '../../Features/chatSlice';
 import './Chat.css';
 
-const socket = io(`${process.env.REACT_APP_CHAT_URL}`);
+const socket = io(`http://localhost:5000`);
 
 function Chat() {
     const dispatch = useDispatch();

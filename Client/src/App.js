@@ -47,7 +47,7 @@ function App() {
       dispatch(fetchPoolUsers(poolName));
       dispatch(fetchPoolInfo(poolName));
     }
-  }, [dispatch, poolName]);
+  }, [dispatch, poolName, username]);
 
   const logout = () => {
     localStorage.removeItem('token');

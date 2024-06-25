@@ -20,18 +20,17 @@ function Payouts() {
 
     return (
         <Container sx={{ marginBottom: '.5rem', marginTop: '-1.5rem', display: 'flex', justifyContent: 'center' }}>
-            <Card sx={{padding: '.5rem'}}>
+            <Card sx={{
+                padding: '.5rem',
+                '@media (min-width: 600px) and (max-width: 1200px)': {
+                            fontSize: '9px',
+                        },
+                }}>
             <Typography 
                 variant="h7" 
                 sx={{ 
                     fontFamily: 'Rock Salt',
-                    fontSize: {
-                        xs: '.7rem', // larger on smaller screens
-                        sm: '.7rem', 
-                        md: '.7rem', // smaller on medium and larger screens
-                        lg: '0.6rem',
-                        xl: '0.6rem'
-                    }
+                    fontSize: '11px',
                 }}
             >
                 <b>Payouts:</b>
@@ -41,13 +40,11 @@ function Payouts() {
                 sx={{ 
                     fontFamily: 'Rock Salt', 
                     marginLeft: '1rem',
-                    fontSize: {
-                        xs: '.7rem', // larger on smaller screens
-                        sm: '0.7rem', 
-                        md: '0.7rem', // smaller on medium and larger screens
-                        lg: '0.6rem',
-                        xl: '0.6rem'
-                    }
+                    fontSize: '11px',
+                    '@media (min-width: 600px) and (max-width: 1200px)': {
+                            fontSize: '9px',
+                            ml: '.75rem',
+                        },
                 }}
             >
                 <b>1st:</b> ${firstPlacePayout}
@@ -57,13 +54,11 @@ function Payouts() {
                 sx={{ 
                     fontFamily: 'Rock Salt', 
                     marginLeft: '1rem',
-                    fontSize: {
-                        xs: '.7rem', // larger on smaller screens
-                        sm: '.7rem', 
-                        md: '.7rem', // smaller on medium and larger screens
-                        lg: '0.6rem',
-                        xl: '0.6rem'
-                    }
+                    fontSize: '11px',
+                    '@media (min-width: 600px) and (max-width: 1200px)': {
+                            fontSize: '9px',
+                            ml: '.75rem',
+                        },
                 }}
             >
                 <b>2nd:</b> ${secondPlacePayout}
@@ -73,13 +68,11 @@ function Payouts() {
                 sx={{ 
                     fontFamily: 'Rock Salt', 
                     marginLeft: '1rem',
-                    fontSize: {
-                        xs: '.7rem', // larger on smaller screens
-                        sm: '.7rem', 
-                        md: '.7rem', // smaller on medium and larger screens
-                        lg: '0.6rem',
-                        xl: '0.6rem'
-                    }
+                    fontSize: '11px',
+                    '@media (min-width: 600px) and (max-width: 1200px)': {
+                            fontSize: '9px',
+                            ml: '.5rem',
+                        },
                 }}
             >
                 <b>3rd: </b>${thirdPlacePayout}

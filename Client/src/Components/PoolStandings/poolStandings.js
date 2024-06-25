@@ -187,15 +187,15 @@ function PoolStandings() {
               <Typography
                   variant="h4"
                   sx={{
-                  backgroundColor: '#222', // Orange background color
-                  color: '#FFF', // White text color
-                  fontFamily: 'Roboto, sans-serif', // Use a professional font
-                  fontWeight: 'bold',
-                  fontSize: '2rem',
-                  textAlign: 'center',
-                  padding: '.5rem', // Add padding for better spacing
-                  borderRadius: '8px', // Rounded corners
-                  boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)', // Soft shadow for depth
+                    backgroundColor: '#222',
+                    color: '#FFF',
+                    fontFamily: 'Roboto, sans-serif',
+                    fontWeight: 'bold',
+                    fontSize: '2rem',
+                    textAlign: 'center',
+                    padding: '.5rem', 
+                    borderRadius: '8px',
+                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
                   }}
               >
                   POOL STANDINGS

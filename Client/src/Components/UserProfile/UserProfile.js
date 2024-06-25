@@ -140,15 +140,15 @@ function UserProfile() {
                         onChange={handleChangeTab}
                         TabIndicatorProps={{
                             style: {
-                                backgroundColor: 'green',
-                                height: '8px' // Adjust the height value to make the line thicker
+                                backgroundColor: 'lightgreen',
+                                height: '8px',
                             }
                         }}
                         sx={{
-                            marginLeft: '13rem',
+                            marginLeft: '16rem',
                             height: '.75rem',
                             '@media (max-width: 600px)': {
-                                        marginLeft: '2rem',
+                                        marginLeft: '1rem',
                                     },
                             '@media (max-width: 1400px)': {
                                         marginLeft: '8rem',
@@ -165,16 +165,21 @@ function UserProfile() {
                                     backgroundColor: 'DarkGreen',
                                 },
                                 '@media (max-width: 600px)': {
-                                        width: '29%',
+                                        width: '6.5rem',
                                         height: '2rem',
                                         marginTop: '20px',
-                                    }
+                                },
+                                '@media (max-width: 1400px)': {
+                                        width: '8.5rem',
+                                        height: '3rem',
+                                },
                             }}
                         >
                             <Tab label="Current Picks"
                                 sx={{
                                     '@media (max-width: 600px)': {
                                         fontSize: '11px',
+                                        mb: '1rem',
                                     }
                                 }}
                             />
@@ -188,10 +193,14 @@ function UserProfile() {
                                     backgroundColor: 'DarkGreen',
                                 },
                                 '@media (max-width: 600px)': {
-                                        width: '29%',
+                                        width: '6.5rem',
                                         height: '2rem',
                                         marginTop: '20px',
-                                    }
+                                },
+                                '@media (max-width: 1400px)': {
+                                        width: '6.5rem',
+                                        height: '3rem',
+                                },
                             }}
                             onClick={() => handleTabChange(1)}
                         >
@@ -199,6 +208,7 @@ function UserProfile() {
                                 sx={{
                                     '@media (max-width: 600px)': {
                                         fontSize: '11px',
+                                        mb: '1rem',
                                     }
                                 }}
                             />
@@ -223,22 +233,3 @@ function UserProfile() {
 }
 
 export default UserProfile;
-
-            // <Box sx={{ 
-            //     width: '60%',
-            //     '@media (max-width: 600px)' : {
-            //         marginTop: '2rem',
-            //         display: 'flex',
-            //         justifyContent: 'center',
-            //         alignItems: 'center',
-            //         width: '100%',
-            //     } 
-            //     }}>
-            //     <CurrentPicks
-            //         tier1Picks={isBeforeThursday() ? tier1Picks.map(() => 'Blurred Name') : tier1Picks}
-            //         tier2Picks={isBeforeThursday() ? tier2Picks.map(() => 'Blurred Name') : tier2Picks}
-            //         tier3Picks={isBeforeThursday() ? tier3Picks.map(() => 'Blurred Name') : tier3Picks}
-            //         tier4Picks={isBeforeThursday() ? tier4Picks.map(() => 'Blurred Name') : tier4Picks}
-            //         allPicks={allUserPicks}
-            //     />
-            // </Box>

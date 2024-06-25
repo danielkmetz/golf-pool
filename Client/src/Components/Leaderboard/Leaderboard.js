@@ -77,15 +77,16 @@ function Leaderboard() {
                         marginTop: '.5rem',
                         marginBottom: '.5rem',
                         backgroundColor: '#222',
-                        color: '#FFF', // White text color
-                        fontFamily: 'Roboto, sans-serif', // Use a professional font
+                        color: '#FFF',
+                        fontFamily: 'Roboto, sans-serif',
                         fontWeight: 'bold',
                         fontSize: '2.5rem',
                         textAlign: 'center',
                         paddingLeft: '1.5rem',
                         paddingRight: '1.5rem',
-                        borderRadius: '8px', // Rounded corners
-                        boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)', // Soft shadow for depth
+                        borderRadius: '8px',
+                        boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+                        width: '30rem',
                     }}
                 >
                     LEADERBOARD

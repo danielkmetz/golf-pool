@@ -12,6 +12,8 @@ function PastResults({ username }) {
     const dispatch = useDispatch();
     const pastResults = useSelector(selectPastResults);
 
+    console.log(username);
+
     useEffect(() => {
         const fetchResults = async () => {
             try {
@@ -42,7 +44,7 @@ function PastResults({ username }) {
                     <Table>
                         <TableHead 
                             sx={{
-                                backgroundColor: 'lightgreen',
+                                backgroundColor: 'green',
                                 borderBottom: '2px solid black',  // Add solid bottom border
                             }}
                         >
