@@ -19,9 +19,10 @@ function Payouts() {
     const thirdPlacePayout = Math.floor((totalActive * buyIn) * thirdPlacePercentage);
 
     return (
-        <Container sx={{ marginBottom: '.5rem', marginTop: '-1.5rem', display: 'flex', justifyContent: 'center' }}>
+        <Container sx={{ marginBottom: '.5rem', marginTop: '-2rem', display: 'flex', justifyContent: 'center' }}>
             <Card sx={{
                 padding: '.5rem',
+                height: '1.2rem',
                 '@media (min-width: 600px) and (max-width: 1200px)': {
                             fontSize: '9px',
                         },
