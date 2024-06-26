@@ -35,7 +35,7 @@ function Chat() {
 
     useEffect(() => {
         dispatch(fetchMessages(poolName));
-    }, [open, dispatch]);
+    }, [open, dispatch, poolName]);
 
     useEffect(() => {
         dispatch(fetchTimestamp(username));
@@ -45,7 +45,7 @@ function Chat() {
         if (timestamp < lastMessageTimestamp && !open && messages.length > 0) {
             setUnread(true);
         }
-    }, [messages, timestamp]);
+    }, [messages, timestamp, lastMessageTimestamp, open]);
 
     useEffect(() => {
         if (poolName && open) {
@@ -65,7 +65,7 @@ function Chat() {
         return () => {
             socket.off('chatMessage');
         };
-    }, [open, username]);
+    }, [open, username, dispatch]);
 
     const toggleDrawer = () => {
         setOpen((prevOpen) => !prevOpen);

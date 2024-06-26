@@ -28,7 +28,6 @@ import {
 
 function Tier1() {
   const dispatch = useDispatch();
-  let oddsResults = useSelector(selectOddsResults);
   let tier1Results = useSelector(selectTier1Results);
   let tier2Results = useSelector(selectTier2Results);
   let tier3Results = useSelector(selectTier3Results);

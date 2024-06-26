@@ -24,7 +24,6 @@ import { fetchEmail,
     resetActiveUsers,
     selectUsername,
     fetchUsername,
-    resetUsername,
     setUsername,
  } from '../../Features/userSlice';
 import { fetchPastResults } from '../../Features/pastResultsSlice';
@@ -45,8 +44,7 @@ function Profile() {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [tabValue, setTabValue] = useState(0);
     const dispatch = useDispatch();
-    const navigate = useNavigate();
-
+    
     const currentDate = new Date();
     const currentDay = currentDate.getDay();
     const isSubmitDisabled = currentDay >= 4 || currentDay === 0;

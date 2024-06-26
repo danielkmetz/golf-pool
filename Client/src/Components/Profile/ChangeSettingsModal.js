@@ -32,7 +32,7 @@ function ChangeSettingsModal({ open, handleClose }) {
         setNewFirstPayout(firstPlace);
         setNewSecondPayout(secondPlace);
         setNewThirdPayout(thirdPlace);
-    }, [info]);
+    }, [info, firstPlace, secondPlace, thirdPlace]);
 
     const handleNewFirstPayoutChange = (value) => {
         setNewFirstPayout(parseFloat(value));

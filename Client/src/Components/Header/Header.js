@@ -16,8 +16,8 @@ function Header({isLoggedIn}) {
                 alignItems: "center",
                 height: { xs: 100, md: 100 },
                 paddingX: { xs: 2, md: 4 },
-                paddingTop: { xs: 2, md: 1 }, // Increased top padding on phones
-                paddingBottom: { xs: 2, md: 1 }, // Increased bottom padding on phones
+                paddingTop: { xs: 2, md: 1 }, 
+                paddingBottom: { xs: 2, md: 1 }, 
                 overflow: "hidden",
                 flexDirection: { xs: 'column', md: 'row' }, // Stack on small screens, inline on larger screens
             }}
@@ -35,7 +35,8 @@ function Header({isLoggedIn}) {
                 >
                 The Golf Pool
                 </Typography>
-                <img src={require("./no-background-logo.png")} 
+                <img src={require("./no-background-logo.png")}
+                    alt="logo" 
                     style={{height: '70px', marginLeft: { xs: '5px', md: '10px' }}}/>
             </Box>
             <Box className="navigation" 

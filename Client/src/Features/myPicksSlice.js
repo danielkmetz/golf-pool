@@ -26,6 +26,7 @@ export const deleteUserPicks = createAsyncThunk(
     async ({username}) => {
         try {
             const response = await axios.delete(`${process.env.REACT_APP_API_URL}/userpicks/delete-user-picks/${username}`);
+            return response.data;
             alert('Your picks have been deleted');
         } catch (error) {
             console.error('Error deleting user picks:', error);

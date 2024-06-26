@@ -72,7 +72,7 @@ function PoolStandings() {
       if (userPics.length > 0) {
         dispatch(fetchProfilePics(userPics));
       }
-    }, [dispatch, poolUsers]);  
+    }, [dispatch, userPics]);  
 
     const organizeAndCalculateLowestScores = (userData, resultsData, coursePar) => {
         let organizedData = [];
@@ -155,8 +155,6 @@ function PoolStandings() {
       return acc;
     }, {});
 
-    const date = currentDate;
-  
     useEffect(() => {
       // Check if all necessary info is available
       if (username && currentDate && tournamentName && userPositionMap && isSundayComplete) {

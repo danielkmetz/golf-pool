@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Box, Typography, Button, Dialog, Card, Paper } from '@mui/material';
+import { Container, Box, Typography, Button, Dialog, Card, } from '@mui/material';
 import {
   selectTier1Picks,
   selectTier2Picks,
@@ -78,10 +78,6 @@ function MyPicks() {
   useEffect(() => {
     dispatch(fetchPaymentStatus(username));
   }, [username, handleSubmission, dispatch]);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
 
   const handleClose = () => {
     setOpen(false);

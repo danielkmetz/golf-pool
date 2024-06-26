@@ -29,8 +29,6 @@ function Weather() {
     const [cachedWeather, setCachedWeather] = useState([]);
     const [cachedGeoCode, setCachedGeoCode] = useState(null);
 
-    const today = new Date().toISOString().split('T')[0];
-
     useEffect(() => {
         dispatch(fetchTournamentInfo());
     }, [dispatch]);
@@ -39,7 +37,7 @@ function Weather() {
         if (city && state && country && !cachedGeoCode) {
             dispatch(fetchGeoCode({city, state, country}));
         }
-    }, [dispatch, city, state, country]);
+    }, [dispatch, city, state, country, cachedGeoCode]);
 
     useEffect(() => {
         if (lat && long) {
@@ -61,9 +59,6 @@ function Weather() {
     const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Month starts from 0, so add 1 and pad with 0 if needed
     const day = String(currentDate.getDate()).padStart(2, '0'); // Pad with 0 if needed
     const hours = String(currentDate.getHours()).padStart(2, '0'); // Pad with 0 if needed
-
-    // Construct the date and time string in "YYYY-MM-DD HH:00" format
-    const currentDateTime = `${year}-${month}-${day} ${hours}:00`;
 
     const filteredForecast = (cachedWeather && cachedWeather.data)
     ? cachedWeather.data.filter((forecast) => {

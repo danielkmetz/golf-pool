@@ -11,7 +11,6 @@ import { fetchTournamentInfo,
 
 const GolfersModal = ({ user, isOpen, handleClose }) => {
     const dispatch = useDispatch();
-    const results = useSelector(selectResults);
     const allUserPicks = useSelector(selectAllPicks);
     const liveResults = useSelector(selectLiveResults);
     const tournamentInfo = useSelector(selectTournamentInfo);
