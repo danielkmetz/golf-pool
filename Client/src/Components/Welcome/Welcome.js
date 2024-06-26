@@ -1,9 +1,9 @@
 import React from 'react';
-import { Container, Typography, Button, Box, Grid, Paper } from '@mui/material';
+import { Container, Typography, Button, Grid, Paper } from '@mui/material';
 import { Link } from 'react-router-dom';
 import SportsGolfIcon from '@mui/icons-material/SportsGolf';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import GolfBackground from './misty-golf-course.jpg'; // Replace with your image path
+import GolfBackground from './misty-golf-course.jpg'; 
 
 const WelcomePage = () => {
   return (
@@ -21,7 +21,6 @@ const WelcomePage = () => {
         color: 'white',
         position: 'relative',
         paddingTop: '2rem',
-        marginTop: '-1.5rem',
       }}
     >
       <Container maxWidth="lg" >
@@ -29,7 +28,7 @@ const WelcomePage = () => {
           elevation={3}
           sx={{
             padding: 4,
-            backgroundColor: 'rgba(0, 0, 0, 0.2)', // Increase opacity for better text contrast
+            backgroundColor: 'rgba(0, 0, 0, 0.2)', 
             marginBottom: 4,
             overflow: 'auto',
             maxHeight: '100%',

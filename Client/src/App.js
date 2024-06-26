@@ -12,7 +12,13 @@ import CreatePool from './Components/CreatePool/CreatePool';
 import JoinPool from './Components/JoinPool/JoinPool';
 import Welcome from './Components/Welcome/Welcome';
 import { fetchUsername, selectUsername } from './Features/userSlice';
-import { fetchPoolUsers, resetPoolUsers, selectPoolName, fetchPoolName, resetPoolName, fetchPoolInfo, resetUserPoolData } from './Features/poolsSlice';
+import { fetchPoolUsers, 
+  resetPoolUsers, 
+  selectPoolName, 
+  fetchPoolName, 
+  resetPoolName, 
+  fetchPoolInfo, 
+  resetUserPoolData } from './Features/poolsSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
