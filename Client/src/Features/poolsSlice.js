@@ -132,6 +132,7 @@ const poolSlice = createSlice({
         poolNameStatus: 'idle',
         poolAdmin: null,
         userPoolData: [],
+        initialBalance: 100,
     },
     reducers: {
         resetPoolData: (state, action) => {
@@ -151,6 +152,12 @@ const poolSlice = createSlice({
         },
         setUserPoolData: (state, action) => {
             state.userPoolData = action.payload;
+        },
+        subtractInitialBalance: (state, action) => {
+            state.initialBalance = (state.initialBalance - action.payload);
+        },
+        addInitialBalance: (state, action) => {
+            state.initialBalance = (state.initialBalance + action.payload);
         },
     },
     extraReducers: (builder) => {
@@ -255,6 +262,9 @@ export const selectPoolName = (state) => state.pools.poolName;
 export const selectPoolNameStatus = (state) => state.pools.poolNameStatus;
 export const selectPoolAdmin = (state) => state.pools.poolAdmin;
 export const selectUserPoolData = (state) => state.pools.userPoolData;
+export const selectInitialBalance = (state) => state.pools.initialBalance;
 
 export const { resetPoolData, 
-    resetPoolUsers, resetPoolName, setPoolName, resetUserPoolData, setUserPoolData } = poolSlice.actions;
+    resetPoolUsers, resetPoolName, setPoolName, resetUserPoolData, subtractInitialBalance,
+     addInitialBalance,
+    setUserPoolData } = poolSlice.actions;

@@ -6,7 +6,7 @@ const pastResults = require('../models/pastResults');
 router.post('/save', async (req, res) => {
     try {
         const { username, results } = req.body;
-        //console.log('Received results:', results); // Log received results
+        console.log('Received results:', results); // Log received results
 
         if (!Array.isArray(results)) {
             return res.status(400).json({ error: 'Results must be an array' });

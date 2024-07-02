@@ -66,9 +66,6 @@ export const myPicksSlice = createSlice({
     },
     reducers: {
         addTier1Golfer: (state, action) => {
-            if ([...state.tier1Picks].length >= 3) {
-                return;
-            }
             const exists = state.tier1Picks.some(
                 golfer => golfer === action.payload);
 
@@ -82,9 +79,6 @@ export const myPicksSlice = createSlice({
             state.tier1Picks = state.tier1Picks.filter(golfer => golfer !== action.payload)
         },
         addTier2Golfer: (state, action) => {
-            if ([...state.tier2Picks].length >= 2) {
-                return;
-            }
             const exists = state.tier2Picks.some(
                 golfer => golfer === action.payload);
 
@@ -98,9 +92,6 @@ export const myPicksSlice = createSlice({
             state.tier2Picks = state.tier2Picks.filter(golfer => golfer !== action.payload)
         },
         addTier3Golfer: (state, action) => {
-            if ([...state.tier3Picks].length >= 2) {
-                return;
-            }
             const exists = state.tier3Picks.some(
                 golfer => golfer === action.payload);
 
@@ -114,9 +105,6 @@ export const myPicksSlice = createSlice({
             state.tier3Picks = state.tier3Picks.filter(golfer => golfer !== action.payload)
         },
         addTier4Golfer: (state, action) => {
-            if ([...state.tier4Picks].length >= 1) {
-                return;
-            }
             const exists = state.tier4Picks.some(
                 golfer => golfer === action.payload);
 
@@ -127,7 +115,8 @@ export const myPicksSlice = createSlice({
             }
         },
         removeTier4Golfer: (state, action) => {
-            state.tier4Picks = state.tier4Picks.filter(golfer => golfer !== action.payload)
+            state.tier4Picks = state.tier4Picks.filter(
+                golfer => golfer !== action.payload)
         },
         setTier1Picks: (state, action) => {
             state.tier1Picks = action.payload;

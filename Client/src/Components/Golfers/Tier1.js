@@ -15,6 +15,7 @@ import {
 } from '../../Features/bettingOddsSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import BettingOdds from './bettingOdds';
+import { selectUserPoolData } from '../../Features/poolsSlice';
 import {
   addTier1Golfer,
   addTier2Golfer,
@@ -25,6 +26,7 @@ import {
   selectTier3Picks,
   selectTier4Picks,
 } from '../../Features/myPicksSlice';
+import { subtractInitialBalance, selectInitialBalance } from '../../Features/poolsSlice';
 
 function Tier1() {
   const dispatch = useDispatch();
@@ -36,7 +38,12 @@ function Tier1() {
   const tier2Picks = useSelector(selectTier2Picks);
   const tier3Picks = useSelector(selectTier3Picks);
   const tier4Picks = useSelector(selectTier4Picks);
+  const poolInfo = useSelector(selectUserPoolData);
+  const balance = useSelector(selectInitialBalance);
   const [selectedOption, setSelectedOption] = useState('');
+
+  const format = poolInfo.format;
+  console.log(format);
   
   useEffect(() => {
     dispatch(fetchOdds());
@@ -60,23 +67,48 @@ function Tier1() {
   };
 
   function addGolfer(golfer) {
-    if (selectedOption === 'Tier1' && tier1Picks.length < 3) {
-      dispatch(addTier1Golfer(golfer));
-      dispatch(filterGolferFromTier({ tier: 'Tier1', golferName: golfer}))
+    if (format !== "Salary Cap") {
+        if (selectedOption === 'Tier1') {
+            if (tier1Picks.length < 3) {
+                dispatch(addTier1Golfer(golfer));
+                dispatch(filterGolferFromTier({ tier: 'Tier1', golferName: golfer }));
+            }
+        } else if (selectedOption === 'Tier2') {
+            if (tier2Picks.length < 2) {
+                dispatch(addTier2Golfer(golfer));
+                dispatch(filterGolferFromTier({ tier: 'Tier2', golferName: golfer }));
+            }
+        } else if (selectedOption === 'Tier3') {
+            if (tier3Picks.length < 2) {
+                dispatch(addTier3Golfer(golfer));
+                dispatch(filterGolferFromTier({ tier: 'Tier3', golferName: golfer }));
+            }
+        } else if (selectedOption === 'Tier4') {
+            if (tier4Picks.length < 1) {
+                dispatch(addTier4Golfer(golfer));
+                dispatch(filterGolferFromTier({ tier: 'Tier4', golferName: golfer }));
+            }
+        }
+    } else {
+        if (selectedOption === 'Tier1' && balance >= 25) {
+            dispatch(addTier1Golfer(golfer));
+            dispatch(filterGolferFromTier({ tier: 'Tier1', golferName: golfer }));
+            dispatch(subtractInitialBalance(25))
+        } else if (selectedOption === 'Tier2' && balance >= 15) {
+              dispatch(addTier2Golfer(golfer));
+              dispatch(filterGolferFromTier({ tier: 'Tier2', golferName: golfer }));
+              dispatch(subtractInitialBalance(15))
+        } else if (selectedOption === 'Tier3' && balance >= 10) {
+              dispatch(addTier3Golfer(golfer));
+              dispatch(filterGolferFromTier({ tier: 'Tier3', golferName: golfer }));
+              dispatch(subtractInitialBalance(10))
+        } else if (selectedOption === 'Tier4' && balance >= 5) {
+              dispatch(addTier4Golfer(golfer));
+              dispatch(filterGolferFromTier({ tier: 'Tier4', golferName: golfer }));
+              dispatch(subtractInitialBalance(5));
+        }
     }
-    if (selectedOption === 'Tier2' && tier2Picks.length < 2) {
-      dispatch(addTier2Golfer(golfer));
-      dispatch(filterGolferFromTier({ tier: 'Tier2', golferName: golfer}))
-    }
-    if (selectedOption === 'Tier3' && tier3Picks.length < 2) {
-      dispatch(addTier3Golfer(golfer));
-      dispatch(filterGolferFromTier({tier: 'Tier3', golferName: golfer}))
-    }
-    if (selectedOption === 'Tier4' && tier4Picks.length < 1) {
-      dispatch(addTier4Golfer(golfer));
-      dispatch(filterGolferFromTier({ tier: 'Tier4', golferName: golfer}))
-    }
-  }
+}
 
   const containerStyle = {
     marginTop: '2rem',
@@ -118,23 +150,26 @@ function Tier1() {
       </Select>
       {selectedOption && (
         <Paper elevation={3} style={oddsContainerStyle}>
-          <Typography variant="h5" gutterBottom sx={{textDecoration: 'underline'}}>
-            {selectedOption === 'Tier2'
-              ? 'Pick 2 from Tier 2'
-              : selectedOption === 'Tier3'
-              ? 'Pick 2 from Tier 3'
-              : selectedOption === 'Tier4'
-              ? 'Pick 1 from Tier 4'
-              : 'Pick 3 from Tier 1'}
-          </Typography>
+          {format === "Salary Cap" ?
+            null :
+            <Typography variant="h5" gutterBottom sx={{textDecoration: 'underline'}}>
+              {selectedOption === 'Tier2'
+                ? 'Pick 2 from Tier 2'
+                : selectedOption === 'Tier3'
+                ? 'Pick 2 from Tier 3'
+                : selectedOption === 'Tier4'
+                ? 'Pick 1 from Tier 4'
+                : 'Pick 3 from Tier 1'}
+            </Typography>
+          }
           {selectedOption === 'Tier2' ? (
-            <BettingOdds oddsResults={tier2Results} addGolfer={addGolfer} />
+            <BettingOdds oddsResults={tier2Results} addGolfer={addGolfer} format={format} tier={"Tier2"}/>
           ) : selectedOption === 'Tier3' ? (
-            <BettingOdds oddsResults={tier3Results} addGolfer={addGolfer} />
+            <BettingOdds oddsResults={tier3Results} addGolfer={addGolfer} format={format} tier={"Tier3"}/>
           ) : selectedOption === 'Tier4' ? (
-            <BettingOdds oddsResults={tier4Results} addGolfer={addGolfer} />
+            <BettingOdds oddsResults={tier4Results} addGolfer={addGolfer} format={format} tier={"Tier4"}/>
           ) : (
-            <BettingOdds oddsResults={tier1Results} addGolfer={addGolfer} />
+            <BettingOdds oddsResults={tier1Results} addGolfer={addGolfer} format={format} tier={"Tier1"}/>
           )}
         </Paper>
       )}

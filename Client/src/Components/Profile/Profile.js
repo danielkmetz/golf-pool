@@ -5,8 +5,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CurrentPicks from './currentPicks'; 
 import { fetchUserPicks } from '../../Features/myPicksSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router';
-import { resetPoolUsers } from '../../Features/poolsSlice';
+import { resetPoolUsers, selectUserPoolData } from '../../Features/poolsSlice';
 import { selectAllPicks, deleteUserPicks } from '../../Features/myPicksSlice';
 import ChangeInfoModal from './ChangeInfoModal';
 import MyPool from './MyPool';
@@ -27,10 +26,13 @@ import { fetchEmail,
     setUsername,
  } from '../../Features/userSlice';
 import { fetchPastResults } from '../../Features/pastResultsSlice';
+import { sendSMS } from '../../actions';
 
 function Profile() {
     const username = useSelector(selectUsername);
     const email = useSelector(selectEmail);
+    const info = useSelector(selectUserPoolData);
+    const format = info.format;
     const [loading, setLoading] = useState(true);
     const userPhoto = useSelector(selectProfilePic);
     const [imagePreview, setImagePreview] = useState('');
@@ -95,7 +97,7 @@ function Profile() {
 
     const token = localStorage.getItem('token');
     
-    const handleSubmitUsername = () => {
+    const handleSubmitUsername = async () => {
         // Trim the new username before dispatching the actions
         const trimmedUsername = newUsername.trim();
         // Send the updated username to your backend route for updating user data
@@ -108,7 +110,17 @@ function Profile() {
         dispatch(resetActiveUsers());
         handleCloseModal();
         setSnackbarOpen(true);
-    
+
+        // const phoneNumber = '+16308540053'; // Replace with your recipient's phone number
+        // const message = `Your username has been changed to ${trimmedUsername}.`;
+        // const messageVolume = '1000'; // Example message volume, adjust as needed
+
+        // try {
+        // await sendSMS(phoneNumber, message, messageVolume);
+        // console.log('SMS sent successfully');
+        // } catch (error) {
+        // console.error('Error sending SMS:', error);
+            // }
         setTimeout(() => {
             dispatch(setUsername(trimmedUsername));
             setSnackbarOpen(false);
@@ -141,14 +153,15 @@ function Profile() {
     };
     
     return (
-        <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'center',
-            '@media (max-width: 600px)': {
-                flexWrap: 'wrap',
-                flexDirection: 'column',
-                marginTop: '1rem',
-            },  
+        <Box 
+            sx={{ 
+                display: 'flex', 
+                justifyContent: 'center',
+                '@media (max-width: 600px)': {
+                    flexWrap: 'wrap',
+                    flexDirection: 'column',
+                    marginTop: '1rem',
+                },  
             }}>
             <Box sx={{ 
                 display: 'flex',
@@ -163,24 +176,24 @@ function Profile() {
                         <CircularProgress />
                     </Box>
                 ) : (
-                    <Paper elevation={3} sx={{
-                        p: 2,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        height: '240px',
-                        backgroundColor: "#DEB887",
-                        marginTop: '2rem',
-                        '@media (min-width: 600px)': {
-                            position: 'sticky',
-                            top: '20px',
-                            zIndex: 1,
-                        },
-                        '@media (max-width: 600px)': {
-                            width: '50%',
-                            
-                        },
-                    }}>
+                    <Paper elevation={3} 
+                        sx={{
+                            p: 2,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            height: '240px',
+                            backgroundColor: "#DEB887",
+                            marginTop: '2rem',
+                            '@media (min-width: 600px)': {
+                                position: 'sticky',
+                                top: '20px',
+                                zIndex: 1,
+                            },
+                            '@media (max-width: 600px)': {
+                                width: '50%',         
+                            },
+                        }}>
                         <input
                             type="file"
                             accept="image/*"
@@ -254,12 +267,12 @@ function Profile() {
                         sx={{
                             marginLeft: '16rem',
                             height: '.75rem',
+                            '@media (min-width: 600px) and (max-width: 1400px)': {
+                                marginLeft: '10rem',
+                                },
                             '@media (max-width: 600px)': {
-                                        marginLeft: '2rem',
-                                    },
-                            '@media (max-width: 1400px)': {
-                                        marginLeft: '8rem',
-                                    }
+                                    marginLeft: '2.5rem',
+                                },
                         }}
                     >
                         <Button 
@@ -274,6 +287,7 @@ function Profile() {
                                         width: '6.5rem',
                                         height: '2rem',
                                         marginTop: '20px',
+                                    
                                 },
                                 '@media (max-width: 1400px)': {
                                         width: '8.5rem',
@@ -327,6 +341,7 @@ function Profile() {
                         tier3Picks={tier3Picks}
                         tier4Picks={tier4Picks}
                         allPicks={allUserPicks}
+                        format={format}
                     />
                     )}
                     {tabValue === 1 && (
@@ -342,7 +357,7 @@ function Profile() {
                         width: '100%',
                     }
                     }}>
-                <MyPool />
+                <MyPool info={info}/>
             </Box>
             <Snackbar
                 open={snackbarOpen}

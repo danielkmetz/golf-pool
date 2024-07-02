@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import { Container, Typography, Table, TableBody, Box, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchPastResults, selectPastResults } from '../../Features/pastResultsSlice';
 
@@ -11,8 +11,6 @@ function formatDate(dateString) {
 function PastResults({ username }) {
     const dispatch = useDispatch();
     const pastResults = useSelector(selectPastResults);
-
-    console.log(username);
 
     useEffect(() => {
         const fetchResults = async () => {
@@ -32,13 +30,10 @@ function PastResults({ username }) {
         <Container 
             sx={{
                 width: '70%',
-                maxHeight: '650px',
-                overflowY: pastResults.results && pastResults.results.length > 11 ? 'scroll' : 'hidden',
                 '@media (max-width: 600px)': {
-                    width: '102%',
+                    width: '100%',
                 }
-            }}
-        >
+            }}>
             {pastResults.results && pastResults.results.length > 0 ? (
                 <TableContainer component={Paper}>
                     <Table>
@@ -46,15 +41,42 @@ function PastResults({ username }) {
                             sx={{
                                 backgroundColor: 'green',
                                 borderBottom: '2px solid black',  // Add solid bottom border
-                            }}
-                        >
+                            }}>
                             <TableRow>
-                                <TableCell sx={{fontSize: '20px'}}><b>Date</b></TableCell>
-                                <TableCell sx={{fontSize: '20px'}}><b>Tournament</b></TableCell>
-                                <TableCell sx={{fontSize: '20px'}}><b>Position</b></TableCell>
+                                <TableCell 
+                                    sx={{
+                                        fontSize: '20px',
+                                        '@media (max-width: 600px)': {
+                                            fontSize: '15px',
+                                            }
+                                        }}>
+                                        <b>Date</b>
+                                </TableCell>
+                                <TableCell 
+                                    sx={{
+                                        fontSize: '20px',
+                                        '@media (max-width: 600px)': {
+                                            fontSize: '15px',
+                                            }
+                                        }}>
+                                            <b>Tournament</b>
+                                </TableCell>
+                                <TableCell 
+                                    sx={{
+                                        fontSize: '20px',
+                                        '@media (max-width: 600px)': {
+                                            fontSize: '15px',
+                                            }
+                                        }}>
+                                            <b>Position</b>
+                                </TableCell>
                             </TableRow>
                         </TableHead>
-                        <TableBody>
+                        <TableBody
+                            sx={{
+                                maxHeight: '650px',
+                                overflowY: 'scroll',
+                            }}>
                             {pastResults.results.map((result, index) => (
                                 <TableRow 
                                     key={index} 
@@ -64,8 +86,7 @@ function PastResults({ username }) {
                                             result.position === 2 ? '#C0C0C0' : 
                                             result.position === 3 ? '#CD7F32' : 
                                             'transparent',
-                                    }}
-                                >
+                                    }}>
                                     <TableCell>{formatDate(result.date)}</TableCell>
                                     <TableCell>{result.tournamentName}</TableCell>
                                     <TableCell>{result.position}</TableCell>

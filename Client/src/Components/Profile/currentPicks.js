@@ -2,13 +2,13 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectResults, fetchLeaderboard } from '../../Features/LeaderboardSlice';
 import GolferTable from './golferTable';
-import { getRoundScores } from '../../actions'; 
+import { getRoundScores } from '../../actions';
 import { Grid, Typography, Paper, Container, Table, 
     TableContainer, TableRow, TableCell, TableBody } from '@mui/material';
 import { selectLiveResults, fetchLiveModel } from '../../Features/LeaderboardSlice';
 import { fetchTournamentInfo, selectTournamentInfo } from '../../Features/TournamentInfoSlice';
 
-function CurrentPicks({ tier1Picks, tier2Picks, tier3Picks, tier4Picks}) {
+function CurrentPicks({ tier1Picks, tier2Picks, tier3Picks, tier4Picks, format}) {
     const dispatch = useDispatch();
     const tournamentInfo = useSelector(selectTournamentInfo);
     const leaderboardResults = useSelector(selectResults);
@@ -109,6 +109,7 @@ function CurrentPicks({ tier1Picks, tier2Picks, tier3Picks, tier4Picks}) {
                             />
                     </Paper>
                 </Grid>
+                {format !== "Salary Cap" ?
                 <Grid item xs={12} md={8}>
                     <Paper sx={{ p: 2 }}>
                         <Typography variant="h7">Best 4 Scores:</Typography>
@@ -136,7 +137,9 @@ function CurrentPicks({ tier1Picks, tier2Picks, tier3Picks, tier4Picks}) {
                             </Table>
                         </TableContainer>
                     </Paper>
-                </Grid>
+                </Grid> :
+                null
+                }
           </Grid>
         </Container>
     );

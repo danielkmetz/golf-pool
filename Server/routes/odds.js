@@ -26,7 +26,13 @@ router.get('/', async (req, res) => {
                     key: process.env.REACT_APP_DATA_GOLF_KEY,
                 },
             });
-            const oddsData = response.data.odds;
+            let oddsData = response.data.odds;
+
+            // Replace NaN values in the odds data
+            oddsData = oddsData.map(odd => ({
+                ...odd,
+                draftkings: isNaN(odd.draftkings) ? 0.0000001 : odd.draftkings,
+            }));
 
             // Save the new odds data to the database
             await OddsModel.insertMany(oddsData);

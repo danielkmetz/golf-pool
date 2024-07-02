@@ -1,12 +1,10 @@
 import React, { useState, } from 'react';
 import { Typography, Paper, Button } from '@mui/material';
-import { selectUserPoolData, } from '../../Features/poolsSlice';
 import { selectUsername } from '../../Features/userSlice';
 import { useSelector, } from 'react-redux';
 import ChangeSettingsModal from './ChangeSettingsModal';
 
-function MyPool() {
-    const info = useSelector(selectUserPoolData);
+function MyPool({ info }) {
     const [openModal, setOpenModal] = useState(false);
     const username = useSelector(selectUsername);
 
@@ -37,7 +35,7 @@ function MyPool() {
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    height: '420px',
+                    height: '450px',
                     width: '240px',
                     backgroundColor: "#DEB887",
                     marginTop: '2rem',
@@ -62,6 +60,8 @@ function MyPool() {
                 </Paper>
                 <Paper sx={{ marginTop: '1rem', padding: '1rem', backgroundColor: 'lightgray' }}>
                     <Typography><b>Name: </b>{info.poolName}</Typography>
+                    <br />
+                    <Typography><b>Format: </b>{info.format}</Typography>
                     <br />
                     <Typography><b>Admin: </b>{info.admin}</Typography>
                     <br />

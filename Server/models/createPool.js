@@ -15,13 +15,16 @@ const poolSchema = new mongoose.Schema({
     admin: String,
     email: String,
     poolName: String,
+    format: String,
     maxUsers: {
         type: Number,
         default: null,
     },
     buyIn: Number,
     payouts: [payoutSchema],
-    users: [userSchema], // Array of user subdocuments
+    users: [userSchema],
+    isPrivate: Boolean,
+    password: String,
 });
 
 const createPool = mongoose.model('Pool', poolSchema);

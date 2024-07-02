@@ -26,6 +26,7 @@ import {
   fetchPaymentStatus,
 } from '../../Features/paymentStatusSlice';
 import { addGolferToAvailable, selectOddsResults } from '../../Features/bettingOddsSlice';
+import { addInitialBalance, selectUserPoolData, selectInitialBalance } from '../../Features/poolsSlice';
 
 function MyPicks() {
   const dispatch = useDispatch();
@@ -39,8 +40,12 @@ function MyPicks() {
   const tier4Picks = useSelector(selectTier4Picks);
   const oddsResults = useSelector(selectOddsResults);
   const paymentStatus = useSelector(selectPaymentStatus);
+  const poolInfo = useSelector(selectUserPoolData);
+  const balance = useSelector(selectInitialBalance);
   const currentDate = new Date();
   const currentDay = currentDate.getDay();
+
+  const format = poolInfo.format;
 
   const totalPicksLength = tier1Picks.length + tier2Picks.length + tier3Picks.length + tier4Picks.length;
 
@@ -95,27 +100,56 @@ function MyPicks() {
   
   function tierRemoval(tier, golferName) {
     const odds = findOdds(golferName)
-    switch (tier) {
-      case 1:
-        dispatch(removeTier1Golfer(golferName));
-        dispatch(addGolferToAvailable({tier: tier, player_name: golferName, draftkings: odds}))
-        break;
-      case 2:
-        dispatch(removeTier2Golfer(golferName));
-        dispatch(addGolferToAvailable({tier: 'Tier2', player_name: golferName, draftkings: odds}))
-        break;
-      case 3:
-        dispatch(removeTier3Golfer(golferName));
-        dispatch(addGolferToAvailable({tier: 'Tier3', player_name: golferName, draftkings: odds}))
-        break;
-      case 4:
-        dispatch(removeTier4Golfer(golferName));
-        dispatch(addGolferToAvailable({tier: 'Tier4', player_name: golferName, draftkings: odds}))
-        break;
-      default:
-        break;
+    
+    if (format === "Single Week") {
+      switch (tier) {
+        case 1:
+          dispatch(removeTier1Golfer(golferName));
+          dispatch(addGolferToAvailable({tier: tier, player_name: golferName, draftkings: odds}))
+          break;
+        case 2:
+          dispatch(removeTier2Golfer(golferName));
+          dispatch(addGolferToAvailable({tier: 'Tier2', player_name: golferName, draftkings: odds}))
+          break;
+        case 3:
+          dispatch(removeTier3Golfer(golferName));
+          dispatch(addGolferToAvailable({tier: 'Tier3', player_name: golferName, draftkings: odds}))
+          break;
+        case 4:
+          dispatch(removeTier4Golfer(golferName));
+          dispatch(addGolferToAvailable({tier: 'Tier4', player_name: golferName, draftkings: odds}))
+          break;
+        default:
+          break;
+      }
     }
-  }
+    if (format === "Salary Cap") {
+      switch (tier) {
+        case 1:
+          dispatch(removeTier1Golfer(golferName));
+          dispatch(addGolferToAvailable({tier: tier, player_name: golferName, draftkings: odds}))
+          dispatch(addInitialBalance(25))
+          break;
+        case 2:
+          dispatch(removeTier2Golfer(golferName));
+          dispatch(addGolferToAvailable({tier: 'Tier2', player_name: golferName, draftkings: odds}))
+          dispatch(addInitialBalance(15))
+          break;
+        case 3:
+          dispatch(removeTier3Golfer(golferName));
+          dispatch(addGolferToAvailable({tier: 'Tier3', player_name: golferName, draftkings: odds}))
+          dispatch(addInitialBalance(10))
+          break;
+        case 4:
+          dispatch(removeTier4Golfer(golferName));
+          dispatch(addGolferToAvailable({tier: 'Tier4', player_name: golferName, draftkings: odds}))
+          dispatch(addInitialBalance(5))
+          break;
+        default:
+          break;
+      }
+    }      
+  };
 
   return (
     <Card className="my-picks" 
@@ -124,7 +158,8 @@ function MyPicks() {
         backgroundColor: '#f5f5f5', 
         padding: '1rem', 
         position: 'relative' }}>
-        <div style={{ 
+        <div 
+          style={{ 
           backgroundColor: 'lightgreen', 
           width: '100%', 
           padding: '0.5rem .01rem', 
@@ -132,7 +167,11 @@ function MyPicks() {
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'center', 
-          position: 'absolute', top: 0, left: 0 }}>
+          position: 'absolute', 
+          top: 0, 
+          left: 0 
+        }}
+        >
           <Typography variant="h5" style={{ color: 'black', marginLeft: "1rem", fontFamily: 'Rock Salt' }}>
             My Picks
           </Typography>
@@ -171,6 +210,17 @@ function MyPicks() {
             <CheckoutPage handleSubmission={handleSubmission} onClose={handleCloseCheckout} />
           </Dialog>
         )}
+        {format === "Salary Cap" ? 
+          <Card 
+            sx={{
+              width: '100px',
+              backgroundColor: 'white',
+              textAlign: 'center',
+            }}
+          >
+           <Typography sx={{padding: '.5px'}}><b>Balance:</b> {balance}</Typography> 
+          </Card> : null
+        }
         {[tier1Picks, tier2Picks, tier3Picks, tier4Picks].map((tierPicks, index) => (
           <Box key={index} className="picks-by-tier" sx={{ marginTop: '1rem' }}>
             <Typography variant="h7" sx={{textDecoration: 'underline'}}><b>Tier {index + 1}:</b></Typography>

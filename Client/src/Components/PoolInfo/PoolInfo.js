@@ -1,7 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Typography, Button, Modal, Box, Select, MenuItem, Card } from '@mui/material';
 import { selectUsername, resetActiveUsers } from '../../Features/userSlice';
-import { removeUserFromPool, resetPoolUsers, selectUserPoolData, resetPoolName, fetchPoolAdmin, updateAdmin, selectPoolAdmin, selectPoolUsers, deletePool, resetUserPoolData } from '../../Features/poolsSlice'; // Updated import statements
+import { 
+    removeUserFromPool, 
+    resetPoolUsers, 
+    selectUserPoolData, 
+    resetPoolName, 
+    fetchPoolAdmin, 
+    updateAdmin, 
+    selectPoolAdmin, 
+    selectPoolUsers, 
+    deletePool, 
+    resetUserPoolData 
+} from '../../Features/poolsSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 
@@ -16,6 +27,7 @@ function PoolInfo() {
     const [openAdminModal, setOpenAdminModal] = useState(false);
     const navigate = useNavigate();
     const poolName = info.poolName;
+    const format = info.format;
 
     const currentDate = new Date();
     const currentDay = currentDate.getDay();
@@ -37,7 +49,7 @@ function PoolInfo() {
     const handleConfirm = async () => {
         if (isAdmin(username, admin)) {
             if (poolUsers.length === 1) {
-                await dispatch(deletePool({poolName, username}));
+                await dispatch(deletePool({ poolName, username }));
                 await dispatch(resetPoolName());
                 await dispatch(resetPoolUsers());
                 await dispatch(resetActiveUsers());
@@ -67,49 +79,85 @@ function PoolInfo() {
     };
 
     return (
-        <Container sx={{ 
-            marginBottom: '2rem', 
-            paddingBottom: '.5rem', 
-            borderBottom: '1px solid black', 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center' 
-        }}>
-            <Card sx={{
-                height: '2rem',
-                display: 'flex',
+        <Container 
+            sx={{ 
+                marginBottom: '2rem', 
+                paddingBottom: '.5rem', 
+                borderBottom: '1px solid black', 
+                display: 'flex', 
+                flexDirection: 'row',
                 alignItems: 'center',
-                width: '190px',
-                '@media (min-width: 600px) and (max-width: 1200px)': {
-                    width: 'fitContent', // Allow width to adjust within the media query range
-                    mr: '20px',
-                    ml: '-20px',
-                },
-            }}>
-                <Typography variant="caption" 
-                    sx={{ 
-                        flexGrow: 1,
-                        margin: '20px',
-                        whiteSpace: 'nowrap',
-                        '@media (min-width: 600px) and (max-width: 1200px)': {
-                            fontSize: '11px',
-                            mr: '1rem',
+                '@media (max-width: 1400px)': {    
+                    flexDirection: 'column', 
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }, 
+            }}
+        >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                <Card 
+                    sx={{
+                        height: 'auto',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '13rem',
+                        '@media (max-width: 600px)': {
+                            ml: '-1rem',
                         },
                     }}
-                    
                 >
-                    <span style={{ fontFamily: 'Rock Salt' }}>Pool Name:</span> <b>{poolName}</b>
-                </Typography>
-            </Card>
+                    <Typography variant="caption" 
+                        sx={{ 
+                            flexGrow: 1,
+                            margin: '5px',
+                            '@media (min-width: 600px) and (max-width: 1200px)': {
+                                fontSize: '11px',   
+                            },
+                        }}
+                    >
+                        <span style={{ fontFamily: 'Rock Salt' }}>Pool Name:</span> <b>{poolName}</b>
+                    </Typography>
+                </Card>
+                <Card 
+                    sx={{
+                        height: 'auto',
+                        display: 'flex',
+                        alignItems: 'center',
+                        width: '10rem',
+                        '@media (max-width: 600px)': {
+                            mr: '-1rem',
+                        },
+                        '@media (min-width: 1400px)': {
+                            mr: '2rem',
+                        },    
+                    }}
+                >
+                    <Typography variant="caption" 
+                        sx={{ 
+                            flexGrow: 1,
+                            margin: '5px',
+                            '@media (min-width: 600px) and (max-width: 1200px)': {
+                                fontSize: '11px',
+                            },
+                        }}                  
+                    >
+                        <span style={{ fontFamily: 'Rock Salt' }}>Format:</span> <b>{format}</b>
+                    </Typography>
+                </Card>
+            </Box>
             <Button variant="contained" 
                 sx={{ 
                     backgroundColor: 'red',
-                    height: '30px',
-                    whiteSpace: 'nowrap',
-                    '@media (max-width: 1200px)': {
-                        width: '85px',
+                    height: 'auto',
+                    '@media (min-width: 1400px)': {
+                        whiteSpace: 'nowrap',
+                    },
+                    '@media (max-width: 1400px)': {
+                        width: 'auto',
                         fontSize: '11px',
-                    }, 
+                        mt: .5,
+                    },
                     '&:hover': { 
                         backgroundColor: 'darkred' 
                     } 

@@ -62,15 +62,16 @@ function Leaderboard() {
 
     return (
         <>
-            <Paper sx={{ 
-                padding: '.5rem', 
-                marginBottom: '1rem', 
-                borderRadius: '8px', 
-                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-                display: 'flex',
-                justifyContent: 'center',
-                backgroundColor: 'LightGray'
-            }}>
+            <Paper 
+                sx={{ 
+                    padding: '.5rem', 
+                    marginBottom: '1rem', 
+                    borderRadius: '8px', 
+                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    backgroundColor: 'LightGray'
+                }}>
                 <Typography
                     variant="h6"
                     sx={{
@@ -94,7 +95,8 @@ function Leaderboard() {
             </Paper>
             <TableContainer sx={{ maxHeight: "550px" }}>
                 <Table>
-                    <TableHead sx={{
+                    <TableHead 
+                    sx={{
                         backgroundColor: "blanchedalmond", 
                         position: "sticky", 
                         zIndex: 3, 

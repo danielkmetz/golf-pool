@@ -4,7 +4,8 @@ const mongoose = require('mongoose');
 const Pool = require('../models/createPool');
 
 router.post('/', async (req, res) => {
-    const { admin, email, poolName, maxUsers, buyIn, payouts, users } = req.body;
+    const { admin, email, poolName, format, maxUsers,
+         buyIn, payouts, users, isPrivate, password } = req.body;
 
     try {
         // Check if a pool with the same username and pool name already exists
@@ -18,10 +19,13 @@ router.post('/', async (req, res) => {
             admin,
             email,
             poolName,
+            format,
             maxUsers,
             buyIn,
             payouts,
             users,
+            isPrivate,
+            password,
         });
 
         await newPool.save();

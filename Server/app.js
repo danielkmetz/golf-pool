@@ -25,6 +25,7 @@ const connectUserDB = require('./Config/userDB');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const pastResults = require('./routes/pastResults');
+const twilio = require('./routes/twilio');
 const { uuid } = require('uuidv4');
 
 connectUserDB();
@@ -170,6 +171,7 @@ app.use('/api/schedule', scheduleRoute);
 app.use('/api/video-tutorial', tutorial);
 app.use('/api/create-pool', createPool);
 app.use('/api/past-results', pastResults);
+app.use('/api/twilio', twilio);
 
 app.post('/api/chat', async (req, res) => {
   try {

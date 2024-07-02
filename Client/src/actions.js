@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 export const findGolferData = async (golferName, leaderboardResults) => {
     const golfers = await leaderboardResults.find((
         golfer) => golfer.player_name === golferName);
@@ -240,4 +242,28 @@ export const sortUsers = (activeUsers, calculateLowestScores) => {
   }
 
   return sorted;
+};
+
+export const sendSMS = async (phoneNumber, message, messageVolume) => {
+  console.log(messageVolume)
+  try {
+    const response = await axios.post(
+      'http://localhost:5000/api/twilio/send-text',
+      {
+        recipient: phoneNumber,
+        textMessage: message,
+        messageVolume: messageVolume, // Pass message volume here
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error sending SMS:', error);
+    throw error;
+  }
 };

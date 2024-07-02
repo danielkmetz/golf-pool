@@ -58,7 +58,6 @@ export const bettingOddsSlice = createSlice({
         },
         filterGolferFromTier: (state, action) => {
             const { tier, golferName } = action.payload;
-            console.log(golferName)
             switch (tier) {
               case 'Tier1':
                 state.tier1Results = state.tier1Results.filter(golfer => golfer.player_name !== golferName);
@@ -76,7 +75,7 @@ export const bettingOddsSlice = createSlice({
                 break;
             }
           },
-          addGolferToAvailable: (state, action) => {
+        addGolferToAvailable: (state, action) => {
             const { tier, player_name, draftkings } = action.payload;
             switch (tier) {
               case 1:

@@ -45,7 +45,7 @@ function Chat() {
         if (timestamp < lastMessageTimestamp && !open && messages.length > 0) {
             setUnread(true);
         }
-    }, [messages, timestamp, lastMessageTimestamp, open]);
+    }, [messages, timestamp, ]);
 
     useEffect(() => {
         if (poolName && open) {
@@ -87,8 +87,6 @@ function Chat() {
             }, 0);
         }
     }, [messages, open]);
-
-    console.log(timestamp);
 
     return (
         <Container sx={{ marginLeft: '-5px' }}>
