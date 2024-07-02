@@ -145,7 +145,7 @@ const WelcomePage = () => {
                 - Single Week Tourney 4 Best Scores
               </Typography>
               <Typography variant="body1">
-                - Single Week Salary 
+                - Single Week Salary Cap
               </Typography>
             </Grid>
             <Grid item xs={12} md={4} sx={{ marginBottom: 2, paddingRight: '1rem' }}>

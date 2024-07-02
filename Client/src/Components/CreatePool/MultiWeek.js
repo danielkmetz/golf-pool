@@ -21,11 +21,11 @@ const CustomSwitch = styled(Switch)(({ theme }) => ({
     },
 }));
 
-function SingleWeek({ username, admin, email, isSmallScreen }) {
+function SingleWeek({ username, admin, email, }) {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [poolName, setPoolName] = useState('');
-    const [format, setFormat] = useState('Single Week');
+    const [format, setFormat] = useState('Multi-Week');
     const [maxUsers, setMaxUsers] = useState(25);
     const [firstPayout, setFirstPayout] = useState(0.7);
     const [secondPayout, setSecondPayout] = useState(0.2);
@@ -98,17 +98,24 @@ function SingleWeek({ username, admin, email, isSmallScreen }) {
             }}
         >
             <Typography variant="h5" sx={{ fontFamily: 'Rock Salt' }}>
-                Best 4 Scores Single Week
+                Best 4 Scores Multi-Week
             </Typography>
             <Typography variant="caption" sx={{ fontStyle: 'italic', marginTop: '50px' }}>
                 For entertainment purposes only
             </Typography>
             <Typography variant="caption"
-                sx={{ textAlign: 'left', display: 'block', whiteSpace: 'normal', fontStyle: 'italic', maxWidth: '600px', marginTop: '.5rem' }}
-            >
-                Create a pool for this week's PGA tournament.
-                Players pick 8 golfers with their 4 lowest daily scores counting towards
-                their final tournament total. Golfers that are cut count as +10 saturday and Sunday.
+                sx={{ 
+                    textAlign: 'left', 
+                    display: 'block', 
+                    whiteSpace: 'normal', 
+                    fontStyle: 'italic', 
+                    maxWidth: '600px', 
+                    marginTop: '.5rem' 
+                }}>
+                Create a pool for a maximum of the next 3 events.
+                Players pick 8 golfers each event with their 4 lowest daily scores counting towards
+                their final total. Golfers that are cut count as +10 saturday and Sunday. The user with the
+                lowest score at the end of the final tournament wins
             </Typography>
             {error && (
                 <Typography color="error" sx={{ marginTop: '1rem' }}>

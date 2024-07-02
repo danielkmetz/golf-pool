@@ -136,7 +136,7 @@ function PoolStandings() {
     const isSundayComplete =
       currentDay === 0 && allGolfersHaveR4Score;
 
-    console.log(isSundayComplete);
+    //console.log(isSundayComplete);
       
     const handleClick = (user) => {
         setSelectedUser(user.username);

@@ -92,7 +92,6 @@ function SalaryCap({ username, admin, email, isSmallScreen }) {
                 border: '2px solid black', 
                 padding: '1rem', 
                 borderRadius: '8px', 
-                width: isSmallScreen ? '90%' : '50%' 
                 }}
             >
                 <Typography variant="h5" sx={{ fontFamily: 'Rock Salt' }}>

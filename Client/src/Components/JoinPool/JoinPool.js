@@ -195,6 +195,9 @@ function JoinPool() {
                             borderRadius: '8px',
                             overflowY: 'auto',
                             height: '550px',
+                            '@media (max-width: 600px)': {
+                                mb: '2rem'
+                            },
                         }}>
                         <List>
                             {filteredPools.map((pool, index) => {
