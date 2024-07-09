@@ -28,10 +28,38 @@ function PoolInfo() {
     const navigate = useNavigate();
     const poolName = info.poolName;
     const format = info.format;
+    const numTournaments = info.numTournaments;
+    const tournaments = info.tournaments;
+    const week1DateISO = tournaments?.[0]?.Starts ?? null;
+    const week2DateISO = tournaments?.[1]?.Starts ?? null;
+    const week3DateISO = tournaments?.[2]?.Starts ?? null;
+    
+    const formatDate = (isoDate, addDays = 0) => {
+        if (!isoDate) return null;
+    
+        const date = new Date(isoDate);
+        date.setDate(date.getDate() + addDays);
+    
+        const options = { month: '2-digit', day: '2-digit', year: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+    };
 
+    let finalDay;
+    if (numTournaments === 2) {
+        finalDay = formatDate(week2DateISO, 3);
+    } else if (numTournaments === 3) {
+        finalDay = formatDate(week3DateISO, 3);
+    }
     const currentDate = new Date();
     const currentDay = currentDate.getDay();
-    const isButtonDisabled = currentDay >= 4 || currentDay === 0;
+
+    const week1Start = formatDate(week1DateISO);
+    const week1StartDate = new Date(week1Start);
+    const finalDayDate = new Date(finalDay);
+    const currentDayDate = new Date(currentDate);
+
+    const isButtonDisabled = (currentDayDate > week1StartDate && currentDayDate <= finalDayDate);
+    //const isButtonDisabled = currentDay < 4;
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -102,6 +130,8 @@ function PoolInfo() {
                         alignItems: 'center',
                         justifyContent: 'center',
                         width: '13rem',
+                        backgroundColor: 'lightGray',
+                        ml: '-1rem',
                         '@media (max-width: 600px)': {
                             ml: '-1rem',
                         },
@@ -116,7 +146,7 @@ function PoolInfo() {
                             },
                         }}
                     >
-                        <span style={{ fontFamily: 'Rock Salt' }}>Pool Name:</span> <b>{poolName}</b>
+                        <span style={{ fontFamily: 'Rock Salt' }}>Pool Name:</span><br/> <b>{poolName}</b>
                     </Typography>
                 </Card>
                 <Card 
@@ -125,6 +155,7 @@ function PoolInfo() {
                         display: 'flex',
                         alignItems: 'center',
                         width: '10rem',
+                        backgroundColor: 'lightGray',
                         '@media (max-width: 600px)': {
                             mr: '-1rem',
                         },
@@ -142,7 +173,7 @@ function PoolInfo() {
                             },
                         }}                  
                     >
-                        <span style={{ fontFamily: 'Rock Salt' }}>Format:</span> <b>{format}</b>
+                        <span style={{ fontFamily: 'Rock Salt' }}>Format:</span><br/> <b>{format}</b>
                     </Typography>
                 </Card>
             </Box>

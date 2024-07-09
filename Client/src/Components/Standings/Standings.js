@@ -3,6 +3,7 @@ import { Box, Container, Paper, Typography, Button, Grid, } from '@mui/material'
 import Leaderboard from '../Leaderboard/Leaderboard';
 import RulesDialog from './RulesDialog';
 import PoolStandings from '../PoolStandings/poolStandings';
+import PoolStandingsMulti from '../PoolStandings/poolStandingsMulti';
 import Weather from '../Weather/Weather';
 import TournamentInfo from './TournamentInfo';
 import UserList from '../UserList/UserList';
@@ -12,12 +13,17 @@ import { useDispatch, } from 'react-redux';
 import { fetchUsers } from '../../Features/userSlice';
 import Chat from '../Chat/Chat';
 import GolfBallLoading from '../GolfBallLoading/GolfBallLoading';
+import { selectUserPoolData } from '../../Features/poolsSlice';
+import { useSelector } from 'react-redux';
 
 function Standings() {
   const [openRules, setOpenRules] = useState(false);
   const [loading, setLoading] = useState(true);
+  const poolInfo = useSelector(selectUserPoolData);
   const dispatch = useDispatch();
 
+  const format = poolInfo.format;
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -64,7 +70,10 @@ function Standings() {
         ) : (
           <>
             <Grid item xs={12} md={4} sx={{ marginTop: '1rem' }}>
-              <PoolStandings />
+              {format === "Multi-Week" || format === "Multi-Week Salary Cap" ? 
+                <PoolStandingsMulti /> :
+                <PoolStandings />
+              }
             </Grid>
             <Grid item xs={12} md={4} sx={{ marginTop: '1rem' }}>
               <Leaderboard />
@@ -81,7 +90,7 @@ function Standings() {
                 sx={{
                   backgroundColor: '#222',
                   '&:hover': {
-                    backgroundColor: '#004d00', // Dark green color when hovered
+                    backgroundColor: '#004d00',
                   },
                 }}
               >

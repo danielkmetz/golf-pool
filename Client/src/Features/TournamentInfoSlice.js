@@ -1,10 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getThursdayDate } from "../actions";
+import axios from "axios";
 
 const fetchWeatherData = async (lat, long) => {
     const url = `https://api.weatherapi.com/v1/forecast.json?key=${process.env.REACT_APP_WEATHER_KEY}&q=${lat},${long}&days=1&aqi=no&alerts=no`;
     const response = await fetch(url);
     const json = await response.json();
+    console.log(json);
     return json.forecast.forecastday[0].hour;
   };
 
@@ -75,6 +77,15 @@ const fetchWeatherData = async (lat, long) => {
     }
   );
 
+export const fetchTournaments = createAsyncThunk(
+    'tournamentInfo/fetchTournmaments',
+    async () => {
+        const scheduleUrl = `${process.env.REACT_APP_API_URL}/schedule`;
+        const response = await axios.get(scheduleUrl);
+        return response.data;
+    }
+);
+
 
 const tournamentInfoSlice = createSlice({
     name: 'tournamentInfo',
@@ -87,6 +98,7 @@ const tournamentInfoSlice = createSlice({
         country: '',
         latitude: null,
         longitude: null,
+        tournaments: [],
     },
     reducers: {
         setCity: (state, action) => {
@@ -140,6 +152,17 @@ const tournamentInfoSlice = createSlice({
                 state.error = action.error.message;
                 state.status = "failed";
             })
+            .addCase(fetchTournaments.pending, (state) => {
+                state.status = "loading";
+            })
+            .addCase(fetchTournaments.fulfilled, (state, action) => {
+                state.tournaments = action.payload;
+                state.status = "succeeded";
+            })
+            .addCase(fetchTournaments.rejected, (state, action) => {
+                state.error = action.error.message;
+                state.status = "failed";
+            })
 
     },
 })
@@ -154,5 +177,6 @@ export const selectLong = (state) => state.tournamentInfo.longitude;
 export const selectLat = (state) => state.tournamentInfo.latitude;
 export const selectCountry = (state) => state.tournamentInfo.country;
 export const selectGeoCode = (state) => state.tournamentInfo.geoCodeInfo;
+export const selectTournaments = (state) => state.tournamentInfo.tournaments;
 
 

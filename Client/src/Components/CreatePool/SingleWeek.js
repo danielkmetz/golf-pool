@@ -90,13 +90,10 @@ function SingleWeek({ username, admin, email, isSmallScreen }) {
     return (
         <Box
             sx={{
-                marginTop: '1rem',
-                margin: '1rem',
                 border: '2px solid black',
                 padding: '1rem',
                 borderRadius: '8px',
-            }}
-        >
+            }}>
             <Typography variant="h5" sx={{ fontFamily: 'Rock Salt' }}>
                 Best 4 Scores Single Week
             </Typography>
@@ -190,7 +187,11 @@ function SingleWeek({ username, admin, email, isSmallScreen }) {
                     <Typography><b>Payouts</b></Typography>
                     <Typography variant="caption" sx={{ fontStyle: 'italic' }}>Choose what percentage of the pot 1st 2nd and 3rd receive</Typography>
                     <Box>
-                        <FormControl sx={{ width: '25%', marginTop: '.75rem' }}>
+                        <FormControl 
+                            sx={{ 
+                                width: '25%', 
+                                marginTop: '.75rem' ,
+                                }}>
                             <InputLabel id="1st-place-payout-label">1st</InputLabel>
                             <Select
                                 labelId='1st-place-payout-label'
@@ -200,8 +201,11 @@ function SingleWeek({ username, admin, email, isSmallScreen }) {
                                     handleFirstPayoutChange(value);
                                 }}
                                 label='first-place-payout'
-                                sx={{}}
-                            >
+                                sx={{
+                                    '@media (max-width: 600px)': {
+                                        fontSize: '11px'
+                                    },
+                                }}>
                                 <MenuItem value={1}>100%</MenuItem>
                                 <MenuItem value={.8}>80%</MenuItem>
                                 <MenuItem value={0.75}>75%</MenuItem>
@@ -219,7 +223,11 @@ function SingleWeek({ username, admin, email, isSmallScreen }) {
                                         value={secondPayout}
                                         onChange={(e) => setSecondPayout(e.target.value)}
                                         label='2nd-place-payout'
-                                        sx={{}}
+                                        sx={{
+                                            '@media (max-width: 600px)': {
+                                                fontSize: '11px'
+                                            },
+                                        }}
                                     >
                                         <MenuItem value={0}>0%</MenuItem>
                                         <MenuItem value={0.2}>20%</MenuItem>
@@ -235,7 +243,11 @@ function SingleWeek({ username, admin, email, isSmallScreen }) {
                                         value={thirdPayout}
                                         onChange={(e) => setThirdPayout(e.target.value)}
                                         label='3rd-place-payout'
-                                        sx={{}}
+                                        sx={{
+                                            '@media (max-width: 600px)': {
+                                                fontSize: '11px'
+                                            },
+                                        }}
                                     >
                                         <MenuItem value={0}>0%</MenuItem>
                                         <MenuItem value={0.1}>10%</MenuItem>

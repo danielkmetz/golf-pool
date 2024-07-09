@@ -6,7 +6,7 @@ import GolfBallLoading from '../GolfBallLoading/GolfBallLoading';
 
 function Golfers() {
     const [loading, setLoading] = useState(true);
-    const isSmallScreen = useMediaQuery('(max-width:600px)');
+    const isSmallScreen = useMediaQuery('(min-width:860px)');
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -24,10 +24,10 @@ function Golfers() {
                 </Box>
             ) : (
                 <Grid container spacing={2} justifyContent="center">
-                    <Grid item xs={12} md={6} order={isSmallScreen ? 2 : 1}>
+                    <Grid item xs={12} md={6} order={isSmallScreen ? 1 :2}>
                         <Tier1 />
                     </Grid>
-                    <Grid item xs={12} md={6} order={isSmallScreen ? 1 : 2}>
+                    <Grid item xs={12} md={6} order={isSmallScreen ? 2 : 1}>
                         <MyPicks />
                     </Grid>
                 </Grid>

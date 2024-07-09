@@ -9,6 +9,18 @@ const payoutSchema = new mongoose.Schema({
     first: Number,
     second: Number,
     third: Number,
+});
+
+const tournamentSchema = new mongoose.Schema({
+    City: String,
+    Club: String,
+    Country: String,
+    Name: String,
+    Par: Number,
+    Starts: String,
+    State: String,
+    Week: Number,
+    _id: String,
 })
 
 const poolSchema = new mongoose.Schema({
@@ -25,6 +37,8 @@ const poolSchema = new mongoose.Schema({
     users: [userSchema],
     isPrivate: Boolean,
     password: String,
+    numTournaments: Number,
+    tournaments: [tournamentSchema],
 });
 
 const createPool = mongoose.model('Pool', poolSchema);

@@ -67,7 +67,7 @@ function Tier1() {
   };
 
   function addGolfer(golfer) {
-    if (format !== "Salary Cap") {
+    if (format !== "Salary Cap" && format !== "Multi-Week Salary Cap") {
         if (selectedOption === 'Tier1') {
             if (tier1Picks.length < 3) {
                 dispatch(addTier1Golfer(golfer));
@@ -150,7 +150,7 @@ function Tier1() {
       </Select>
       {selectedOption && (
         <Paper elevation={3} style={oddsContainerStyle}>
-          {format === "Salary Cap" ?
+          {format === "Salary Cap" || format === "Multi-Week Salary Cap" ?
             null :
             <Typography variant="h5" gutterBottom sx={{textDecoration: 'underline'}}>
               {selectedOption === 'Tier2'

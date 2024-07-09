@@ -7,7 +7,37 @@ import ChangeSettingsModal from './ChangeSettingsModal';
 function MyPool({ info }) {
     const [openModal, setOpenModal] = useState(false);
     const username = useSelector(selectUsername);
+    const tournaments = info?.tournaments ?? null;
+    const week1DateISO = tournaments?.[0]?.Starts ?? null;
+    const week2DateISO = tournaments?.[1]?.Starts ?? null;
+    const week3DateISO = tournaments?.[2]?.Starts ?? null;
+    const numTournaments = info?.numTournaments ?? null
+    const format = info.format;
 
+    const formatDate = (isoDate, addDays = 0) => {
+        if (!isoDate) return null;
+    
+        const date = new Date(isoDate);
+        date.setDate(date.getDate() + addDays);
+    
+        const options = { month: '2-digit', day: '2-digit', year: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+    };
+
+    let finalDay;
+    if (numTournaments === 2) {
+        finalDay = formatDate(week2DateISO, 3);
+    } else if (numTournaments === 3) {
+        finalDay = formatDate(week3DateISO, 3);
+    }
+    const currentDate = new Date();
+    const currentDay = currentDate.getDay();
+
+    const week1Start = formatDate(week1DateISO);
+    const week1StartDate = new Date(week1Start);
+    const finalDayDate = new Date(finalDay);
+    const currentDayDate = new Date(currentDate);
+    
     const isAdmin = info.admin === username
 
     const handleOpenModal = () => {
@@ -22,8 +52,12 @@ function MyPool({ info }) {
     const secondPlace = info.payouts?.[0]?.second * 100 || 0;
     const thirdPlace = info.payouts?.[0]?.third * 100 || 0;
 
-    const currentDay = new Date().getDay();
-    const isButtonDisabled = currentDay >= 5 || currentDay === 0;
+    let isButtonDisabled;
+    if (format === "Salary Cap" || format === "Single Week") {
+        isButtonDisabled = currentDay >= 5 || currentDay === 0;
+    } else {
+        isButtonDisabled = (currentDayDate > week1StartDate && currentDayDate <= finalDayDate); 
+    }
 
     return (
         <>
@@ -35,7 +69,7 @@ function MyPool({ info }) {
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    height: '450px',
+                    height: '470px',
                     width: '240px',
                     backgroundColor: "#DEB887",
                     marginTop: '2rem',
@@ -48,8 +82,7 @@ function MyPool({ info }) {
                         width: '70%',
                         marginBottom: '2.5rem',
                     },
-                }}
-            >
+                }}>
                 <Paper sx={{ padding: '.5rem', backgroundColor: 'lightgray' }}>
                     <Typography 
                         variant="h7" 
@@ -59,9 +92,9 @@ function MyPool({ info }) {
                     </Typography>
                 </Paper>
                 <Paper sx={{ marginTop: '1rem', padding: '1rem', backgroundColor: 'lightgray' }}>
-                    <Typography><b>Name: </b>{info.poolName}</Typography>
+                    <Typography><b>Name: </b><br/>{info.poolName}</Typography>
                     <br />
-                    <Typography><b>Format: </b>{info.format}</Typography>
+                    <Typography><b>Format: </b><br/>{info.format}</Typography>
                     <br />
                     <Typography><b>Admin: </b>{info.admin}</Typography>
                     <br />
@@ -92,9 +125,12 @@ function MyPool({ info }) {
                         Change Settings
                     </Button>
                 )}
-                {isButtonDisabled && isAdmin && ( // Render a message if the button is disabled
-                    <Typography variant="body2" color="textSecondary" sx={{textAlign: 'center', fontSize: '11px', mt: '.5rem'}}>
-                        Settings can't be changed from Thursday through Sunday.
+                {isButtonDisabled && isAdmin && (
+                    <Typography variant="body2" color="textSecondary" sx={{ textAlign: 'center', fontSize: '11px', mt: '.5rem' }}>
+                        {format === "Salary Cap" || format === "Single Week" ?
+                            "Settings can't be changed from Thursday through Sunday." :
+                            "Settings can't be changed after the start of the first tournament."
+                        }
                     </Typography>
                 )}
             </Paper>

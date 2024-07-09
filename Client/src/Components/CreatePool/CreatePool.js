@@ -1,10 +1,12 @@
-import React, { useEffect, } from 'react';
-import { Container, useMediaQuery, Paper, Typography, Box } from '@mui/material';
+import React, { useEffect } from 'react';
+import { Paper, Typography, Box, Accordion, AccordionSummary, AccordionDetails, useMediaQuery } from '@mui/material';
 import { selectUsername, fetchEmail, selectEmail } from '../../Features/userSlice';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useDispatch, useSelector } from 'react-redux';
 import SingleWeek from './SingleWeek';
 import SalaryCap from './SalaryCap';
 import MultiWeek from './MultiWeek';
+import MultiWeekSalary from './MultiWeekSalary';
 
 function CreatePool() {
     const dispatch = useDispatch();
@@ -22,8 +24,8 @@ function CreatePool() {
     }, [dispatch, username]); 
     
     return (
-        <Box sx={{display: 'flex', justifyContent: 'center', flexDirection: 'column'}}>
-            <Box sx={{display: 'flex', justifyContent: 'center', }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center', }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                 <Paper 
                     sx={{
                         width: '45%',
@@ -31,18 +33,18 @@ function CreatePool() {
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
-                        height: '3.5rem',
                         '@media (max-width: 1400px)': {
-                                width: '50%',
-                            },
+                            width: '50%',
+                        },
                         '@media (max-width: 800px)': {
-                                width: '70%',
-                            },
+                            width: '70%',
+                        },
                         '@media (max-width: 600px)': {
-                                width: '98%',
-                                mt: '.5rem',
-                            },
-                    }}>
+                            width: '98%',
+                            mt: '.5rem',
+                        },
+                    }}
+                >
                     <Typography 
                         variant='h4' 
                         sx={{
@@ -61,45 +63,80 @@ function CreatePool() {
                             '@media (max-width: 600px)': {
                                 fontSize: '1.6rem'
                             },
-                            }}>
-                            Choose a Format
+                        }}
+                    >
+                        Choose a Format
                     </Typography>
                 </Paper>
-            </Box>
-            
+            </Box>          
             <Box 
-                    sx={{ 
-                        display: 'flex', 
-                        flexDirection: isSmallScreen ? 'column' : 'row', 
-                        justifyContent: 'center', 
-                        alignItems: 'flex-start',
-                        margin: isSmallScreen ? '' : '3rem',
-                        marginTop: '1rem',
-                        '@media (max-width: 600px)': {
-                                mb: '2rem',
-                            }, 
-                    }}
-                >
-                    <SingleWeek 
-                        email={email}
-                        username={username}
-                        admin={admin}
-                        isSmallScreen={isSmallScreen}
-                    />
-                    <SalaryCap 
-                        email={email}
-                        username={username}
-                        admin={admin}
-                        isSmallScreen={isSmallScreen}
-                    />
-                    {/* <MultiWeek 
-                        email={email}
-                        username={username}
-                        admin={admin}
-                        isSmallScreen={isSmallScreen}
-                    /> */}
+                sx={{
+                    mt: '1.5rem',
+                    width: '40%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    '@media (max-width: 600px)': {
+                        width: '90%'
+                    },
+                }}>
+                <Accordion sx={{ mb: '1rem', width: '100%' }}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{py: '.75rem'}}>
+                        <Typography variant="h5">Single Week</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <SingleWeek
+                            email={email}
+                            username={username}
+                            admin={admin}
+                            isSmallScreen={isSmallScreen}
+                        />
+                    </AccordionDetails>
+                </Accordion>
+
+                <Accordion sx={{ mb: '1rem', width: '100%' }}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{py: '.75rem'}}>
+                        <Typography variant="h5">Salary Cap</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <SalaryCap
+                            email={email}
+                            username={username}
+                            admin={admin}
+                            isSmallScreen={isSmallScreen}
+                        />
+                    </AccordionDetails>
+                </Accordion>
+
+                <Accordion sx={{ mb: '1rem', width: '100%' }}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{py: '.75rem'}}>
+                        <Typography variant="h5">Multi-Week</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <MultiWeek
+                            email={email}
+                            username={username}
+                            admin={admin}
+                            isSmallScreen={isSmallScreen}
+                        />
+                    </AccordionDetails>
+                </Accordion>
+
+                <Accordion sx={{ width: '100%' }}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{py: '.75rem'}}>
+                        <Typography variant="h5">Multi-Week Salary Cap</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <MultiWeekSalary
+                            email={email}
+                            username={username}
+                            admin={admin}
+                            isSmallScreen={isSmallScreen}
+                        />
+                    </AccordionDetails>
+                </Accordion>
             </Box>
-            
         </Box>
     );
 }

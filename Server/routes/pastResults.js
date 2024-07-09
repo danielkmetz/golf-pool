@@ -2,6 +2,34 @@ const express = require('express');
 const router = express.Router();
 const pastResults = require('../models/pastResults');
 
+const getPastResults = async (tournamentName, usernames, date) => {
+    try {
+        const results = await pastResults.find({
+            'results.tournamentName': tournamentName,
+            username: { $in: usernames },
+            'results.date': date
+        });
+        return results;
+    } catch (error) {
+        throw new Error('Failed to fetch past results');
+    }
+};
+
+router.post('/weekly', async (req, res) => {
+    const { tournamentName, usernames, date } = req.body;
+    
+    if (!tournamentName || !usernames || !date) {
+        return res.status(400).json({ error: 'Missing tournamentName, usernames, or date' });
+    }
+
+    try {
+        const results = await getPastResults(tournamentName, usernames, date);
+        res.json(results);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch past results' });
+    }
+});
+
 // Save a new result
 router.post('/save', async (req, res) => {
     try {

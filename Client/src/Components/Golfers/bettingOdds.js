@@ -16,7 +16,7 @@ function BettingOdds({ oddsResults, addGolfer, format, tier }) {
                 <TableHead>
                     <TableRow>
                         <TableCell sx={{ fontSize: '18px' }}><b>Name</b></TableCell>
-                        {format === "Salary Cap" ? 
+                        {format === "Salary Cap" || format === "Multi-Week Salary Cap" ? 
                             <TableCell sx={{ fontSize: '18px' }}><b>Cost</b></TableCell> : 
                             <TableCell sx={{ fontSize: '18px' }}><b>Odds</b></TableCell>
                         }
@@ -27,7 +27,7 @@ function BettingOdds({ oddsResults, addGolfer, format, tier }) {
                         <TableRow key={result.player_name}>
                             <TableCell>{result.player_name}</TableCell>
                             <TableCell>
-                                {format === 'Salary Cap' ? (
+                                {format === 'Salary Cap' || format === "Multi-Week Salary Cap" ? (
                                     tier === 'Tier1' ? '25 Credits' :
                                     tier === 'Tier2' ? '15 Credits' :
                                     tier === 'Tier3' ? '10 Credits' :
@@ -42,6 +42,7 @@ function BettingOdds({ oddsResults, addGolfer, format, tier }) {
                                     onClick={() => addGolfer(result.player_name)}
                                     sx={{
                                         backgroundColor: '#222',
+                                        ml: '-.5rem',
                                         '&:hover': {
                                             backgroundColor: 'DarkGreen',
                                         },

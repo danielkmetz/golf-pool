@@ -23,61 +23,62 @@ function Payouts() {
             <Card sx={{
                 padding: '.5rem',
                 height: '1.2rem',
+                backgroundColor: 'lightGray',
                 '@media (min-width: 600px) and (max-width: 1200px)': {
                             fontSize: '9px',
                         },
                 }}>
-            <Typography 
-                variant="h7" 
-                sx={{ 
-                    fontFamily: 'Rock Salt',
-                    fontSize: '11px',
-                }}
-            >
-                <b>Payouts:</b>
-            </Typography>
-            <Typography 
-                variant="caption" 
-                sx={{ 
-                    fontFamily: 'Rock Salt', 
-                    marginLeft: '1rem',
-                    fontSize: '11px',
-                    '@media (min-width: 600px) and (max-width: 1200px)': {
-                            fontSize: '9px',
-                            ml: '.75rem',
-                        },
-                }}
-            >
-                <b>1st:</b> ${firstPlacePayout}
-            </Typography>
-            <Typography 
-                variant="caption" 
-                sx={{ 
-                    fontFamily: 'Rock Salt', 
-                    marginLeft: '1rem',
-                    fontSize: '11px',
-                    '@media (min-width: 600px) and (max-width: 1200px)': {
-                            fontSize: '9px',
-                            ml: '.75rem',
-                        },
-                }}
-            >
-                <b>2nd:</b> ${secondPlacePayout}
-            </Typography>
-            <Typography 
-                variant="caption" 
-                sx={{ 
-                    fontFamily: 'Rock Salt', 
-                    marginLeft: '1rem',
-                    fontSize: '11px',
-                    '@media (min-width: 600px) and (max-width: 1200px)': {
-                            fontSize: '9px',
-                            ml: '.5rem',
-                        },
-                }}
-            >
-                <b>3rd: </b>${thirdPlacePayout}
-            </Typography>
+                <Typography 
+                    variant="h7" 
+                    sx={{ 
+                        fontFamily: 'Rock Salt',
+                        fontSize: '11px',
+                    }}
+                >
+                    <b>Payouts:</b>
+                </Typography>
+                <Typography 
+                    variant="caption" 
+                    sx={{ 
+                        fontFamily: 'Rock Salt', 
+                        marginLeft: '1rem',
+                        fontSize: '11px',
+                        '@media (min-width: 600px) and (max-width: 1200px)': {
+                                fontSize: '9px',
+                                ml: '.75rem',
+                            },
+                    }}
+                >
+                    <b>1st:</b> ${firstPlacePayout}
+                </Typography>
+                <Typography 
+                    variant="caption" 
+                    sx={{ 
+                        fontFamily: 'Rock Salt', 
+                        marginLeft: '1rem',
+                        fontSize: '11px',
+                        '@media (min-width: 600px) and (max-width: 1200px)': {
+                                fontSize: '9px',
+                                ml: '.75rem',
+                            },
+                    }}
+                >
+                    <b>2nd:</b> ${secondPlacePayout}
+                </Typography>
+                <Typography 
+                    variant="caption" 
+                    sx={{ 
+                        fontFamily: 'Rock Salt', 
+                        marginLeft: '1rem',
+                        fontSize: '11px',
+                        '@media (min-width: 600px) and (max-width: 1200px)': {
+                                fontSize: '9px',
+                                ml: '.5rem',
+                            },
+                    }}
+                >
+                    <b>3rd: </b>${thirdPlacePayout}
+                </Typography>
             </Card>
         </Container>
     );

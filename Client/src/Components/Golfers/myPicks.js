@@ -49,7 +49,12 @@ function MyPicks() {
 
   const totalPicksLength = tier1Picks.length + tier2Picks.length + tier3Picks.length + tier4Picks.length;
 
-  const isSubmitDisabled = currentDay >= 4 || currentDay === 0 || totalPicksLength < 8;
+  let isSubmitDisabled;
+  if (format === "Salary Cap" || format === "Multi-Week Salary Cap") {
+    isSubmitDisabled = currentDay >= 4 || currentDay === 0 || balance > 0;
+  } else {
+    isSubmitDisabled = currentDay >= 4 || currentDay === 0 || totalPicksLength < 8;
+  }
 
   const handleSubmission = async () => {
     try {
@@ -123,7 +128,7 @@ function MyPicks() {
           break;
       }
     }
-    if (format === "Salary Cap") {
+    if (format === "Salary Cap" || format === "Multi-Week Salary Cap") {
       switch (tier) {
         case 1:
           dispatch(removeTier1Golfer(golferName));
@@ -160,16 +165,16 @@ function MyPicks() {
         position: 'relative' }}>
         <div 
           style={{ 
-          backgroundColor: 'lightgreen', 
-          width: '100%', 
-          padding: '0.5rem .01rem', 
-          marginBottom: '1rem', 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          position: 'absolute', 
-          top: 0, 
-          left: 0 
+            backgroundColor: 'lightgreen', 
+            width: '100%', 
+            padding: '0.5rem .01rem', 
+            marginBottom: '1rem', 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            position: 'absolute', 
+            top: 0, 
+            left: 0 
         }}
         >
           <Typography variant="h5" style={{ color: 'black', marginLeft: "1rem", fontFamily: 'Rock Salt' }}>
@@ -210,7 +215,7 @@ function MyPicks() {
             <CheckoutPage handleSubmission={handleSubmission} onClose={handleCloseCheckout} />
           </Dialog>
         )}
-        {format === "Salary Cap" ? 
+        {format === "Salary Cap" || format === "Multi-Week Salary Cap" ? 
           <Card 
             sx={{
               width: '100px',

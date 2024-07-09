@@ -12,7 +12,6 @@ import {
     selectLat,
     fetchGeoCode,
 } from '../../Features/TournamentInfoSlice';
-
 import sunny from '../../Resources/sunny.png';
 import rainy from '../../Resources/rainy.png';
 import cloudy from '../../Resources/cloudy.png';
@@ -36,6 +35,9 @@ function Weather() {
     useEffect(() => {
         if (city && state && country && !cachedGeoCode) {
             dispatch(fetchGeoCode({city, state, country}));
+        }
+        if (city && country && !cachedGeoCode) {
+            dispatch(fetchGeoCode({city, country}))
         }
     }, [dispatch, city, state, country, cachedGeoCode]);
 

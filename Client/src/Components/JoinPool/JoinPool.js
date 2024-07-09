@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Box, Card, Typography, TextField, List, ListItem, ListItemText, Button, Select, MenuItem, FormControl, InputLabel, Grid, Accordion, AccordionSummary, AccordionDetails, Modal, Backdrop, Fade } from '@mui/material';
+import { Container, Box, Card, 
+    Typography, TextField, List, ListItem, 
+    ListItemText, Button, Select, MenuItem, FormControl, 
+    InputLabel, Grid, Accordion, AccordionSummary, 
+    AccordionDetails, Modal, Backdrop, Fade } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { fetchPools, selectPools, setPoolName } from '../../Features/poolsSlice';
 import { selectUsername } from '../../Features/userSlice';
@@ -17,6 +21,12 @@ function JoinPool() {
     const [pinModalOpen, setPinModalOpen] = useState(false);
     const [enteredPin, setEnteredPin] = useState('');
     const [selectedPool, setSelectedPool] = useState(null);
+
+    const formatDate = (dateString) => {
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', options);
+    };    
     
     useEffect(() => {
         dispatch(fetchPools());
@@ -93,8 +103,7 @@ function JoinPool() {
                         '@media (max-width: 600px)': {
                             width: '100%',
                         },
-                    }}
-                >
+                    }}>
                     <Typography variant="h4"
                         sx={{
                             fontFamily: 'Rock Salt',
@@ -108,14 +117,13 @@ function JoinPool() {
                             display: 'flex',
                             justifyContent: 'center',
                             whiteSpace: 'nowrap',
-                        }}
-                    >
+                        }}>
                         Available Pools
                     </Typography>
                 </Card>
             </Container>
             <Typography variant="caption" sx={{ marginTop: '.5rem', fontStyle: 'italic', textAlign: 'center', display: 'block' }}>
-                Join a random pool or search for yours!
+                Join a random pool or search for one!
             </Typography>
             <Grid container spacing={2} sx={{ marginTop: '.5rem' }}>
                 <Grid item xs={12} md={4} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -144,15 +152,13 @@ function JoinPool() {
                             width: '80%',
                             backgroundColor: 'lightgray',
                             padding: '1rem'
-                        }}
-                    >
+                        }}>
                         <Card
                             sx={{
                                 padding: '.2rem',
                                 textAlign: 'center',
                                 backgroundColor: 'blanchedalmond'
-                            }}
-                        >
+                            }}>
                             <Typography variant="h6" sx={{ fontFamily: 'Roboto, sans-serif' }}>Format Descriptions</Typography>
                         </Card>
                         <Typography variant="body2" sx={{ marginTop: '1rem' }}>
@@ -183,6 +189,29 @@ function JoinPool() {
                                         </Typography>
                                     </AccordionDetails>
                                 </Accordion>
+                                <Accordion>
+                                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                                        <Typography variant="subtitle1"><b>Multi-Week 4 Best Scores</b></Typography>
+                                    </AccordionSummary>
+                                    <AccordionDetails>
+                                        <Typography variant="body2">
+                                            Scoring is the same format as Single Week 4 Best Scores. 
+                                            This format spans multiple weekends, covering up to the next 
+                                            3 tournaments.
+                                        </Typography>
+                                    </AccordionDetails>
+                                </Accordion>
+                                <Accordion>
+                                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                                        <Typography variant="subtitle1"><b>Multi-Week Salary Cap</b></Typography>
+                                    </AccordionSummary>
+                                    <AccordionDetails>
+                                        <Typography variant="body2">
+                                            Scoring follows the Single Week Salary Cap format and spans multiple weekends,
+                                            covering up to the next 3 tournaments.
+                                        </Typography>
+                                    </AccordionDetails>
+                                </Accordion>
                             </Box>
                         </Typography>
                     </Card>
@@ -201,7 +230,17 @@ function JoinPool() {
                         }}>
                         <List>
                             {filteredPools.map((pool, index) => {
-                                const isDisabled = pool.maxUsers !== null && pool.users.length >= pool.maxUsers;
+                                const week1DateISO = pool.tournaments?.[0]?.Starts ?? null;
+                                const week1Start = week1DateISO ? new Date(week1DateISO) : null;
+                                const currentDate = new Date();
+                                const currentDayDate = new Date(currentDate);
+                                const isMultiWeek = pool.format === 'Multi-Week' || pool.format === "Multi-Week Salary Cap";
+                                
+                                const isDisabled = (
+                                    (pool.maxUsers !== null && pool.users.length >= pool.maxUsers) ||
+                                    (isMultiWeek && week1Start && currentDayDate > week1Start)
+                                );
+
                                 return (
                                     <ListItem
                                         key={index}
@@ -237,28 +276,47 @@ function JoinPool() {
                                                     <Typography variant='caption'>
                                                         Payout Structure: 1st: {pool.payouts[0].first * 100}% / 2nd: {pool.payouts[0].second * 100}% / 3rd: {pool.payouts[0].third * 100}%
                                                     </Typography>
+                                                    {isMultiWeek && (
+                                                        <>
+                                                            <br />
+                                                            <Typography component="span" variant='caption'>
+                                                                Starts: {formatDate(pool.tournaments[0].Starts)}
+                                                            </Typography>
+                                                        </>
+                                                    )}
                                                 </>
-                                            }
-                                        />
-                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            }/>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                flexDirection: 'column',
+                                                '& > :not(style) + :not(style)': {
+                                                    marginTop: '0.5rem', // Add margin between Button and Typography
+                                                },
+                                            }}
+                                        >
                                             <Button
                                                 variant="contained"
                                                 color="primary"
                                                 disabled={isDisabled}
                                                 onClick={() => handleJoinPool(pool)}
-                                                sx={{ 
-                                                    marginRight: '1rem',
+                                                sx={{
+                                                    marginLeft: 'auto', // Align Button to the right
                                                     backgroundColor: '#222',
                                                     '&:hover': {
                                                         backgroundColor: 'darkgreen',
-                                                    } 
+                                                    },
                                                 }}
                                             >
                                                 Join
                                             </Button>
                                             {isDisabled && (
-                                                <Typography variant="caption" color="error">
-                                                    Pool full
+                                                <Typography variant="caption" color="error" sx={{ marginTop: '0.5rem' }}>
+                                                    {isMultiWeek && currentDayDate > week1Start
+                                                        ? 'Multi-week tournament is already in progress'
+                                                        : 'Pool full'
+                                                    }
                                                 </Typography>
                                             )}
                                         </Box>

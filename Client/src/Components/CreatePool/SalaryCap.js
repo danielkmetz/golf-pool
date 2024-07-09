@@ -87,10 +87,8 @@ function SalaryCap({ username, admin, email, isSmallScreen }) {
     return (
         <Box 
             sx={{ 
-                marginTop: '1rem',
-                margin: '1rem', 
-                border: '2px solid black', 
-                padding: '1rem', 
+                border: '2px solid black',
+                padding: '1rem',
                 borderRadius: '8px', 
                 }}
             >
@@ -175,7 +173,6 @@ function SalaryCap({ username, admin, email, isSmallScreen }) {
                                 value={buyIn}
                                 onChange={(e) => setBuyIn(e.target.value)}
                                 label="Buy-In"
-                                sx={{ width: '100%' }} // Set the width of the Select component to 100% within the FormControl
                             >
                                 <MenuItem value={10}>$10</MenuItem>
                                 <MenuItem value={20}>$20</MenuItem>
@@ -197,7 +194,11 @@ function SalaryCap({ username, admin, email, isSmallScreen }) {
                                         handleFirstPayoutChange(value);
                                     }}
                                     label='first-place-payout'
-                                    sx={{}}
+                                    sx={{
+                                        '@media (max-width: 600px)': {
+                                            fontSize: '11px'
+                                        },
+                                    }}
                                 >
                                     <MenuItem value={1}>100%</MenuItem>
                                     <MenuItem value={.8}>80%</MenuItem>
@@ -216,7 +217,11 @@ function SalaryCap({ username, admin, email, isSmallScreen }) {
                                             value={secondPayout}
                                             onChange={(e) => setSecondPayout(e.target.value)}
                                             label='second-place-payout'
-                                            sx={{}}
+                                            sx={{
+                                                '@media (max-width: 600px)': {
+                                                    fontSize: '11px'
+                                                },
+                                            }}
                                         >
                                             <MenuItem value={0.3}>30%</MenuItem>
                                             <MenuItem value={0.25}>25%</MenuItem>
@@ -232,7 +237,11 @@ function SalaryCap({ username, admin, email, isSmallScreen }) {
                                             value={thirdPayout}
                                             onChange={(e) => setThirdPayout(e.target.value)}
                                             label='third-place-payout'
-                                            sx={{}}
+                                            sx={{
+                                                '@media (max-width: 600px)': {
+                                                    fontSize: '11px'
+                                                },
+                                            }}
                                         >
                                             <MenuItem value={0.1}>10%</MenuItem>
                                             <MenuItem value={0.05}>5%</MenuItem>

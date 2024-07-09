@@ -23,11 +23,11 @@ const CustomSwitch = styled(Switch)(({ theme }) => ({
     },
 }));
 
-function MultiWeek({ username, admin, email, }) {
+function MultiWeekSalary({ username, admin, email, }) {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [poolName, setPoolName] = useState('');
-    const [format, setFormat] = useState('Multi-Week');
+    const [format, setFormat] = useState('Multi-Week Salary Cap');
     const [maxUsers, setMaxUsers] = useState(25);
     const [firstPayout, setFirstPayout] = useState(0.7);
     const [secondPayout, setSecondPayout] = useState(0.2);
@@ -128,10 +128,11 @@ function MultiWeek({ username, admin, email, }) {
                 border: '2px solid black',
                 padding: '1rem',
                 borderRadius: '8px',
+                mb: '2rem',
             }}
         >
             <Typography variant="h5" sx={{ fontFamily: 'Rock Salt' }}>
-                Best 4 Scores Multi-Week
+                Multi-Week Salary Cap
             </Typography>
             <Typography variant="caption" sx={{ fontStyle: 'italic', marginTop: '50px' }}>
                 For entertainment purposes only
@@ -268,7 +269,7 @@ function MultiWeek({ username, admin, email, }) {
                                 <MenuItem value={0.4}>40%</MenuItem>
                             </Select>
                         </FormControl>
-                        <FormControl sx={{ width: '25%', marginTop: '.75rem', marginLeft: '2rem' }}>
+                        <FormControl sx={{ width: '25%', marginLeft: '2rem', marginTop: '.75rem' }}>
                             <InputLabel id="2nd-place-payout-label">2nd</InputLabel>
                             <Select
                                 labelId="2nd-place-payout-label"
@@ -287,7 +288,7 @@ function MultiWeek({ username, admin, email, }) {
                                 <MenuItem value={0.5}>50%</MenuItem>
                             </Select>
                         </FormControl>
-                        <FormControl sx={{ width: '25%', marginTop: '.75rem', marginLeft: '2rem' }}>
+                        <FormControl sx={{ width: '25%', marginLeft: '2rem', marginTop: '.75rem' }}>
                             <InputLabel id="3rd-place-payout-label">3rd</InputLabel>
                             <Select
                                 labelId="3rd-place-payout-label"
@@ -324,4 +325,4 @@ function MultiWeek({ username, admin, email, }) {
     );
 }
 
-export default MultiWeek;
+export default MultiWeekSalary;

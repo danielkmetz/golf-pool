@@ -10,13 +10,15 @@ import {
     Paper,
     Avatar,
     Container,
+    Tab,
+    Tabs,
     Accordion,
     AccordionSummary,
     AccordionDetails,
   } from '@mui/material';
 import GolfersModal from './golfersModal';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { fetchTotalPicks, selectTotalPicks } from '../../Features/myPicksSlice';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectLiveResults } from '../../Features/LeaderboardSlice';
 import { selectTournamentInfo } from '../../Features/TournamentInfoSlice';
@@ -30,8 +32,11 @@ import { selectUserPoolData } from '../../Features/poolsSlice';
 import Payouts from '../Payouts/Payouts';
 import PoolInfo from '../PoolInfo/PoolInfo';
 import Results from '../Results/Results';
+import { fetchWeeklyResults, 
+    selectWeeklyResults } from '../../Features/pastResultsSlice';
+import WeeklyTotalsMulti from './weeklyTotalsMulti';
 
-function PoolStandings() {
+function PoolStandingsMulti() {
     const [selectedUser, setSelectedUser] = useState(null);
     const [open, setOpen] = useState(false);
     const liveResults = useSelector(selectLiveResults);
@@ -45,14 +50,50 @@ function PoolStandings() {
     const dispatch = useDispatch();
     const activeUsers = useSelector(selectActiveUsers);
     const [podiumOpen, setPodiumOpen] = useState(false);
-
+    const weeklyResults = useSelector(selectWeeklyResults);
+    const [defaultWeek, setDefaultWeek] = useState(null);
+    const [activeTab, setActiveTab] = useState(0);
+    const [showWeeklyTotals, setShowWeeklyTotals] = useState(false);
+    
     const format = poolInfo.format;
-  
+    const numTournaments = poolInfo.numTournaments;
+    const tournaments = poolInfo.tournaments;
+    const week1DateISO = poolInfo.tournaments?.[0]?.Starts ?? null;
+    const week2DateISO = poolInfo.tournaments?.[1]?.Starts ?? null;
+    const week3DateISO = poolInfo.tournaments?.[2]?.Starts ?? null;
+    const week1Name = tournaments?.[0]?.Name ?? null;
+    const week2Name = tournaments?.[1]?.Name ?? null;
+    const week3Name = tournaments?.[2]?.Name ?? null;
+    
     const currentDate = new Date();
     const currentDay = currentDate.getDay();
     const coursePar = tournamentInfo.Par;
     const tournamentName = tournamentInfo.Name;
+
+    const formatDate = (isoDate, addDays = 0) => {
+        if (!isoDate) return null; // Handle cases where isoDate is null or undefined
     
+        const date = new Date(isoDate);
+        date.setDate(date.getDate() + addDays); // Add the specified number of days
+    
+        const options = { month: '2-digit', day: '2-digit', year: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+    };
+    
+    const week1Date = formatDate(week1DateISO);
+    const week2Date = formatDate(week2DateISO);
+    const week3Date = formatDate(week3DateISO);
+
+    let finalDay;
+    if (numTournaments === 2) {
+        finalDay = formatDate(week2DateISO, 3);
+    } else if (numTournaments === 3) {
+        finalDay = formatDate(week3DateISO, 3);
+    }
+
+    const finalDayDate = new Date(finalDay);
+    const currentDayDate = new Date(currentDay);
+
     useEffect(() => {
         dispatch(fetchTotalPicks());
     }, [dispatch]);
@@ -62,7 +103,7 @@ function PoolStandings() {
         dispatch(fetchUsersWithPicks(poolUsers));
       }
     }, [dispatch, poolUsers]);
-    
+
     const poolUserProfilePics = useMemo(() => {
       return poolUsers.map(user => {
         const profilePicObj = users.find(profile => profile.username === user.username);
@@ -110,7 +151,7 @@ function PoolStandings() {
     
           if (!allGolfersHaveScores) return null;
     
-          if (format === "Salary Cap") {
+          if (format === "Salary Cap" || format === "Multi-Week Salary Cap") {
               // Calculate total score for all golfers
               const totalScore = roundScores.reduce((total, score) => total + score, 0);
               return totalScore;
@@ -138,10 +179,8 @@ function PoolStandings() {
       }, [organizedData]);
     
     const isSundayComplete =
-      currentDay === 0 && allGolfersHaveR4Score;
-
-    //console.log(isSundayComplete);
-      
+      currentDayDate.toDateString() === finalDayDate.toDateString() && allGolfersHaveR4Score;
+  
     const handleClick = (user) => {
         setSelectedUser(user.username);
         setOpen(true);
@@ -180,6 +219,16 @@ function PoolStandings() {
       if (isSundayComplete ) {
           // Iterate over the entries of userPositionMap
           Object.entries(userPositionMap).forEach(([username, position]) => {
+
+            const scores = {
+                R1: calculateScores(username, 'R1'),
+                R2: calculateScores(username, 'R2'),
+                R3: calculateScores(username, 'R3'),
+                R4: calculateScores(username, 'R4'),
+            };
+
+            scores.Total = scores.R1 + scores.R2 + scores.R3 + scores.R4;
+              
               // Dispatch sendUserPositionMap action for each user
               dispatch(
                   sendUserPositionMap({
@@ -188,13 +237,44 @@ function PoolStandings() {
                           date: new Date(),
                           tournamentName,
                           position,
+                          scores,
                       }],
                   })
               );
           });
       }
     }, [isSundayComplete]);
-    
+
+    const handleTabChange = async (event, newValue) => {
+        setActiveTab(newValue);
+        
+        if (newValue === 'total') {
+            setShowWeeklyTotals(true);
+        } else {
+            setShowWeeklyTotals(false);
+        }
+
+        const selectedWeekName = tournaments[newValue]?.Name;
+        const selectedWeekDate = formatDate(tournaments[newValue]?.Starts);
+
+        await dispatch(fetchWeeklyResults({
+            tournamentName: selectedWeekName,
+            usernames: activeUsers,
+            date: selectedWeekDate
+        }));
+    };
+
+    useEffect(() => {
+        const defaultWeekIndex = tournaments.findIndex(week => week.Name === tournamentName);
+        if (defaultWeekIndex !== -1 && defaultWeekIndex < tournaments.length) {
+            setActiveTab(defaultWeekIndex);
+            setDefaultWeek(defaultWeekIndex);
+        } else {
+            setActiveTab(0); // Ensure it does not default to the Total tab
+            setDefaultWeek(0);
+        }
+    }, [tournamentName, tournaments]);
+
     return (
       <>
         <Paper 
@@ -204,9 +284,8 @@ function PoolStandings() {
             borderRadius: '8px',
             backgroundColor: 'LightGray', 
             boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)' 
-          }}
-        >
-              <Typography
+          }}>
+            <Typography
                   variant="h4"
                   sx={{
                     backgroundColor: '#222',
@@ -219,9 +298,47 @@ function PoolStandings() {
                     borderRadius: '8px',
                     boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
                   }}
-              >
+            >
                 POOL STANDINGS
-              </Typography>
+            </Typography>
+            <Tabs
+              value={activeTab}
+              onChange={handleTabChange}
+              centered
+              indicatorColor="primary" // Ensure indicatorColor is set to "primary"
+              textColor="primary" // Ensure textColor is set to "primary"
+              sx={{
+                  '& .MuiTabs-indicator': {
+                      backgroundColor: 'green', // Set the background color of the active underline to green
+                  },
+                  '& .Mui-selected': {
+                      color: 'green', // Set the text color of the selected Tab to green
+                      borderColor: 'green', // Set the outline color of the selected Tab to green
+                  },
+              }}>
+              {Array.from({ length: numTournaments }, (_, index) => (
+                  <Tab 
+                    key={index} 
+                    label={`Week ${index + 1}`} 
+                    sx={{
+                        '&.Mui-selected': {
+                            color: 'green', // Set the text color of the selected Tab to green
+                            borderColor: 'green', // Set the outline color of the selected Tab to green
+                        },
+                    }}
+                    />
+              ))}
+              <Tab 
+                label="Total" 
+                value="total"
+                sx={{
+                    '&.Mui-selected': {
+                        color: 'green', // Set the text color of the selected Tab to green
+                        borderColor: 'green', // Set the outline color of the selected Tab to green
+                    },
+                }} 
+                />
+          </Tabs>
           </Paper>
             <Container >
                 <Accordion sx={{backgroundColor: 'green'}}>
@@ -244,7 +361,14 @@ function PoolStandings() {
                     </AccordionDetails>
                 </Accordion>
             </Container>
-          <TableContainer sx={{maxHeight: '600px'}}>
+            {showWeeklyTotals ? (
+            <WeeklyTotalsMulti 
+                tournaments={tournaments} 
+                numTournaments={numTournaments}
+                profilePics={profilePics} 
+                usernames={activeUsers}/>
+            ) :  (
+            <TableContainer sx={{maxHeight: '600px'}}>
             <Table>
                 <TableHead 
                 sx={{
@@ -266,46 +390,79 @@ function PoolStandings() {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {activeUsers.map((user, index) => {
-                        const totalScore =
-                          calculateScores(user.username, 'R1') +
-                          calculateScores(user.username, 'R2') +
-                          calculateScores(user.username, 'R3') +
-                          calculateScores(user.username, 'R4');
+                {activeTab === defaultWeek ? (
+                    // Render default week data
+                    activeUsers.map((user, index) => {
+                    const totalScore =
+                        (calculateScores(user.username, 'R1') || 0) +
+                        (calculateScores(user.username, 'R2') || 0) +
+                        (calculateScores(user.username, 'R3') || 0) +
+                        (calculateScores(user.username, 'R4') || 0);
 
-                        return {
-                          user,
-                          totalScore,
-                        };
-                        }).sort((a, b) => a.totalScore - b.totalScore).map(({ user, totalScore }) => (
-                          <TableRow key={user._id}>
-                            <TableCell sx={{ fontSize: '12px' }}>{userPositionMap[user.username]}</TableCell>
-                            <TableCell 
-                              onClick={() => handleClick(user)} 
-                              style={{cursor: 'pointer', display: 'flex', alignItems: 'center',}}
+                    return (
+                        <TableRow key={user._id}>
+                        <TableCell sx={{ fontSize: '12px' }}>{userPositionMap[user.username]}</TableCell>
+                        <TableCell
+                            onClick={() => handleClick(user)}
+                            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                        >
+                            {user.username}
+                            <Avatar src={`${profilePics[user.username]}`} sx={{ marginLeft: '.5rem' }} />
+                        </TableCell>
+                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{calculateScores(user.username, 'R1') || '-'}</TableCell>
+                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{calculateScores(user.username, 'R2') || '-'}</TableCell>
+                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{calculateScores(user.username, 'R3') || '-'}</TableCell>
+                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{calculateScores(user.username, 'R4') || '-'}</TableCell>
+                        <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{totalScore}</TableCell>
+                        </TableRow>
+                    );
+                    })
+                ) : (
+                    // Render fetched week data
+                    weeklyResults.map((weekResult, weekIndex) => {
+                    return weekResult.results.map((result, userIndex) => {
+                        if (!result) return null;
+
+                        const totalScore =
+                        (result.scores.R1 || 0) +
+                        (result.scores.R2 || 0) +
+                        (result.scores.R3 || 0) +
+                        (result.scores.R4 || 0);
+
+                        return (
+                        <TableRow key={`${weekIndex}-${userIndex}`}>
+                            <TableCell sx={{ fontSize: '12px' }}>{result.position}</TableCell>
+                            <TableCell
+                                onClick={() => handleClick({ username: weekResult.username })}
+                                style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                             >
-                              {user.username}
-                              <Avatar src={`${profilePics[user.username]}`} sx={{marginLeft: '.5rem'}}/>
+                                {weekResult.username}
+                                <Avatar src={`${profilePics[weekResult.username]}`} sx={{ marginLeft: '.5rem' }} />
                             </TableCell>
-                            <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{calculateScores(user.username, 'R1')}</TableCell>
-                            <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{calculateScores(user.username, 'R2')}</TableCell>
-                            <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{calculateScores(user.username, 'R3')}</TableCell>
-                            <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{calculateScores(user.username, 'R4')}</TableCell>
+                            <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{result.scores.R1 || '-'}</TableCell>
+                            <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{result.scores.R2 || '-'}</TableCell>
+                            <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{result.scores.R3 || '-'}</TableCell>
+                            <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{result.scores.R4 || '-'}</TableCell>
                             <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{totalScore}</TableCell>
-                          </TableRow>
-                        )
-                    )}
+                        </TableRow>
+                        );
+                    });
+                    })
+                )}
                 </TableBody>
             </Table>
-            { currentDay >= 4 || currentDay === 0 ? <GolfersModal user={selectedUser} isOpen={open} handleClose={handleClose}/> : null }
-        </TableContainer>
-        <Results
-          podiumOpen={podiumOpen}
-          handlePodiumClose={handlePodiumClose}
-          topThreeUsers={topThreeUsers}
+                { currentDay >= 4 || currentDay === 0 ? 
+                    <GolfersModal user={selectedUser} isOpen={open} handleClose={handleClose}/> : null }
+            </TableContainer>
+                )}
+          <Results
+            podiumOpen={podiumOpen}
+            handlePodiumClose={handlePodiumClose}
+            topThreeUsers={topThreeUsers}
         />
       </>
     );
 }
 
-export default PoolStandings;
+export default PoolStandingsMulti;
+

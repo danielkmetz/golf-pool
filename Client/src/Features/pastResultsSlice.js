@@ -30,10 +30,70 @@ export const fetchPastResults = createAsyncThunk(
     }
 );
 
+export const fetchWeeklyResults = createAsyncThunk(
+    'pastResults/fetchWeeklyResults',
+    async ({ tournamentName, usernames, date }, { rejectWithValue }) => {
+        const apiUrl = `${process.env.REACT_APP_API_URL}/past-results/weekly`
+        const usernamesArray = usernames.map(user => user.username);
+        try {
+            const response = await axios.post(apiUrl, { tournamentName, usernames: usernamesArray, date });
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response.data);
+        }
+    }
+);
+
+const formatDate = (isoDate) => {
+    if (!isoDate) return null; // Handle cases where isoDate is null or undefined
+  
+    const date = new Date(isoDate);
+    const options = { month: '2-digit', day: '2-digit', year: 'numeric' };
+    return date.toLocaleDateString('en-US', options);
+};
+
+export const fetchUserTotalsForTournaments = createAsyncThunk(
+    'pastResults/fetchUserTotalsForTournaments',
+    async ({ tournaments, usernames }, { rejectWithValue }) => {
+        const apiUrl = `${process.env.REACT_APP_API_URL}/past-results/weekly`;
+        const usernamesArray = usernames.map(user => user.username);
+        const results = {};
+
+        try {
+            for (let tournament of tournaments) {
+                const tournamentName = tournament.Name;
+                const formattedDate = formatDate(tournament.Starts);
+
+                const response = await axios.post(apiUrl, { tournamentName, usernames: usernamesArray, date: formattedDate });
+
+                response.data.forEach(userResult => {
+                    if (!results[userResult.username]) {
+                        results[userResult.username] = {
+                            username: userResult.username,
+                            tournaments: [],
+                            totalScore: 0
+                        };
+                    }
+
+                    const tournamentTotal = userResult.results.reduce((acc, result) => acc + result.scores.Total, 0);
+                    results[userResult.username].tournaments.push({ date: formattedDate, total: tournamentTotal });
+                    results[userResult.username].totalScore += tournamentTotal;
+                });
+            }
+
+            return Object.values(results);
+        } catch (error) {
+            return rejectWithValue(error.response.data);
+        }
+    }
+);
+
 const pastResultsSlice = createSlice({
     name: 'pastResults',
     initialState: {
         pastResults: [],
+        weeklyResults: [],
+        totals: [],
         status: 'idle',
         error: null,
     },
@@ -64,11 +124,28 @@ const pastResultsSlice = createSlice({
             .addCase(fetchPastResults.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload;
-            });
+            })
+            .addCase(fetchWeeklyResults.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.weeklyResults = action.payload;
+            })
+            .addCase(fetchWeeklyResults.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload;
+            })
+            .addCase(fetchUserTotalsForTournaments.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.totals = action.payload;
+            })
+            .addCase(fetchUserTotalsForTournaments.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload;
+            })
     },
 });
 
 export default pastResultsSlice.reducer;
 
 export const selectPastResults = (state) => state.pastResults.pastResults;
-
+export const selectWeeklyResults = (state) => state.pastResults.weeklyResults;
+export const selectTotals = (state) => state.pastResults.totals;

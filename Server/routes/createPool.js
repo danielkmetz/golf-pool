@@ -5,7 +5,7 @@ const Pool = require('../models/createPool');
 
 router.post('/', async (req, res) => {
     const { admin, email, poolName, format, maxUsers,
-         buyIn, payouts, users, isPrivate, password } = req.body;
+         buyIn, payouts, users, isPrivate, password, numTournaments, tournaments } = req.body;
 
     try {
         // Check if a pool with the same username and pool name already exists
@@ -26,6 +26,8 @@ router.post('/', async (req, res) => {
             users,
             isPrivate,
             password,
+            numTournaments,
+            tournaments,
         });
 
         await newPool.save();
