@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Container, TextField, Typography, Box } from '@mui/material';
+import { Button, Container, TextField, Typography, Box, FormControlLabel, Checkbox } from '@mui/material';
 import { fetchPoolName } from '../../Features/poolsSlice';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
@@ -12,6 +12,7 @@ const Login = ({ setIsLoggedIn }) => {
   const [email, setEmail] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
   const [message, setMessage] = useState('');
+  const [smsOptIn, setSmsOptIn] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -131,7 +132,7 @@ const Login = ({ setIsLoggedIn }) => {
           onChange={(e) => setUsername(e.target.value)}
           variant="outlined"
           margin="normal"
-          fullWidth
+          
         />
         <TextField
           type="password"
@@ -140,9 +141,10 @@ const Login = ({ setIsLoggedIn }) => {
           onChange={(e) => setPassword(e.target.value)}
           variant="outlined"
           margin="normal"
-          fullWidth
+          
         />
         {isRegistering && (
+          <>
           <TextField
             type="email"
             label="Email"
@@ -150,8 +152,21 @@ const Login = ({ setIsLoggedIn }) => {
             onChange={(e) => setEmail(e.target.value)}
             variant="outlined"
             margin="normal"
-            fullWidth
+            
           />
+          <FormControlLabel
+              control={
+                <Checkbox
+                  checked={smsOptIn}
+                  onChange={(e) => setSmsOptIn(e.target.checked)}
+                  name="smsOptIn"
+                  color="primary"
+                />
+              }
+              sx={{maxWidth: '350px'}}
+              label="Opt-in to receive SMS updates for your tournament"
+            />
+            </>
         )}
         <Button 
           type="submit" 

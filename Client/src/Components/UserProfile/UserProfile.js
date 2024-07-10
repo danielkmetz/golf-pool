@@ -11,6 +11,7 @@ import { fetchEmail,
 import { useParams } from 'react-router';
 import PastResults from '../Profile/PastResults';
 import { resetPastResults } from '../../Features/pastResultsSlice';
+import BlurredName from './BlurredName';
 
 function UserProfile() {
     const {username} = useParams();
@@ -89,24 +90,25 @@ function UserProfile() {
                         <CircularProgress />
                     </Box>
                 ) : (
-                    <Paper elevation={3} sx={{
-                        p: 2,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        height: '180px',
-                        backgroundColor: "#DEB887",
-                        marginTop: '2rem',
-                        '@media (min-width: 600px)': {
-                            position: 'sticky',
-                            top: '20px',
-                            zIndex: 1,
-                        },
-                        '@media (max-width: 600px)': {
-                            width: '50%',
-                            
-                        },
-                    }}>
+                    <Paper elevation={3} 
+                        sx={{
+                            p: 2,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            height: '180px',
+                            backgroundColor: "#DEB887",
+                            marginTop: '2rem',
+                            '@media (min-width: 600px)': {
+                                position: 'sticky',
+                                top: '20px',
+                                zIndex: 1,
+                            },
+                            '@media (max-width: 600px)': {
+                                width: '50%',
+                                
+                            },
+                        }}>
                         <Box sx={{ position: 'relative', cursor: 'pointer' }}>
                             <Avatar sx={{ bgcolor: 'secondary.main', width: 100, height: 100 }} src={userPhoto}>
                                 {!userPhoto && <AccountCircleIcon />}
@@ -217,10 +219,10 @@ function UserProfile() {
                     </Tabs>
                     {tabValue === 0 && (
                     <CurrentPicks
-                        tier1Picks={isBeforeThursday() ? tier1Picks.map(() => 'Blurred Name') : tier1Picks}
-                        tier2Picks={isBeforeThursday() ? tier2Picks.map(() => 'Blurred Name') : tier2Picks}
-                        tier3Picks={isBeforeThursday() ? tier3Picks.map(() => 'Blurred Name') : tier3Picks}
-                        tier4Picks={isBeforeThursday() ? tier4Picks.map(() => 'Blurred Name') : tier4Picks}
+                        tier1Picks={isBeforeThursday() ? tier1Picks.map(() => <BlurredName text="Name"/>) : tier1Picks}
+                        tier2Picks={isBeforeThursday() ? tier2Picks.map(() => <BlurredName text="Name"/>) : tier2Picks}
+                        tier3Picks={isBeforeThursday() ? tier3Picks.map(() => <BlurredName text="Name"/>) : tier3Picks}
+                        tier4Picks={isBeforeThursday() ? tier4Picks.map(() => <BlurredName text="Name"/>) : tier4Picks}
                         allPicks={allUserPicks}
                     />
                     )}
