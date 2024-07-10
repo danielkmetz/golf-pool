@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Typography, Card } from '@mui/material';
+import { Container, Typography, Card, Box } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { selectActiveUsers, } from '../../Features/userSlice';
 import { selectUserPoolData } from '../../Features/poolsSlice';
@@ -19,20 +19,34 @@ function Payouts() {
     const thirdPlacePayout = Math.floor((totalActive * buyIn) * thirdPlacePercentage);
 
     return (
-        <Container sx={{ marginBottom: '.5rem', marginTop: '-2rem', display: 'flex', justifyContent: 'center' }}>
+        <Box sx={{ 
+            marginBottom: '.5rem', 
+            marginTop: '-1.7rem', 
+            display: 'flex', 
+            justifyContent: 'center',
+            width: '100%', 
+            }}>
             <Card sx={{
                 padding: '.5rem',
                 height: '1.2rem',
                 backgroundColor: 'lightGray',
+                display: 'flex',
+                justifyContent: 'center',
+                width: '100%',
                 '@media (min-width: 600px) and (max-width: 1200px)': {
-                            fontSize: '9px',
-                        },
-                }}>
+                    fontSize: '10px',
+                },
+                '@media (max-width: 600px)': {
+                    paddingLeft: '',
+                    paddingRight: '',
+                },
+                }}
+            >
                 <Typography 
                     variant="h7" 
                     sx={{ 
                         fontFamily: 'Rock Salt',
-                        fontSize: '11px',
+                        fontSize: '10px',
                     }}
                 >
                     <b>Payouts:</b>
@@ -44,9 +58,11 @@ function Payouts() {
                         marginLeft: '1rem',
                         fontSize: '11px',
                         '@media (min-width: 600px) and (max-width: 1200px)': {
-                                fontSize: '9px',
                                 ml: '.75rem',
-                            },
+                        },
+                        '@media (max-width: 600px)': {
+                            ml: '.75rem'
+                        },
                     }}
                 >
                     <b>1st:</b> ${firstPlacePayout}
@@ -58,9 +74,11 @@ function Payouts() {
                         marginLeft: '1rem',
                         fontSize: '11px',
                         '@media (min-width: 600px) and (max-width: 1200px)': {
-                                fontSize: '9px',
                                 ml: '.75rem',
-                            },
+                        },
+                        '@media (max-width: 600px)': {
+                            ml: '.75rem'
+                        },
                     }}
                 >
                     <b>2nd:</b> ${secondPlacePayout}
@@ -70,17 +88,19 @@ function Payouts() {
                     sx={{ 
                         fontFamily: 'Rock Salt', 
                         marginLeft: '1rem',
-                        fontSize: '11px',
+                        fontSize: '10px',
+                        '@media (max-width: 600px)': {
+                            ml: '.75rem'
+                        },
                         '@media (min-width: 600px) and (max-width: 1200px)': {
-                                fontSize: '9px',
-                                ml: '.5rem',
+                                ml: '.75rem',
                             },
                     }}
                 >
                     <b>3rd: </b>${thirdPlacePayout}
                 </Typography>
             </Card>
-        </Container>
+        </Box>
     );
 }
 

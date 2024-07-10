@@ -10,6 +10,7 @@ import { fetchEmail,
     selectEmail, fetchProfilePic, selectProfilePic } from '../../Features/userSlice';
 import { useParams } from 'react-router';
 import PastResults from '../Profile/PastResults';
+import { resetPastResults } from '../../Features/pastResultsSlice';
 
 function UserProfile() {
     const {username} = useParams();
@@ -23,12 +24,13 @@ function UserProfile() {
     const [tier4Picks, setTier4Picks] = useState([]);
     const [tabValue, setTabValue] = useState(0);
     const dispatch = useDispatch();
-
+    
     console.log(username)
 
     useEffect(() => {
         setLoading(true)
         if (username) {
+            dispatch(resetPastResults());
             dispatch(fetchUserPicks(username));
             dispatch(fetchEmail(username));
             dispatch(fetchProfilePic(username))
@@ -141,26 +143,25 @@ function UserProfile() {
                         TabIndicatorProps={{
                             style: {
                                 backgroundColor: 'lightgreen',
-                                height: '8px',
+                                height: '6px',
                             }
                         }}
                         sx={{
                             marginLeft: '16rem',
                             height: '.75rem',
+                            '@media (min-width: 600px) and (max-width: 1400px)': {
+                                marginLeft: '10rem',
+                                },
                             '@media (max-width: 600px)': {
-                                        marginLeft: '1rem',
-                                    },
-                            '@media (max-width: 1400px)': {
-                                        marginLeft: '8rem',
-                                    }
+                                    marginLeft: '2.5rem',
+                                },
                         }}
                     >
                         <Button 
                             variant="contained"
                             onClick={() => handleTabChange(0)}
                             sx={{
-                                backgroundColor: '#222',
-                    
+                                backgroundColor: '#222',          
                                 '&:hover': {
                                     backgroundColor: 'DarkGreen',
                                 },

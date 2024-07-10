@@ -26,6 +26,7 @@ import { fetchEmail,
     setUsername,
  } from '../../Features/userSlice';
 import { fetchPastResults } from '../../Features/pastResultsSlice';
+import { resetPastResults } from '../../Features/pastResultsSlice';
 import { sendSMS } from '../../actions';
 
 function Profile() {
@@ -50,6 +51,10 @@ function Profile() {
     const currentDate = new Date();
     const currentDay = currentDate.getDay();
     const isSubmitDisabled = currentDay >= 4 || currentDay === 0;
+
+    useEffect(() => {
+        dispatch(resetPastResults());
+    }, [dispatch])
 
     useEffect(() => {
         dispatch(fetchUsername());

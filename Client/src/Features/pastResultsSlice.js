@@ -98,7 +98,9 @@ const pastResultsSlice = createSlice({
         error: null,
     },
     reducers: {
-
+        resetPastResults: (state, action) => {
+            state.pastResults = [];
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -145,6 +147,8 @@ const pastResultsSlice = createSlice({
 });
 
 export default pastResultsSlice.reducer;
+
+export const {resetPastResults} = pastResultsSlice.actions;
 
 export const selectPastResults = (state) => state.pastResults.pastResults;
 export const selectWeeklyResults = (state) => state.pastResults.weeklyResults;

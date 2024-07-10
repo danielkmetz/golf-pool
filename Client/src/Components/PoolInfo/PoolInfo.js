@@ -122,18 +122,28 @@ function PoolInfo() {
                 }, 
             }}
         >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+            <Box 
+                sx={{ 
+                    display: 'flex', 
+                    width: '100%',
+                    '@media (max-width: 600px)': {
+                        justifyContent: 'space-between'
+                    }, 
+                    }}>
                 <Card 
                     sx={{
                         height: 'auto',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        width: '13rem',
+                        width: '10rem',
                         backgroundColor: 'lightGray',
-                        ml: '-1rem',
                         '@media (max-width: 600px)': {
-                            ml: '-1rem',
+                            width: 'auto',
+                        },
+                        '@media (min-width: 1400px)': {
+                            mr: '2rem',
+                            width: 'auto',
                         },
                     }}
                 >
@@ -157,10 +167,11 @@ function PoolInfo() {
                         width: '10rem',
                         backgroundColor: 'lightGray',
                         '@media (max-width: 600px)': {
-                            mr: '-1rem',
+                            width: 'auto',
                         },
                         '@media (min-width: 1400px)': {
                             mr: '2rem',
+                            width: 'auto',
                         },    
                     }}
                 >

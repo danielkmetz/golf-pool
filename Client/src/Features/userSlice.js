@@ -367,4 +367,6 @@ export const selectActiveUsers = (state) => state.users.activeUsers;
 export const selectUsernameStataus = (state) => state.users.usernameStatus;
 export const selectTimestamp = (state) => state.users.lastReadTimestamp;
 
-export const { setUsername, setUserPhoto, resetActiveUsers, setLastReadTimestamp, incrementUnreadMessages, resetUnreadMessages, resetUsername } = userSlice.actions;
+export const { setUsername, setUserPhoto, 
+    resetActiveUsers, setLastReadTimestamp, incrementUnreadMessages, 
+    resetUnreadMessages, resetUsername } = userSlice.actions;

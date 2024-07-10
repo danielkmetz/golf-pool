@@ -33,8 +33,9 @@ import Payouts from '../Payouts/Payouts';
 import PoolInfo from '../PoolInfo/PoolInfo';
 import Results from '../Results/Results';
 import { fetchWeeklyResults, 
-    selectWeeklyResults } from '../../Features/pastResultsSlice';
+    selectWeeklyResults, fetchUserTotalsForTournaments, selectTotals } from '../../Features/pastResultsSlice';
 import WeeklyTotalsMulti from './weeklyTotalsMulti';
+
 
 function PoolStandingsMulti() {
     const [selectedUser, setSelectedUser] = useState(null);
@@ -51,6 +52,7 @@ function PoolStandingsMulti() {
     const activeUsers = useSelector(selectActiveUsers);
     const [podiumOpen, setPodiumOpen] = useState(false);
     const weeklyResults = useSelector(selectWeeklyResults);
+    const totals = useSelector(selectTotals);
     const [defaultWeek, setDefaultWeek] = useState(null);
     const [activeTab, setActiveTab] = useState(0);
     const [showWeeklyTotals, setShowWeeklyTotals] = useState(false);
@@ -177,6 +179,10 @@ function PoolStandingsMulti() {
     const allGolfersHaveR4Score = useMemo(() => {
         return organizedData.every(golfer => golfer.R4 !== null && golfer.R4 !== undefined);
       }, [organizedData]);
+
+    useEffect(() => {
+        dispatch(fetchUserTotalsForTournaments({ tournaments, usernames: activeUsers }));
+    }, [dispatch, tournaments, activeUsers, allGolfersHaveR4Score]);
     
     const isSundayComplete =
       currentDayDate.toDateString() === finalDayDate.toDateString() && allGolfersHaveR4Score;
@@ -195,15 +201,9 @@ function PoolStandingsMulti() {
       setPodiumOpen(false);
     }
 
-    useEffect(() => {
-      if (isSundayComplete) {
-        setPodiumOpen(true);
-      }
-    }, [isSundayComplete]);
-
     const sortedUsers = useMemo(() => sortUsers(activeUsers, calculateScores), [activeUsers, calculateScores]);
-
-    const topThreeUsers = sortedUsers.slice(0, 3);
+    const multiSorted = totals.slice().sort((a, b) => a.totalScore - b.totalScore);
+    const topThreeUsers = multiSorted.slice(0, 3);
 
     const userPositionMap = sortedUsers.reduce((acc, user, index, array) => {
       let position = index + 1;
@@ -274,6 +274,13 @@ function PoolStandingsMulti() {
             setDefaultWeek(0);
         }
     }, [tournamentName, tournaments]);
+
+    useEffect(() => {
+        if (isSundayComplete) {
+          setPodiumOpen(true);
+        }
+      }, [isSundayComplete]);
+  
 
     return (
       <>

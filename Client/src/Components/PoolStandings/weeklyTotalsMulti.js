@@ -7,10 +7,6 @@ const WeeklyTotalsMulti = ({ tournaments, usernames, profilePics }) => {
     const dispatch = useDispatch();
     const totalsData = useSelector(selectTotals);
 
-    useEffect(() => {
-        dispatch(fetchUserTotalsForTournaments({ tournaments, usernames }));
-    }, [dispatch, tournaments, usernames]);
-
     return (
         <TableContainer component={Paper}>
             <Table>

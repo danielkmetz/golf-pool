@@ -131,7 +131,14 @@ function Tier1() {
   };
 
   return (
-    <Container style={containerStyle}>
+    <Container 
+      style={containerStyle}
+      sx={{
+        '@media (max-width: 600px)': {
+            mb: '3rem',
+          },
+      }}
+    >
       <InputLabel id="select-label">Select Tier</InputLabel>
       <Select
         value={selectedOption}

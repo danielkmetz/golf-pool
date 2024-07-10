@@ -33,7 +33,7 @@ function BettingOdds({ oddsResults, addGolfer, format, tier }) {
                                     tier === 'Tier3' ? '10 Credits' :
                                     '5 Credits'
                                 ) : (
-                                    `${(result.draftkings * 100).toFixed(6)}%`
+                                    `${(result.draftkings * 100).toFixed(2)}%`
                                 )}
                             </TableCell>
                             <TableCell>
@@ -45,6 +45,9 @@ function BettingOdds({ oddsResults, addGolfer, format, tier }) {
                                         ml: '-.5rem',
                                         '&:hover': {
                                             backgroundColor: 'DarkGreen',
+                                        },
+                                        '@media (max-width: 600px)': {
+                                            ml: '-1.2rem',
                                         },
                                     }}
                                 >
