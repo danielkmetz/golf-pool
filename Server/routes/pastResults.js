@@ -2,12 +2,12 @@ const express = require('express');
 const router = express.Router();
 const pastResults = require('../models/pastResults');
 
-const getPastResults = async (tournamentName, usernames, date) => {
+const getPastResults = async (tournamentName, usernames, year) => {
     try {
         const results = await pastResults.find({
             'results.tournamentName': tournamentName,
             username: { $in: usernames },
-            'results.date': date
+            'results.year': year,
         });
         return results;
     } catch (error) {
@@ -16,15 +16,27 @@ const getPastResults = async (tournamentName, usernames, date) => {
 };
 
 router.post('/weekly', async (req, res) => {
-    const { tournamentName, usernames, date } = req.body;
-    
-    if (!tournamentName || !usernames || !date) {
-        return res.status(400).json({ error: 'Missing tournamentName, usernames, or date' });
+    const { tournamentName, usernames, year } = req.body;
+    if (!tournamentName || !usernames || !year) {
+        return res.status(400).json({ error: 'Missing tournamentName, usernames, or year' });
     }
 
     try {
-        const results = await getPastResults(tournamentName, usernames, date);
-        res.json(results);
+        const results = await getPastResults(tournamentName, usernames, year);
+
+        // Structure the results
+        const structuredResults = usernames.map(username => {
+            const userResults = results.find(result => result.username === username);
+            if (userResults) {
+                const filteredResults = userResults.results.filter(result => result.tournamentName === tournamentName && result.year === year);
+                return {
+                    username: userResults.username,
+                    results: filteredResults
+                };
+            }
+            return { username, results: [] };
+        });
+        res.json(structuredResults);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch past results' });
     }
@@ -56,8 +68,24 @@ router.post('/save', async (req, res) => {
         let userResults = await pastResults.findOne({ username });
 
         if (userResults) {
-            // Ensure that the results array is properly mapped and appended
-            userResults.results.push(...results.map(result => ({ ...result })));
+            console.log('Existing user results:', userResults.results); // Log existing results
+
+            // Filter out duplicate results
+            const existingResultsSet = new Set(
+                userResults.results.map(result => `${result.date}_${result.tournamentName}_${result.position}`)
+            );
+
+            const newResults = results.filter(
+                result => !existingResultsSet.has(`${result.date}_${result.tournamentName}_${result.position}`)
+            );
+
+            console.log('New results to be added:', newResults); // Log new results
+
+            if (newResults.length === 0) {
+                return res.status(200).json({ message: 'No new results to save' });
+            }
+
+            userResults.results.push(...newResults);
         } else {
             userResults = new pastResults({ username, results });
         }
@@ -69,6 +97,7 @@ router.post('/save', async (req, res) => {
         res.status(500).json({ error: 'Error saving results' });
     }
 });
+
 
 // Fetch past results by username
 router.get('/fetch/:username', async (req, res) => {

@@ -33,7 +33,11 @@ import Payouts from '../Payouts/Payouts';
 import PoolInfo from '../PoolInfo/PoolInfo';
 import Results from '../Results/Results';
 import { fetchWeeklyResults, 
-    selectWeeklyResults, fetchUserTotalsForTournaments, selectTotals } from '../../Features/pastResultsSlice';
+    selectWeeklyResults, 
+    fetchUserTotalsForTournaments, 
+    selectTotals, 
+    duplicateRecordsCheck, 
+    selectDuplicates } from '../../Features/pastResultsSlice';
 import WeeklyTotalsMulti from './weeklyTotalsMulti';
 
 
@@ -46,6 +50,7 @@ function PoolStandingsMulti() {
     const totalPicks = useSelector(selectTotalPicks);
     const profilePics = useSelector(selectProfilePics)
     const users = useSelector(selectUsers);
+    const duplicates = useSelector(selectDuplicates);
     const username = useSelector(selectUsername);
     const poolInfo = useSelector(selectUserPoolData);
     const dispatch = useDispatch();
@@ -56,20 +61,20 @@ function PoolStandingsMulti() {
     const [defaultWeek, setDefaultWeek] = useState(null);
     const [activeTab, setActiveTab] = useState(0);
     const [showWeeklyTotals, setShowWeeklyTotals] = useState(false);
-    
+    const year = new Date().getFullYear();
+
     const format = poolInfo.format;
     const numTournaments = poolInfo.numTournaments;
     const tournaments = poolInfo.tournaments;
     const week1DateISO = poolInfo.tournaments?.[0]?.Starts ?? null;
     const week2DateISO = poolInfo.tournaments?.[1]?.Starts ?? null;
     const week3DateISO = poolInfo.tournaments?.[2]?.Starts ?? null;
-    const week1Name = tournaments?.[0]?.Name ?? null;
-    const week2Name = tournaments?.[1]?.Name ?? null;
-    const week3Name = tournaments?.[2]?.Name ?? null;
-    
     const currentDate = new Date();
     const currentDay = currentDate.getDay();
     const coursePar = tournamentInfo.Par;
+    const week1Tournament = poolInfo.tournaments?.[0]?.Name ?? null;
+    const week2Tournament = poolInfo.tournaments?.[1]?.Name ?? null;
+    const week3Tournament = poolInfo.tournaments?.[2]?.Name ?? null;
     const tournamentName = tournamentInfo.Name;
 
     const formatDate = (isoDate, addDays = 0) => {
@@ -82,10 +87,6 @@ function PoolStandingsMulti() {
         return date.toLocaleDateString('en-US', options);
     };
     
-    const week1Date = formatDate(week1DateISO);
-    const week2Date = formatDate(week2DateISO);
-    const week3Date = formatDate(week3DateISO);
-
     let finalDay;
     if (numTournaments === 2) {
         finalDay = formatDate(week2DateISO, 3);
@@ -177,16 +178,18 @@ function PoolStandingsMulti() {
     );
 
     const allGolfersHaveR4Score = useMemo(() => {
-        return organizedData.every(golfer => golfer.R4 !== null && golfer.R4 !== undefined);
+        return organizedData.every(golfer => golfer.R4 !== null || golfer.R4 !== undefined);
       }, [organizedData]);
 
     useEffect(() => {
-        dispatch(fetchUserTotalsForTournaments({ tournaments, usernames: activeUsers }));
+        dispatch(fetchUserTotalsForTournaments({ tournaments, usernames: activeUsers, year }));
     }, [dispatch, tournaments, activeUsers, allGolfersHaveR4Score]);
     
     const isSundayComplete =
       currentDayDate.toDateString() === finalDayDate.toDateString() && allGolfersHaveR4Score;
-  
+    
+    const sendScores = currentDay === 0 && allGolfersHaveR4Score;
+    
     const handleClick = (user) => {
         setSelectedUser(user.username);
         setOpen(true);
@@ -208,41 +211,66 @@ function PoolStandingsMulti() {
     const userPositionMap = sortedUsers.reduce((acc, user, index, array) => {
       let position = index + 1;
       if (index > 0 && user.totalScore === array[index - 1].totalScore) {
-          position = `T${position}`;
+        position = acc[array[index - 1].user.username]; // Use the previous user's position directly
+        if (typeof position === 'number') {
+          position = `T${position}`; // Add the "T" if it's not already present
+        }
       }
       acc[user.user.username] = position;
       return acc;
     }, {});
+    
 
     useEffect(() => {
-      // Check if all necessary info is available
-      if (isSundayComplete ) {
-          // Iterate over the entries of userPositionMap
-          Object.entries(userPositionMap).forEach(([username, position]) => {
+        if (defaultWeek === 0) {
+            dispatch(duplicateRecordsCheck({tournamentName: week1Tournament, usernames: activeUsers, year}))
+        } else if (defaultWeek === 1) {
+          dispatch(duplicateRecordsCheck({tournamentName: week2Tournament, usernames: activeUsers, year}))
+        } else {
+          dispatch(duplicateRecordsCheck({tournamentName: week3Tournament, usernames: activeUsers, year}))
+        }
+    }, [dispatch, tournamentName, activeUsers, year, defaultWeek])
 
-            const scores = {
-                R1: calculateScores(username, 'R1'),
-                R2: calculateScores(username, 'R2'),
-                R3: calculateScores(username, 'R3'),
-                R4: calculateScores(username, 'R4'),
-            };
+    function areAllActiveUsersInResponse({activeUsers, responseData, tournamentName}) {
+      return activeUsers.every(user => {
+          return responseData.some(data => 
+              data.username === user.username && 
+              data.results.some(result => result.tournamentName === tournamentName)
+          );
+      });
+    }
+    const duplicateCheck = areAllActiveUsersInResponse({activeUsers, responseData: duplicates, tournamentName});
+    //console.log(duplicateCheck);
 
-            scores.Total = scores.R1 + scores.R2 + scores.R3 + scores.R4;
-              
-              // Dispatch sendUserPositionMap action for each user
-              dispatch(
-                  sendUserPositionMap({
-                      username,
-                      results: [{
-                          date: new Date(),
-                          tournamentName,
-                          position,
-                          scores,
-                      }],
-                  })
-              );
-          });
-      }
+    useEffect(() => {
+        // Check if all necessary info is available
+        if (isSundayComplete && !duplicateCheck) {
+            // Iterate over the entries of userPositionMap
+            Object.entries(userPositionMap).forEach(([username, position]) => {
+  
+              const scores = {
+                  R1: calculateScores(username, 'R1'),
+                  R2: calculateScores(username, 'R2'),
+                  R3: calculateScores(username, 'R3'),
+                  R4: calculateScores(username, 'R4'),
+              };
+  
+              scores.Total = scores.R1 + scores.R2 + scores.R3 + scores.R4;
+                
+                // Dispatch sendUserPositionMap action for each user
+                dispatch(
+                    sendUserPositionMap({
+                        username,
+                        results: [{
+                            year,
+                            tournamentName,
+                            position,
+                            scores,
+                        }],
+                    })
+                );
+            });
+        }
     }, [isSundayComplete]);
 
     const handleTabChange = async (event, newValue) => {
@@ -251,16 +279,15 @@ function PoolStandingsMulti() {
         if (newValue === 'total') {
             setShowWeeklyTotals(true);
         } else {
-            setShowWeeklyTotals(false);
+            setShowWeeklyTotals(false)
         }
 
         const selectedWeekName = tournaments[newValue]?.Name;
-        const selectedWeekDate = formatDate(tournaments[newValue]?.Starts);
-
+        
         await dispatch(fetchWeeklyResults({
             tournamentName: selectedWeekName,
             usernames: activeUsers,
-            date: selectedWeekDate
+            year: year,
         }));
     };
 
@@ -280,8 +307,22 @@ function PoolStandingsMulti() {
           setPodiumOpen(true);
         }
       }, [isSundayComplete]);
+    
+    // Sort the weeklyResults by totalScore before mapping
+    const allResults = (weeklyResults || []).flatMap(weekResult => 
+      (weekResult.results || []).map(result => ({ 
+          ...result, 
+          username: weekResult.username 
+      }))
+    );
   
-
+    // Sort the flattened results by scores.Total
+    const sortedResults = allResults.sort((a, b) => {
+        const totalScoreA = a.scores.Total || 0;
+        const totalScoreB = b.scores.Total || 0;
+        return totalScoreA - totalScoreB;
+    });
+    
     return (
       <>
         <Paper 
@@ -426,35 +467,27 @@ function PoolStandingsMulti() {
                     })
                 ) : (
                     // Render fetched week data
-                    weeklyResults.map((weekResult, weekIndex) => {
-                    return weekResult.results.map((result, userIndex) => {
-                        if (!result) return null;
-
-                        const totalScore =
-                        (result.scores.R1 || 0) +
-                        (result.scores.R2 || 0) +
-                        (result.scores.R3 || 0) +
-                        (result.scores.R4 || 0);
-
+                    sortedResults.map((result, index) => {
+                        
                         return (
-                        <TableRow key={`${weekIndex}-${userIndex}`}>
+                        <TableRow key={result._id}>
                             <TableCell sx={{ fontSize: '12px' }}>{result.position}</TableCell>
                             <TableCell
-                                onClick={() => handleClick({ username: weekResult.username })}
+                                onClick={() => handleClick({ username: result.username })}
                                 style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                             >
-                                {weekResult.username}
-                                <Avatar src={`${profilePics[weekResult.username]}`} sx={{ marginLeft: '.5rem' }} />
+                                {result.username}
+                                <Avatar src={`${profilePics[result.username]}`} sx={{ marginLeft: '.5rem' }} />
                             </TableCell>
                             <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{result.scores.R1 || '-'}</TableCell>
                             <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{result.scores.R2 || '-'}</TableCell>
                             <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{result.scores.R3 || '-'}</TableCell>
                             <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{result.scores.R4 || '-'}</TableCell>
-                            <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{totalScore}</TableCell>
+                            <TableCell sx={{ fontSize: '12px', paddingLeft: '.5px' }}>{result.scores.Total}</TableCell>
                         </TableRow>
                         );
-                    });
                     })
+                    
                 )}
                 </TableBody>
             </Table>

@@ -55,6 +55,7 @@ function MyPicks() {
   } else {
     isSubmitDisabled = currentDay >= 4 || currentDay === 0 || totalPicksLength < 8;
   }
+  //const isSubmitDisabled = false;
 
   const handleSubmission = async () => {
     try {
@@ -106,7 +107,7 @@ function MyPicks() {
   function tierRemoval(tier, golferName) {
     const odds = findOdds(golferName)
     
-    if (format === "Single Week") {
+    if (format === "Single Week" || format === "Multi-Week") {
       switch (tier) {
         case 1:
           dispatch(removeTier1Golfer(golferName));

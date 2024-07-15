@@ -9,7 +9,7 @@ const scoresSchema = new mongoose.Schema({
 })
 
 const resultsSchema = new mongoose.Schema({
-    date: String,
+    year: Number,
     tournamentName: String,
     position: String,
     scores: scoresSchema,

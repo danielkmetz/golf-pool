@@ -1,11 +1,13 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Avatar } from '@mui/material';
-import { selectTotals, fetchUserTotalsForTournaments } from '../../Features/pastResultsSlice';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { selectTotals } from '../../Features/pastResultsSlice';
 
 const WeeklyTotalsMulti = ({ tournaments, usernames, profilePics }) => {
-    const dispatch = useDispatch();
     const totalsData = useSelector(selectTotals);
+
+    // Sort totalsData by totalScore in ascending order
+    const sortedTotalsData = [...totalsData].sort((a, b) => a.totalScore - b.totalScore);
 
     return (
         <TableContainer component={Paper}>
@@ -27,7 +29,7 @@ const WeeklyTotalsMulti = ({ tournaments, usernames, profilePics }) => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {totalsData && totalsData.map((user, index) => (
+                    {sortedTotalsData.map((user, index) => (
                         <TableRow key={index}>
                             <TableCell component="th" scope="row" 
                                 style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}

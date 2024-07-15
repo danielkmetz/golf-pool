@@ -169,12 +169,15 @@ function PoolStandings() {
     const userPositionMap = sortedUsers.reduce((acc, user, index, array) => {
       let position = index + 1;
       if (index > 0 && user.totalScore === array[index - 1].totalScore) {
-          position = `T${position}`;
+        position = acc[array[index - 1].user.username]; // Use the previous user's position directly
+        if (typeof position === 'number') {
+          position = `T${position}`; // Add the "T" if it's not already present
+        }
       }
       acc[user.user.username] = position;
       return acc;
     }, {});
-
+    
     useEffect(() => {
       // Check if all necessary info is available
       if (isSundayComplete ) {

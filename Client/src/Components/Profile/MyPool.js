@@ -69,7 +69,7 @@ function MyPool({ info }) {
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    height: '470px',
+                    height: '500px',
                     width: '240px',
                     backgroundColor: "#DEB887",
                     marginTop: '2rem',
