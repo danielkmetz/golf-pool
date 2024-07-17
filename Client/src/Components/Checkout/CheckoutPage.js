@@ -8,7 +8,7 @@ import { useSelector } from "react-redux";
 // Make sure to call loadStripe outside of a component’s render to avoid
 // recreating the Stripe object on every render.
 // This is your test publishable API key.
-const key = process.env.REACT_APP_STRIPE_PUBLIC_KEY_TEST
+const key = process.env.REACT_APP_STRIPE_PUBLIC_KEY
 
 const stripePromise = loadStripe(key);
 
