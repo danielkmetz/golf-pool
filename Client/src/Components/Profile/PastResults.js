@@ -27,6 +27,8 @@ function PastResults({ username }) {
     const [loading, setLoading] = useState(true);
     const [showContent, setShowContent] = useState(false);
 
+    console.log(pastResults)
+
     useEffect(() => {
         setLoading(true);
         setShowContent(false);

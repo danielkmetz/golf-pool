@@ -11,7 +11,6 @@ function GolferTable({tierPicks, liveResults, tournamentInfo}) {
     const [currentDate, setCurrentDate] = useState(new Date());
     const currentDay = currentDate.getDay(); // 0 (Sunday) to 6 (Saturday)
     const isValidDay = currentDay >= 4 || currentDay === 0; // Thursday (4) to Sunday (0)
-
     const coursePar = tournamentInfo.Par;
     
     return (

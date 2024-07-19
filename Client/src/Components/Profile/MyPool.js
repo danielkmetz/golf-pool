@@ -11,7 +11,7 @@ function MyPool({ info }) {
     const week1DateISO = tournaments?.[0]?.Starts ?? null;
     const week2DateISO = tournaments?.[1]?.Starts ?? null;
     const week3DateISO = tournaments?.[2]?.Starts ?? null;
-    const numTournaments = info?.numTournaments ?? null
+    const numTournaments = info?.numTournaments ?? null;
     const format = info.format;
 
     const formatDate = (isoDate, addDays = 0) => {

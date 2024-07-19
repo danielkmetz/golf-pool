@@ -26,8 +26,6 @@ import { fetchEmail,
     setUsername,
  } from '../../Features/userSlice';
 import { fetchPastResults } from '../../Features/pastResultsSlice';
-import { resetPastResults } from '../../Features/pastResultsSlice';
-import { sendSMS } from '../../actions';
 
 function Profile() {
     const username = useSelector(selectUsername);
@@ -47,14 +45,9 @@ function Profile() {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [tabValue, setTabValue] = useState(0);
     const dispatch = useDispatch();
-    
     const currentDate = new Date();
     const currentDay = currentDate.getDay();
     const isSubmitDisabled = currentDay >= 4 || currentDay === 0;
-
-    useEffect(() => {
-        dispatch(resetPastResults());
-    }, [dispatch])
 
     useEffect(() => {
         dispatch(fetchUsername());
@@ -156,6 +149,8 @@ function Profile() {
     const handleTabChange = (value) => {
         setTabValue(value);
     };
+
+    console.log(info)
     
     return (
         <Box 

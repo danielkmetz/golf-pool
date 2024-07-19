@@ -13,7 +13,6 @@ function CurrentPicks({ tier1Picks, tier2Picks, tier3Picks, tier4Picks, format})
     const tournamentInfo = useSelector(selectTournamentInfo);
     const leaderboardResults = useSelector(selectResults);
     const liveResults = useSelector(selectLiveResults);
-    
     const currentDate = new Date();
     const currentDay = currentDate.getDay(); // 0 (Sunday) to 6 (Saturday)
     const isValidDay = currentDay >= 4 || currentDay === 0; // Thursday (4) to Sunday (0)

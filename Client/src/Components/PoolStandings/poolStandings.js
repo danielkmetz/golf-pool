@@ -74,7 +74,7 @@ function PoolStandings() {
     const userPics = poolUserProfilePics
       .filter(user => user && user.profilePic)
       .map(user => ({ username: user.username, profilePic: user.profilePic }));
-  
+
     useEffect(() => {
       if (userPics.length > 0) {
         dispatch(fetchProfilePics(userPics));
@@ -300,7 +300,7 @@ function PoolStandings() {
                     )}
                 </TableBody>
             </Table>
-            { currentDay >= 4 || currentDay === 0 ? <GolfersModal user={selectedUser} isOpen={open} handleClose={handleClose}/> : null }
+            { currentDay >= 4 || currentDay === 3 ? <GolfersModal user={selectedUser} isOpen={open} handleClose={handleClose}/> : null }
         </TableContainer>
         <Results
           podiumOpen={podiumOpen}

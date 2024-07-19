@@ -57,8 +57,9 @@ function PoolInfo() {
     const week1StartDate = new Date(week1Start);
     const finalDayDate = new Date(finalDay);
     const currentDayDate = new Date(currentDate);
-
-    const isButtonDisabled = (currentDayDate > week1StartDate && currentDayDate <= finalDayDate);
+    
+    const isButtonDisabled = (format === "Multi-Week" || format === "Muti-Week Salary Cap" ? 
+        currentDayDate > week1StartDate && currentDayDate <= finalDayDate : currentDay >= 4 || currentDay === 0);
     //const isButtonDisabled = currentDay < 4;
 
     const handleOpen = () => setOpen(true);

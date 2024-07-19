@@ -60,7 +60,6 @@ const GolfersModal = ({ user, isOpen, handleClose }) => {
 
     const coursePar = tournamentInfo.Par;
     
-    //console.log(tournamentInfo.Par)
     return (
         <Modal
             open={isOpen}

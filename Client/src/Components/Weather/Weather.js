@@ -118,7 +118,7 @@ function Weather() {
       
         return `${formattedHour} ${amPm}`; // Return formatted time
       };
-      
+
     return (
         <Container sx={{ marginTop: '1rem', padding: '0',}}>
             <Typography variant="h6" sx={{fontFamily: 'Rock Salt', mb: '.5rem'}}>Hourly Weather Report</Typography>

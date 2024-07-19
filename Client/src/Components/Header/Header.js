@@ -3,9 +3,21 @@ import { Box, Typography, Tabs, Tab } from '@mui/material';
 import { selectPoolName } from '../../Features/poolsSlice';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { resetTier1Picks, resetTier2Picks, resetTier3Picks, resetTier4Picks } from '../../Features/myPicksSlice';
+import { resetPastResults } from '../../Features/pastResultsSlice';
+import { useDispatch } from 'react-redux';
 
 function Header({isLoggedIn}) {
     const poolName = useSelector(selectPoolName);
+    const dispatch = useDispatch();
+
+    const handleProfileClick = () => {
+        dispatch(resetTier1Picks());
+        dispatch(resetTier2Picks());
+        dispatch(resetTier3Picks());
+        dispatch(resetTier4Picks());
+        dispatch(resetPastResults())
+    };
 
     return (
         <Box className="header" 
@@ -75,7 +87,7 @@ function Header({isLoggedIn}) {
                         <Tab label="Standings" component={Link} to="/Standings"/>
                         <Tab label="News" component={Link} to="/News"/>
                         <Tab label="Golfers" component={Link} to="/Golfers"/>
-                        <Tab label="Profile" component={Link} to="/Profile"/>
+                        <Tab label="Profile" component={Link} to="/Profile" onClick={handleProfileClick}/>
                     </>
                     )}
                 </Tabs>

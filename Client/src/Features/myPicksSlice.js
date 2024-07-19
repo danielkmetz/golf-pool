@@ -129,7 +129,19 @@ export const myPicksSlice = createSlice({
         },
         setTier4Picks: (state, action) => {
             state.tier4Picks = action.payload;
-        }
+        },
+        resetTier1Picks: (state, action) => {
+            state.tier1Picks = [];
+        },
+        resetTier2Picks: (state, action) => {
+            state.tier2Picks = [];
+        },
+        resetTier3Picks: (state, action) => {
+            state.tier3Picks = [];
+        },
+        restTier4Picks: (state, action) => {
+            state.tier4Picks = [];
+        },
 
     },
     extraReducers: (builder) => {
@@ -195,5 +207,9 @@ export const {
     setTier2Picks,
     setTier3Picks,
     setTier4Picks,
+    resetTier1Picks,
+    resetTier2Picks,
+    resetTier3Picks,
+    resetTier4Picks,
 } = myPicksSlice.actions
 
