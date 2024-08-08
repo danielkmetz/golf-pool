@@ -136,6 +136,8 @@ export const fetchProfilePic = createAsyncThunk(
 export const uploadProfilePic = createAsyncThunk(
     'users/uploadProfilePic',
     async ({ image, username }, { rejectWithValue }) => {
+        console.log(image);
+        console.log(username);
         try {
             const formData = new FormData();
             formData.append('image', image);

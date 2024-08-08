@@ -9,7 +9,6 @@ const {
     PutObjectCommand,
 } = require("@aws-sdk/client-s3");
 const User = require('../models/users');
-const sharp = require('sharp');
 const aws = require('aws-sdk');
 
 const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
@@ -31,26 +30,26 @@ const s3 = new aws.S3({
 
 // Set up Multer with S3 and Sharp for image compression
 const upload = multer({
-    storage: multerS3({
-      s3: s3,
-      bucket: 'golf-pool-profile-pics',
-      contentType: multerS3.AUTO_CONTENT_TYPE,
-      shouldTransform: function (req, file, cb) {
-        cb(null, /^image/i.test(file.mimetype));
-      },
-      transforms: [{
-        id: 'original',
-        key: function (req, file, cb) {
-            const uniqueFilename = `profile-${Date.now()}${path.extname(file.originalname)}`;
-            console.log("generated unique name:", uniqueFilename);
-            cb(null, uniqueFilename);
-          },
-        transform: function (req, file, cb) {
-          const transformer = sharp().resize(500).jpeg({ quality: 70 });
-          cb(null, transformer);
-        }
-      }]
-    }),
+  storage: multerS3({
+    s3: s3,
+    bucket: 'golf-pool-profile-pics',
+    contentType: multerS3.AUTO_CONTENT_TYPE,
+    shouldTransform: function (req, file, cb) {
+      cb(null, /^image/i.test(file.mimetype));
+    },
+    transforms: [{
+      id: 'original',
+      key: function (req, file, cb) {
+          const uniqueFilename = `profile-${Date.now()}${path.extname(file.originalname)}`;
+          console.log("generated unique name:", uniqueFilename);
+          cb(null, uniqueFilename);
+        },
+      transform: function (req, file, cb) {
+        const transformer = sharp().resize(500).jpeg({ quality: 70 });
+        cb(null, transformer);
+      }
+    }]
+  }),
 });
 
 router.post('/', upload.single('image'), async (req, res) => {
@@ -75,8 +74,60 @@ router.post('/', upload.single('image'), async (req, res) => {
           return res.status(500).json({ error: 'Internal server error' });
         }
   });
-        
-    
+
+// Middleware to handle JSON payload with base64 image
+const handleJsonUpload = async (req, res, next) => {
+  if (req.is('application/json') && req.body.image && req.body.username) {
+      try {
+          const { image, username } = req.body;
+          const buffer = Buffer.from(image, 'base64');
+          const fileKey = `profile-${Date.now()}.jpg`;
+
+          await s3.upload({
+              Bucket: 'golf-pool-profile-pics',
+              Key: fileKey,
+              Body: buffer,
+              ContentType: 'image/jpeg',
+              ACL: 'public-read'
+          }).promise();
+
+          req.file = {
+              key: fileKey,
+              location: `https://${s3.config.endpoint}/${fileKey}`
+          };
+          req.body = { username };
+
+          next();
+      } catch (error) {
+          console.error('Error processing JSON upload:', error);
+          return res.status(500).json({ error: 'Internal server error' });
+      }
+  } else {
+      next();
+  }
+};
+
+router.post('/native', async (req, res) => {
+  const { username, imageUrl } = req.body;
+
+  try {
+      const user = await User.findOne({ username: username });
+      if (!user) {
+          return res.status(404).json({ error: 'User not found' });
+      }
+      
+      user.profilePic = imageUrl;
+      await user.save();
+      
+      res.status(200).json({
+          message: 'Profile picture updated successfully',
+          profilePic: imageUrl,
+      });
+  } catch (err) {
+      console.error('Error updating profile picture:', err);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 router.get('/:username', async (req, res) => {
     try {

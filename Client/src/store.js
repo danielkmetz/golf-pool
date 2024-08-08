@@ -9,6 +9,7 @@ import NewsReducer from './Features/NewsSlice';
 import PoolsReducer from './Features/poolsSlice';
 import chatReducer from './Features/chatSlice';
 import pastResultsReducer from './Features/pastResultsSlice';
+import balanceReducer from './Features/balanceSlice';
 
 const store = configureStore({
     reducer: combineReducers({
@@ -22,7 +23,9 @@ const store = configureStore({
         pools: PoolsReducer,
         chat: chatReducer,
         pastResults: pastResultsReducer,
+        balance: balanceReducer,
     })
 });
 
 export default store;
+

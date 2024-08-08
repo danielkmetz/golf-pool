@@ -5,9 +5,10 @@ import { selectTotals } from '../../Features/pastResultsSlice';
 
 const WeeklyTotalsMulti = ({ tournaments, usernames, profilePics }) => {
     const totalsData = useSelector(selectTotals);
-    console.log(profilePics);
     // Sort totalsData by totalScore in ascending order
     const sortedTotalsData = [...totalsData].sort((a, b) => a.totalScore - b.totalScore);
+
+    console.log(sortedTotalsData);
 
     return (
         <TableContainer component={Paper}>

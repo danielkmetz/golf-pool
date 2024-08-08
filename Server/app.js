@@ -26,6 +26,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const pastResults = require('./routes/pastResults');
 const twilio = require('./routes/twilio');
+const payouts = require('./routes/sendPayments');
+const balance = require('./routes/accountBalance');
 const { uuid } = require('uuidv4');
 
 connectUserDB();
@@ -40,6 +42,9 @@ const io = new socketIo(server, {
     methods: ['GET', 'POST']
   }
 });
+
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
@@ -171,7 +176,9 @@ app.use('/api/schedule', scheduleRoute);
 app.use('/api/video-tutorial', tutorial);
 app.use('/api/create-pool', createPool);
 app.use('/api/past-results', pastResults);
+app.use('/api/payouts', payouts);
 app.use('/api/twilio', twilio);
+app.use('/api/balance', balance);
 
 app.post('/api/chat', async (req, res) => {
   try {

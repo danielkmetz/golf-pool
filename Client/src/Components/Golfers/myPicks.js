@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Box, Typography, Button, Dialog, Card, } from '@mui/material';
+import { Container, Box, Typography, Button, Dialog, Card, Modal} from '@mui/material';
 import {
   selectTier1Picks,
   selectTier2Picks,
@@ -19,21 +19,24 @@ import {
 } from '../../Features/myPicksSlice';
 import SubmissionWindow from './submissionWindow';
 import axios from 'axios';
-import { selectUsername } from '../../Features/userSlice';
+import { fetchEmail, selectEmail, selectUsername } from '../../Features/userSlice';
 import CheckoutPage from '../Checkout/CheckoutPage';
-import {
-  selectPaymentStatus,
-  fetchPaymentStatus,
-} from '../../Features/paymentStatusSlice';
+import { selectPaymentStatus, fetchPaymentStatus, } from '../../Features/paymentStatusSlice';
 import { addGolferToAvailable, selectOddsResults } from '../../Features/bettingOddsSlice';
 import { addInitialBalance, selectUserPoolData, selectInitialBalance } from '../../Features/poolsSlice';
+import { getAccountBalance, selectUserBalance } from '../../Features/balanceSlice';
+import { withdrawBalance } from '../../Features/balanceSlice';
 
 function MyPicks() {
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
+  const email = useSelector(selectEmail);
   const [goodluck, setGoodluck] = useState(false);
+  const [playableBalance, setPlayableBalance] = useState(false);
   const username = useSelector(selectUsername);
   const [showCheckout, setShowCheckout] = useState(true);
+  const [showBalanceModal, setShowBalanceModal] = useState(false);
+  
   const tier1Picks = useSelector(selectTier1Picks);
   const tier2Picks = useSelector(selectTier2Picks);
   const tier3Picks = useSelector(selectTier3Picks);
@@ -42,11 +45,30 @@ function MyPicks() {
   const paymentStatus = useSelector(selectPaymentStatus);
   const poolInfo = useSelector(selectUserPoolData);
   const balance = useSelector(selectInitialBalance);
+  const accountBalance = useSelector(selectUserBalance);
+  
+  const userAccountBalance = accountBalance?.balance
   const currentDate = new Date();
   const currentDay = currentDate.getDay();
+  const format = poolInfo?.format;
+  const buyIn = poolInfo?.buyIn;
 
-  const format = poolInfo.format;
+  useEffect(() => {
+    if (username) {
+      dispatch(fetchEmail(username));
+    }
+  }, [username, dispatch])
 
+  useEffect(() => {
+    dispatch(getAccountBalance({username, email}))
+  }, [dispatch, username, email])
+  
+  useEffect(() => {
+    if (userAccountBalance > buyIn) {
+      setPlayableBalance(true);
+    }
+  }, [userAccountBalance, buyIn])
+  
   const totalPicksLength = tier1Picks.length + tier2Picks.length + tier3Picks.length + tier4Picks.length;
 
   let isSubmitDisabled;
@@ -55,8 +77,7 @@ function MyPicks() {
   } else {
     isSubmitDisabled = currentDay >= 4 || currentDay === 0 || totalPicksLength < 8;
   }
-  //const isSubmitDisabled = false;
-
+  
   const handleSubmission = async () => {
     try {
       const userPicks = [
@@ -97,6 +118,27 @@ function MyPicks() {
 
   const handleCloseCheckout = () => {
     setShowCheckout(false);
+  };
+
+  const handleUseBalance = () => {
+    setShowBalanceModal(false);
+    handleSubmission();
+    dispatch(withdrawBalance({username, email, adjustment: -buyIn}))
+    setGoodluck(true);
+  };
+  
+  const handleDeclineBalance = () => {
+    setShowBalanceModal(false);
+    setOpen(true);
+  };
+
+  const handleSubmitButtonClick = () => {
+    if (playableBalance) {
+      setShowBalanceModal(true);
+    } else {
+      setOpen(true);
+      setGoodluck(true);
+    }
   };
 
   function findOdds(golferName) {
@@ -156,7 +198,7 @@ function MyPicks() {
       }
     }      
   };
-
+  console.log(playableBalance);
   return (
     <Card className="my-picks" 
       sx={{ 
@@ -183,15 +225,7 @@ function MyPicks() {
           </Typography>
           <Button 
             variant="contained" 
-            onClick={() => {
-              if (paymentStatus) {
-                handleSubmission();
-                setGoodluck(true);
-              } else {
-                setOpen(true);
-                setGoodluck(true);
-              }
-            }} 
+            onClick={handleSubmitButtonClick} 
             disabled={isSubmitDisabled} 
             sx={{
               marginRight: "1rem", 
@@ -210,6 +244,61 @@ function MyPicks() {
             <Typography sx={{ textAlign: 'center' }}>Good luck!</Typography>
           </SubmissionWindow>
         </Container>
+        {/* Render balance modal */}
+        <Modal 
+          open={showBalanceModal} 
+          onClose={() => setShowBalanceModal(false)}
+          disableScrollLock
+          sx={{display: 'flex', }}
+          >
+          <Box 
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              bgcolor: 'background.paper',
+              border: '2px solid #000',
+              boxShadow: 24,
+              p: 4,
+              m: 'auto',
+              maxWidth: '400px',
+              textAlign: 'center'
+            }}
+          >
+            <Typography variant="h6" component="h2">
+              Use your account balance to pay for the buy in?
+            </Typography>
+            <Box mt={2} sx={{ display: 'flex', justifyContent: 'space-around', width: '100%' }}>
+              <Button 
+                variant="contained" 
+                color="primary" 
+                onClick={handleUseBalance}
+                sx={{
+                  backgroundColor: 'green',
+                    '&:hover': {
+                    backgroundColor: 'lightGreen',
+                  }
+                }}
+                >
+                Yes
+              </Button>
+              <Button 
+                variant="contained" 
+                color="secondary" 
+                onClick={handleDeclineBalance}
+                sx={{
+                  backgroundColor: '#222',
+                      '&:hover': {
+                    backgroundColor: 'gray',
+                  }
+                }}
+                >
+                No
+              </Button>
+            </Box>
+          </Box>
+        </Modal>
         {/* Render checkout page as a popup */}
         {!paymentStatus && showCheckout && (
           <Dialog open={open} maxWidth="md" fullWidth>

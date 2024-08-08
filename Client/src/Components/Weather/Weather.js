@@ -62,6 +62,8 @@ function Weather() {
     const day = String(currentDate.getDate()).padStart(2, '0'); // Pad with 0 if needed
     const hours = String(currentDate.getHours()).padStart(2, '0'); // Pad with 0 if needed
 
+    console.log(cachedWeather);
+
     const filteredForecast = (cachedWeather && cachedWeather.data)
     ? cachedWeather.data.filter((forecast) => {
         const forecastDateTime = new Date(forecast.time).getTime();
@@ -118,6 +120,8 @@ function Weather() {
       
         return `${formattedHour} ${amPm}`; // Return formatted time
       };
+
+    console.log(filteredForecast)
 
     return (
         <Container sx={{ marginTop: '1rem', padding: '0',}}>

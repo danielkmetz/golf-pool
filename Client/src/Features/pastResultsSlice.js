@@ -80,7 +80,6 @@ export const fetchUserTotalsForTournaments = createAsyncThunk(
                 const tournamentName = tournament.Name;
                 
                 const response = await axios.post(apiUrl, { tournamentName, usernames: usernamesArray, year });
-                console.log(response.data)
                 response.data.forEach(userResult => {
                     if (!results[userResult.username]) {
                         results[userResult.username] = {

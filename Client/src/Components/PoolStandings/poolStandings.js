@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import axios from 'axios';
 import { 
     TableContainer, 
     Table, 
@@ -22,7 +23,7 @@ import { selectLiveResults } from '../../Features/LeaderboardSlice';
 import { selectTournamentInfo } from '../../Features/TournamentInfoSlice';
 import { selectProfilePics, selectActiveUsers, 
   selectUsers, fetchProfilePics, 
-  fetchUsersWithPicks, selectUsername} from '../../Features/userSlice';
+  fetchUsersWithPicks, selectUsername, } from '../../Features/userSlice';
 import { selectPoolUsers } from '../../Features/poolsSlice';
 import { getRoundScore, sortUsers, } from '../../actions';
 import { sendUserPositionMap } from '../../Features/pastResultsSlice';
@@ -45,8 +46,18 @@ function PoolStandings() {
     const dispatch = useDispatch();
     const activeUsers = useSelector(selectActiveUsers);
     const [podiumOpen, setPodiumOpen] = useState(false);
+    const [shouldFetch, setShouldFetch] = useState(true);
 
     const format = poolInfo.format;
+    const firstPlacePercentage = poolInfo?.payouts?.[0]?.first || 0;
+    const secondPlacePercentage = poolInfo?.payouts?.[0]?.second || 0;
+    const thirdPlacePercentage = poolInfo?.payouts?.[0]?.third || 0;
+    const buyIn = poolInfo?.buyIn || 0;
+
+    const totalActive = activeUsers.length;
+    const firstPlacePayout = Math.floor((totalActive * buyIn) * firstPlacePercentage);
+    const secondPlacePayout = Math.floor((totalActive * buyIn) * secondPlacePercentage);
+    const thirdPlacePayout = Math.floor((totalActive * buyIn) * thirdPlacePercentage);
   
     const currentDate = new Date();
     const currentDay = currentDate.getDay();
@@ -197,7 +208,51 @@ function PoolStandings() {
           });
       }
     }, [isSundayComplete]);
+
+    const today = new Date().toISOString().split('T')[0];
+
+    const topThreeUsersWithEmails = topThreeUsers.map(topUser => {
+      // Find the user in the users array with the same username
+      const userDetails = users.find(user => user.username === topUser.user.username);
     
+      // If userDetails is found, return an object with just username and email
+      if (userDetails) {
+        return {
+          username: topUser.user.username,
+          email: userDetails.email,
+        };
+      }
+    
+      // If no matching user is found, return the username with a null email
+      return {
+        username: topUser.user.username,
+        email: null,
+      };
+    });
+
+    const topThreeUsersWithPayouts = topThreeUsersWithEmails.map((user, index) => {
+      let payoutAmount = 0;
+      if (index === 0) payoutAmount = firstPlacePayout;
+      if (index === 1) payoutAmount = secondPlacePayout;
+      if (index === 2) payoutAmount = thirdPlacePayout;
+      
+      return {
+        ...user,
+        adjustment: payoutAmount,
+      };
+    });
+
+    const isSunday = true;
+
+    useEffect(() => {
+      const balanceUrl = `${process.env.REACT_APP_API_URL}/balance/update-balance`
+      if (isSunday && topThreeUsersWithPayouts.length > 0 && shouldFetch) {
+        setShouldFetch(false);
+        const response = axios.post(balanceUrl, {users: topThreeUsersWithPayouts});
+        return response.data
+      }
+    }, [isSunday, topThreeUsersWithPayouts])
+
     return (
       <>
         <Paper 

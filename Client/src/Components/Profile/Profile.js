@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Avatar, Typography, Paper, Button, Tooltip, CircularProgress, Tab, Tabs, Snackbar, Alert } from '@mui/material';
+import { Box, Avatar, Typography, Paper, Button, Tooltip, CircularProgress, Tab, Tabs, Snackbar, Alert, Modal } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CurrentPicks from './currentPicks'; 
@@ -26,11 +26,20 @@ import { fetchEmail,
     setUsername,
  } from '../../Features/userSlice';
 import { fetchPastResults } from '../../Features/pastResultsSlice';
+import { getAccountBalance, selectUserBalance, changeUsernameAccountBalance } from '../../Features/balanceSlice';
+import AccountBalance from './AccountBalance';
+
+const s3 = new AWS.S3({
+    accessKeyId: 'AKIA3ZD44QTVR4FG3WU6',
+    secretAccessKey: '6x/uP5OhLXy6IKRP924OTOcNR3M8f2ja7aTGmFtX',
+    region: 'us-east-2', // Your S3 bucket region
+});
 
 function Profile() {
     const username = useSelector(selectUsername);
     const email = useSelector(selectEmail);
     const info = useSelector(selectUserPoolData);
+    const balance = useSelector(selectUserBalance);
     const format = info.format;
     const [loading, setLoading] = useState(true);
     const userPhoto = useSelector(selectProfilePic);
@@ -44,6 +53,7 @@ function Profile() {
     const [newUsername, setNewUsername] = useState('');
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [tabValue, setTabValue] = useState(0);
+    const [isBalanceModalOpen, setBalanceModalOpen] = useState(false); // State for balance modal visibility
     const dispatch = useDispatch();
     const currentDate = new Date();
     const currentDay = currentDate.getDay();
@@ -63,6 +73,12 @@ function Profile() {
             setLoading(false)
         }
     }, [dispatch, username, email]);
+
+    useEffect(() => {
+        if (email) {
+            dispatch(getAccountBalance({username, email}))
+        }
+    }, [email])
 
     useEffect(() => {
         if (allUserPicks && allUserPicks.length > 0) {
@@ -104,21 +120,12 @@ function Profile() {
         dispatch(updateUsernamePool({ username, newUsername: trimmedUsername }));
         dispatch(updateUsernamePastResults({ username, newUsername: trimmedUsername }));
         dispatch(updateUsernameChats({ username, newUsername: trimmedUsername }));
+        dispatch(changeUsernameAccountBalance({username, email, newUsername: trimmedUsername}))
         dispatch(resetPoolUsers());
         dispatch(resetActiveUsers());
         handleCloseModal();
         setSnackbarOpen(true);
 
-        // const phoneNumber = '+16308540053'; // Replace with your recipient's phone number
-        // const message = `Your username has been changed to ${trimmedUsername}.`;
-        // const messageVolume = '1000'; // Example message volume, adjust as needed
-
-        // try {
-        // await sendSMS(phoneNumber, message, messageVolume);
-        // console.log('SMS sent successfully');
-        // } catch (error) {
-        // console.error('Error sending SMS:', error);
-            // }
         setTimeout(() => {
             dispatch(setUsername(trimmedUsername));
             setSnackbarOpen(false);
@@ -150,8 +157,15 @@ function Profile() {
         setTabValue(value);
     };
 
-    console.log(info)
-    
+    const handleOpenBalanceModal = () => {
+        setBalanceModalOpen(true);
+    };
+
+    const handleCloseBalanceModal = async () => {
+        setBalanceModalOpen(false);
+        dispatch(getAccountBalance({username, email}));
+    };
+
     return (
         <Box 
             sx={{ 
@@ -163,6 +177,54 @@ function Profile() {
                     marginTop: '1rem',
                 },  
             }}>
+            <Box
+                component="button"
+                onClick={handleOpenBalanceModal}
+                sx={{
+                    backgroundColor: 'lightgray',
+                    border: '1px solid black',
+                    borderRadius: '4px',
+                    position: 'absolute',
+                    padding: '5px 10px',
+                    width: 120,
+                    height: 30,
+                    right: 20,
+                    top: 140,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    textAlign: 'center',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    ':hover': {
+                        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                    },
+                    ':focus': {
+                        outline: 'none',
+                    },
+                }}
+            >
+                Balance: ${balance?.balance}
+            </Box>
+            <Modal
+                open={isBalanceModalOpen}
+                onClose={handleCloseBalanceModal}
+                aria-labelledby="account-balance-modal"
+                aria-describedby="account-balance-modal-description"
+                disableScrollLock
+                sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden'}}
+            >
+                <Box 
+                    sx={{ 
+                        bgcolor: 'background.paper', 
+                        border: '2px solid #000',
+                        justifyContent: 'center', 
+                        boxShadow: 24, 
+                        p: 4 
+                    }}
+                >
+                    <AccountBalance email={email} username={username} onClose={handleCloseBalanceModal}/>
+                </Box>
+            </Modal>
             <Box sx={{ 
                 display: 'flex',
                 justifyContent: 'center',
