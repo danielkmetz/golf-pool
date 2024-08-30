@@ -1,9 +1,14 @@
-import React from 'react';
-import { Box, Modal, Typography, TextField, Button, useMediaQuery, useTheme } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Modal, Typography, TextField, Button, useMediaQuery, useTheme, } from '@mui/material';
 
-function ChangeInfoModal({ open, onClose, newUsername, handleChangeUsername, handleSubmitUsername }) {
+function ChangeInfoModal({ open,  error, setError, onClose, newUsername, handleChangeUsername, handleSubmitUsername }) {
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
+    const handleSubmit = async () => {
+        setError(''); // Clear any existing error message before submitting
+        await handleSubmitUsername(setError);
+    };
 
     return (
         <Modal
@@ -32,11 +37,16 @@ function ChangeInfoModal({ open, onClose, newUsername, handleChangeUsername, han
                     onChange={handleChangeUsername}
                     sx={{ mt: 2 }}
                 />
+                {error && (
+                    <Typography variant="body2" color="error" sx={{ mt: 2 }}>
+                        {error}
+                    </Typography>
+                )}
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
                     <Button onClick={onClose} color="secondary" sx={{ mr: 2 }}>
                         Cancel
                     </Button>
-                    <Button onClick={handleSubmitUsername} variant="contained" color="primary"
+                    <Button onClick={handleSubmit} variant="contained" color="primary"
                         sx={{
                             backgroundColor: '#222',
                             '&:hover': {

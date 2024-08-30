@@ -1,11 +1,33 @@
 import React from 'react';
-import { Container, Typography, Button, Grid, Paper } from '@mui/material';
+import { Container, Typography, Button, Grid, Paper, Modal, Box } from '@mui/material';
 import { Link } from 'react-router-dom';
 import SportsGolfIcon from '@mui/icons-material/SportsGolf';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import GolfBackground from './misty-golf-course.jpg'; 
+import GolfBackground from './misty-golf-course.jpg';
+import { useState } from 'react'; 
 
 const WelcomePage = () => {
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
+
+  const handlePrivacyOpen = () => setPrivacyOpen(true);
+  const handlePrivacyClose = () => setPrivacyOpen(false);
+  const handleContactOpen = () => setContactOpen(true);
+  const handleContactClose = () => setContactOpen(false);
+
+  const modalStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '80%',
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
+    maxHeight: '80vh',
+    overflowY: 'auto',
+  };
+
   return (
     <div
       style={{
@@ -160,6 +182,115 @@ const WelcomePage = () => {
           </Grid>
         </Paper>
         </Paper>
+        {/* Contact and Privacy Links */}
+        <Typography variant="body2" sx={{ marginTop: 4 }}>
+          <span onClick={handleContactOpen} style={{ cursor: 'pointer', textDecoration: 'underline', marginRight: '1rem' }}>Contact</span>
+          <span onClick={handlePrivacyOpen} style={{ cursor: 'pointer', textDecoration: 'underline' }}>Privacy</span>
+        </Typography>
+
+        {/* Privacy Policy Modal */}
+        <Modal
+          open={privacyOpen}
+          onClose={handlePrivacyClose}
+          aria-labelledby="privacy-policy-title"
+          aria-describedby="privacy-policy-description"
+        >
+          <Box sx={modalStyle}>
+            <Typography id="privacy-policy-title" variant="h6" component="h2">
+              Privacy Policy
+            </Typography>
+            <Typography sx={{ mt: 2 }}>
+              Last Updated: 8/15/2024
+            </Typography>
+            <Typography sx={{ mt: 2 }}>
+              The Golf Pool LLC is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and disclose your information when you use our mobile application ("App"). By using the App, you agree to the collection and use of information in accordance with this policy.
+            </Typography>
+            <Typography variant="h6" sx={{ mt: 2 }}>
+              1. Information We Collect
+            </Typography>
+            <Typography sx={{ mt: 1 }}>
+              <strong>Personal Information:</strong> When you create an account, we may collect personal information such as your name, email address, and username.
+            </Typography>
+            <Typography sx={{ mt: 1 }}>
+              <strong>Usage Data:</strong> We may collect information on how the App is accessed and used, including your device's IP address, browser type, version, the pages of our App that you visit, the time and date of your visit, and other diagnostic data.
+            </Typography>
+            <Typography sx={{ mt: 1 }}>
+              <strong>Cookies:</strong> We may use cookies and similar tracking technologies to track the activity on our App and store certain information.
+            </Typography>
+            <Typography variant="h6" sx={{ mt: 2 }}>
+              2. How We Use Your Information
+            </Typography>
+            <Typography sx={{ mt: 1 }}>
+              We use the collected data for various purposes:
+            </Typography>
+            <Typography sx={{ ml: 2 }}>
+              - To provide and maintain the App.<br />
+              - To notify you about changes to our App.<br />
+              - To allow you to participate in interactive features of our App when you choose to do so.<br />
+              - To provide customer support.<br />
+              - To monitor the usage of the App.<br />
+              - To detect, prevent, and address technical issues.<br />
+              - To personalize your experience and provide content and features that match your interests.
+            </Typography>
+            <Typography variant="h6" sx={{ mt: 2 }}>
+              3. Sharing of Your Information
+            </Typography>
+            <Typography sx={{ mt: 1 }}>
+              We may share your information with:
+            </Typography>
+            <Typography sx={{ ml: 2 }}>
+              <strong>Service Providers:</strong> We may employ third-party companies and individuals to facilitate our App, provide the service on our behalf, perform service-related services, or assist us in analyzing how our App is used. These third parties have access to your Personal Information only to perform these tasks on our behalf and are obligated not to disclose or use it for any other purpose.
+            </Typography>
+            <Typography sx={{ mt: 1, ml: 2 }}>
+              <strong>Legal Requirements:</strong> We may disclose your Personal Information if required to do so by law or in response to valid requests by public authorities (e.g., a court or a government agency).
+            </Typography>
+            <Typography variant="h6" sx={{ mt: 2 }}>
+              4. Security of Your Information
+            </Typography>
+            <Typography sx={{ mt: 1 }}>
+              We value your trust in providing us with your Personal Information, and we strive to use commercially acceptable means of protecting it. However, please remember that no method of transmission over the internet or method of electronic storage is 100% secure, and we cannot guarantee its absolute security.
+            </Typography>
+            <Typography variant="h6" sx={{ mt: 2 }}>
+              5. Your Data Protection Rights
+            </Typography>
+            <Typography sx={{ mt: 1 }}>
+              Depending on your location, you may have the following rights regarding your Personal Information:
+            </Typography>
+            <Typography sx={{ ml: 2 }}>
+              - The right to access – You have the right to request copies of your Personal Information.<br />
+              - The right to rectification – You have the right to request that we correct any information you believe is inaccurate.<br />
+              - The right to erasure – You have the right to request that we erase your Personal Information under certain conditions.<br />
+              - The right to restrict processing – You have the right to request that we restrict the processing of your Personal Information under certain conditions.<br />
+              - The right to object to processing – You have the right to object to our processing of your Personal Information under certain conditions.<br />
+              - The right to data portability – You have the right to request that we transfer the data that we have collected to another organization, or directly to you, under certain conditions.
+            </Typography>
+            <Typography variant="h6" sx={{ mt: 2 }}>
+              6. Links to Other Sites
+            </Typography>
+            <Typography sx={{ mt: 1 }}>
+              Our App may contain links to other sites that are not operated by us. If you click on a third-party link, you will be directed to that third party's site.
+            </Typography>
+          </Box>
+        </Modal>
+
+        {/* Contact Modal */}
+        <Modal
+          open={contactOpen}
+          onClose={handleContactClose}
+          aria-labelledby="contact-title"
+          aria-describedby="contact-description"
+        >
+          <Box sx={modalStyle}>
+            <Typography id="contact-title" variant="h6" component="h2">
+              Contact Us
+            </Typography>
+            <Typography id="contact-description" sx={{ mt: 2 }}>
+              Questions about The Golf Pool? Please contact us at the following email:
+              <br />
+              <a href="mailto:thegolfpoolhelp@gmail.com">thegolfpoolhelp@gmail.com</a>
+            </Typography>
+          </Box>
+        </Modal>
       </Container>
     </div>
   );

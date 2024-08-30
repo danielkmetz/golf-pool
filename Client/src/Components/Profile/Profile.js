@@ -29,12 +29,6 @@ import { fetchPastResults } from '../../Features/pastResultsSlice';
 import { getAccountBalance, selectUserBalance, changeUsernameAccountBalance } from '../../Features/balanceSlice';
 import AccountBalance from './AccountBalance';
 
-const s3 = new AWS.S3({
-    accessKeyId: 'AKIA3ZD44QTVR4FG3WU6',
-    secretAccessKey: '6x/uP5OhLXy6IKRP924OTOcNR3M8f2ja7aTGmFtX',
-    region: 'us-east-2', // Your S3 bucket region
-});
-
 function Profile() {
     const username = useSelector(selectUsername);
     const email = useSelector(selectEmail);
@@ -52,6 +46,7 @@ function Profile() {
     const [openModal, setOpenModal] = useState(false);
     const [newUsername, setNewUsername] = useState('');
     const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [error, setError] = useState('');
     const [tabValue, setTabValue] = useState(0);
     const [isBalanceModalOpen, setBalanceModalOpen] = useState(false); // State for balance modal visibility
     const dispatch = useDispatch();
@@ -114,24 +109,35 @@ function Profile() {
     const handleSubmitUsername = async () => {
         // Trim the new username before dispatching the actions
         const trimmedUsername = newUsername.trim();
-        // Send the updated username to your backend route for updating user data
-        dispatch(updateUsername({ username, newUsername: trimmedUsername, token }));
-        dispatch(updateUsernameMyPicks({ username, newUsername: trimmedUsername }));
-        dispatch(updateUsernamePool({ username, newUsername: trimmedUsername }));
-        dispatch(updateUsernamePastResults({ username, newUsername: trimmedUsername }));
-        dispatch(updateUsernameChats({ username, newUsername: trimmedUsername }));
-        dispatch(changeUsernameAccountBalance({username, email, newUsername: trimmedUsername}))
-        dispatch(resetPoolUsers());
-        dispatch(resetActiveUsers());
-        handleCloseModal();
-        setSnackbarOpen(true);
-
-        setTimeout(() => {
+        
+        try {
+          const resultAction = await dispatch(updateUsername({ username, newUsername: trimmedUsername, token }));
+          if (updateUsername.rejected.match(resultAction)) {
+            // The update failed, set the error message
+            setError(resultAction.payload || 'Failed to update username. Please try again.');
+            return;
+          }
+      
+          // Dispatch other actions if the update was successful
+          dispatch(updateUsernameMyPicks({ username, newUsername: trimmedUsername }));
+          dispatch(updateUsernamePool({ username, newUsername: trimmedUsername }));
+          dispatch(updateUsernamePastResults({ username, newUsername: trimmedUsername }));
+          dispatch(updateUsernameChats({ username, newUsername: trimmedUsername }));
+          dispatch(changeUsernameAccountBalance({ username, email, newUsername: trimmedUsername }));
+          dispatch(resetPoolUsers());
+          dispatch(resetActiveUsers());
+          handleCloseModal();
+          setSnackbarOpen(true);
+      
+          setTimeout(() => {
             dispatch(setUsername(trimmedUsername));
             setSnackbarOpen(false);
-        }, 2000);
-    };
-    
+          }, 2000);
+        } catch (error) {
+          console.error('Error submitting username change:', error);
+        }
+      };
+      
     const handleFileChange = (event) => {
         const image = event.target.files[0];
         const reader = new FileReader();
@@ -304,6 +310,8 @@ function Profile() {
                             newUsername={newUsername}
                             handleChangeUsername={handleChangeUsername}
                             handleSubmitUsername={handleSubmitUsername}
+                            error={error}
+                            setError={setError}
                         />
                     </Paper>
                 )}

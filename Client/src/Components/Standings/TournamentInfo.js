@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 function TournamentInfo() {
     const dispatch = useDispatch();
     const tournamentInfo = useSelector(selectTournamentInfo);
-
+    
     useEffect(() => {
         dispatch(fetchTournamentInfo());
     }, [dispatch]);

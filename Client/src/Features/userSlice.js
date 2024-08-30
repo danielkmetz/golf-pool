@@ -17,7 +17,7 @@ export const fetchUsers = createAsyncThunk(
 
 export const updateUsername = createAsyncThunk(
     'users/updateUsername',
-    async ({ username, newUsername, token }, { dispatch }) => {
+    async ({ username, newUsername, token }, { rejectWithValue }) => {
       try {
         const response = await axios.put(
           `${process.env.REACT_APP_API_URL}/users/${username}`,
@@ -30,18 +30,21 @@ export const updateUsername = createAsyncThunk(
             },
           }
         );
-
-        //dispatch(userSlice.actions.setUsername(newUsername));
-        localStorage.setItem('token', response.data.token)
+  
+        localStorage.setItem('token', response.data.token);
         return response.data;
       } catch (error) {
-        // Handle errors
+        if (error.response && error.response.status === 409) {
+          // Return a custom error message
+          return rejectWithValue('Username already taken. Please choose another one.');
+        }
+        // Handle other errors
         console.error('Error updating username:', error);
         throw error; // Rethrow the error to be caught by the caller
       }
     }
   );
-
+  
 export const updateUsernameMyPicks = createAsyncThunk(
     'users/updateUsernameMyPicks',
     async ({ username, newUsername}) => {

@@ -21,7 +21,7 @@ const fetchWeatherData = async (lat, long) => {
         const scheduleUrl = `${process.env.REACT_APP_API_URL}/schedule`;
         const response = await fetch(scheduleUrl);
         const tournaments = await response.json();
-        
+        console.log(tournaments)
         const currentDate = new Date();
         const currentDay = currentDate.getDay();
         const thursdayDate = getThursdayDate(currentDay, currentDate);
@@ -38,7 +38,7 @@ const fetchWeatherData = async (lat, long) => {
         return thursdayTournament;
     }
   );
-  
+
   export const fetchGeoCode = createAsyncThunk(
     'tournamentInfo/fetchGeoCode',
     async ({ city, state, country }, { dispatch, getState }) => {
