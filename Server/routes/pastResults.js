@@ -58,7 +58,7 @@ router.post('/save', async (req, res) => {
 
         // Check if any result object is missing required fields
         const hasInvalidResults = results.some(
-            result => !result.date || !result.tournamentName || !result.position
+            result => !result.year || !result.tournamentName || !result.position
         );
 
         if (hasInvalidResults) {

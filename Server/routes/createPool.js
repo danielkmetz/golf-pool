@@ -47,13 +47,27 @@ router.get('/users-in-pool', async (req, res) => {
         return res.status(404).json({ message: 'Pool not found' });
       }
   
-      // Return the users in the pool
-      res.json(pool.users);
+      // Extract the array of users
+      const users = pool.users;
+  
+      // Use a Set to filter out duplicate usernames
+      const uniqueUsernames = new Set();
+      const uniqueUsers = [];
+  
+      users.forEach(user => {
+        if (!uniqueUsernames.has(user.username)) {
+          uniqueUsernames.add(user.username);
+          uniqueUsers.push(user);
+        }
+      });
+  
+      // Return the unique users in the pool
+      res.json(uniqueUsers);
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Server error' });
     }
-  });  
+  });    
 
 router.put('/join', async (req, res) => {
     const { poolName, username, } = req.body;
@@ -84,7 +98,7 @@ router.get('/user-pool-name', async (req, res) => {
   
     try {
       // Find a pool where the user's username exists in the users array
-      const pool = await Pool.findOne({ 'users.username': username });
+      const pool = await Pool.findOne({ 'users.username': username }).select('poolName');
       if (!pool) {
         return res.status(404).json({ message: 'User not found in any pool' });
       }
@@ -127,6 +141,7 @@ router.get('/pools', async (req, res) => {
     }
 });
 
+//remove user from pool
 router.delete('/remove-user', async (req, res) => {
     const { poolName, username } = req.body;
 
@@ -299,6 +314,24 @@ router.put('/edit-pool', async (req, res) => {
         res.status(200).json(pool);
     } catch (error) {
         res.status(500).json({ message: 'Error updating pool', error });
+    }
+});
+
+// DELETE request to remove a pool entirely
+router.delete('/delete-pool', async (req, res) => {
+    const { poolName } = req.body;
+
+    try {
+        // Find and delete the pool by pool name
+        const pool = await Pool.findOneAndDelete({ poolName });
+        
+        if (!pool) {
+            return res.status(404).json({ message: 'Pool not found.' });
+        }
+
+        res.status(200).json({ message: 'Pool deleted successfully.', pool });
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting pool', error });
     }
 });
 

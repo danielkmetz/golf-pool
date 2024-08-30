@@ -13,7 +13,15 @@ const UserSchema = new mongoose.Schema({
     lastReadMessageTimestamp: {
       type: Date,
       default: Date.now,
-  },
+    },
+    userPushToken: { 
+      type: String,
+      default: null,
+    },
+    positionNotification: {
+      type: Boolean,
+      default: false,
+    },
 });
 
 // Middleware to update payment expiry date before saving the user

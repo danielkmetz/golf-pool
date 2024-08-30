@@ -2,7 +2,6 @@
 const express = require('express');
 const router = express.Router();
 const UserPick = require('../models/userPicks');
-const cron = require('node-cron');
 
 router.post('/save', async (req, res) => {
     const { username, userPicks } = req.body;

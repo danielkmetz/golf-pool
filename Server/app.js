@@ -28,6 +28,7 @@ const pastResults = require('./routes/pastResults');
 const twilio = require('./routes/twilio');
 const payouts = require('./routes/sendPayments');
 const balance = require('./routes/accountBalance');
+const push = require('./routes/pushNotifications');
 const { uuid } = require('uuidv4');
 
 connectUserDB();
@@ -56,17 +57,28 @@ io.on('connection', (socket) => {
 
   socket.on('chatMessage', async (msg) => {
       console.log('Received chat message:', msg);
+
+      // Get the current date and time
+      let now = new Date();
+      
+      // Subtract 5 hours from the current time
+      now.setHours(now.getHours() - 5);
+
+      // Create a new message with the adjusted timestamp
       const newMessage = new Message({
           username: msg.username,
           message: msg.message,
           poolName: msg.poolName,
+          timestamp: now // Save the timestamp minus 5 hours
       });
+
       try {
           await newMessage.save();
           io.to(msg.poolName).emit('chatMessage', {
               username: newMessage.username,
               message: newMessage.message,
-              poolName: newMessage.poolName
+              poolName: newMessage.poolName,
+              timestamp: newMessage.timestamp // Include the timestamp in the emitted message
           });
           console.log('Emitted chat message to pool:', msg.poolName);
       } catch (err) {
@@ -125,9 +137,10 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
+//endpoint to login
 app.post('/api/login', passport.authenticate('local'), (req, res) => {
   console.log('Received POST request to /api/login');
-  const token = jwt.sign({ username: req.user.username }, secret, { expiresIn: '1h' });
+  const token = jwt.sign({ username: req.user.username }, secret);
   res.setHeader('Content-Type', 'application/json');
   res.json({ message: 'Login successful', token });
 });
@@ -137,15 +150,25 @@ app.put('/api/users/:username', async (req, res) => {
   const username = req.params.username;
 
   try {
-    const user = await User.findOne({ username });
+    // Check if the new username already exists in the database
+    const existingUser = await User.findOne({ username: newUsername });
+    if (existingUser) {
+      return res.status(409).json({ success: false, message: 'Username already taken' });
+    }
 
+    // Find the current user by the old username
+    const user = await User.findOne({ username });
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
+
+    // Update the username
     user.username = newUsername;
     await user.save();
+
     const existingToken = req.headers.authorization.split(' ')[1]; // Assuming the token is sent in the Authorization header
-    console.log(existingToken);
+    console.log(`Existing token: ${existingToken}`);
+
     // Verify the existing token
     const decoded = jwt.verify(existingToken, secret);
 
@@ -153,7 +176,7 @@ app.put('/api/users/:username', async (req, res) => {
     decoded.username = newUsername;
 
     // Generate a new token with the updated payload
-    const token = jwt.sign({ username: newUsername}, secret, { expiresIn: '1h' });
+    const token = jwt.sign({ username: newUsername }, secret);
 
     res.json({ username: newUsername, token: token });
   } catch (error) {
@@ -179,6 +202,7 @@ app.use('/api/past-results', pastResults);
 app.use('/api/payouts', payouts);
 app.use('/api/twilio', twilio);
 app.use('/api/balance', balance);
+app.use('/api/push', push);
 
 app.post('/api/chat', async (req, res) => {
   try {

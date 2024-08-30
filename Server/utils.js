@@ -12,3 +12,4 @@ function getNextThursdayDate() {
   }
 
 module.exports = getNextThursdayDate;  
+

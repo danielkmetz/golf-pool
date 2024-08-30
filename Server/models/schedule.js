@@ -13,3 +13,4 @@ const scheduleSchema = new mongoose.Schema({
 const scheduleModel = mongoose.model('schedule', scheduleSchema);
 
 module.exports = scheduleModel;
+
