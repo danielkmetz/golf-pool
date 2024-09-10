@@ -29,6 +29,7 @@ const twilio = require('./routes/twilio');
 const payouts = require('./routes/sendPayments');
 const balance = require('./routes/accountBalance');
 const push = require('./routes/pushNotifications');
+const Pool = require('./models/createPool');
 const { uuid } = require('uuidv4');
 
 connectUserDB();
@@ -61,19 +62,30 @@ io.on('connection', (socket) => {
       // Get the current date and time
       let now = new Date();
       
-      // Subtract 5 hours from the current time
+      // Subtract 5 hours from the current time (if needed, depending on timezone adjustment)
       now.setHours(now.getHours() - 5);
 
-      // Create a new message with the adjusted timestamp
-      const newMessage = new Message({
+      // Create a new message object (similar to messageSchema)
+      const newMessage = {
           username: msg.username,
           message: msg.message,
           poolName: msg.poolName,
-          timestamp: now // Save the timestamp minus 5 hours
-      });
+          timestamp: now // Save the adjusted timestamp
+      };
 
       try {
-          await newMessage.save();
+          // Find the pool by poolName and update the messages array
+          const pool = await Pool.findOneAndUpdate(
+            { poolName: msg.poolName },
+            { $push: { messages: newMessage } }, // Add the new message to the messages array
+            { new: true } // Return the updated pool
+          );
+
+          if (!pool) {
+              return console.error('Pool not found');
+          }
+
+          // Emit the message to all clients in the same pool
           io.to(msg.poolName).emit('chatMessage', {
               username: newMessage.username,
               message: newMessage.message,
@@ -81,6 +93,7 @@ io.on('connection', (socket) => {
               timestamp: newMessage.timestamp // Include the timestamp in the emitted message
           });
           console.log('Emitted chat message to pool:', msg.poolName);
+
       } catch (err) {
           console.error('Error saving message:', err);
       }
@@ -166,17 +179,17 @@ app.put('/api/users/:username', async (req, res) => {
     user.username = newUsername;
     await user.save();
 
-    const existingToken = req.headers.authorization.split(' ')[1]; // Assuming the token is sent in the Authorization header
+    const existingToken = req.headers.authorization.split(' ')[1]; // Extract the existing token
     console.log(`Existing token: ${existingToken}`);
 
     // Verify the existing token
     const decoded = jwt.verify(existingToken, secret);
 
-    // Update the payload with the new username
-    decoded.username = newUsername;
+    // Update the payload with the new username and any other fields present
+    const updatedPayload = { ...decoded, username: newUsername };
 
     // Generate a new token with the updated payload
-    const token = jwt.sign({ username: newUsername }, secret);
+    const token = jwt.sign(updatedPayload, secret);
 
     res.json({ username: newUsername, token: token });
   } catch (error) {
@@ -184,7 +197,7 @@ app.put('/api/users/:username', async (req, res) => {
     console.error('Error updating username:', error);
     res.status(500).json({ success: false, message: 'Failed to update username' });
   }
-}); 
+});
 
 app.use('/api/userpicks', userPicksRoutes);
 app.use('/api/auth', authRoutes);
@@ -232,10 +245,15 @@ app.get('/api/chat', async (req, res) => {
   try {
     const { poolName } = req.query;
 
-    // Fetch messages from the database for the specified poolName
-    const messages = await Message.find({ poolName }).sort({ createdAt: 1 });
+    // Fetch the pool by poolName and retrieve the messages
+    const pool = await Pool.findOne({ poolName }, { messages: 1 }).sort({ "messages.timestamp": 1 });
 
-    res.status(200).json({ success: true, messages });
+    if (!pool) {
+      return res.status(404).json({ success: false, message: 'Pool not found' });
+    }
+
+    // Return the messages from the pool
+    res.status(200).json({ success: true, messages: pool.messages });
   } catch (error) {
     console.error('Error fetching messages:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch messages' });
@@ -244,15 +262,22 @@ app.get('/api/chat', async (req, res) => {
 
 app.put('/api/chat/update-username/:username', async (req, res) => {
   try {
-    const oldUsername = req.params.username
+    const oldUsername = req.params.username;
     const { newUsername } = req.body;
 
     if (!oldUsername || !newUsername) {
       return res.status(400).json({ success: false, message: 'Both oldUsername and newUsername are required' });
     }
 
-    // Update all messages with the old username to the new username
-    const result = await Message.updateMany({ username: oldUsername }, { username: newUsername });
+    // Find all pools that contain messages from the old username
+    const result = await Pool.updateMany(
+      { 'messages.username': oldUsername }, // Find pools with messages from the old username
+      { $set: { 'messages.$[elem].username': newUsername } }, // Update the username for matching messages
+      {
+        arrayFilters: [{ 'elem.username': oldUsername }], // Filter to target only the messages with the old username
+        multi: true // Apply to all matching pools
+      }
+    );
 
     if (result.nModified > 0) {
       res.status(200).json({ success: true, message: 'Username updated successfully on all messages' });
@@ -262,6 +287,32 @@ app.put('/api/chat/update-username/:username', async (req, res) => {
   } catch (error) {
     console.error('Error updating username on messages:', error);
     res.status(500).json({ success: false, message: 'Failed to update username on messages' });
+  }
+});
+
+app.delete('/api/chat/delete-user/:username', async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    if (!username) {
+      return res.status(400).json({ success: false, message: 'Username is required' });
+    }
+
+    // Find all pools that contain messages from the specified username and remove those messages
+    const result = await Pool.updateMany(
+      { 'messages.username': username }, // Find pools with messages from the username
+      { $pull: { messages: { username } } }, // Remove all messages with the specified username
+      { multi: true } // Ensure it applies to all matching pools
+    );
+
+    if (result.nModified === 0) {
+      return res.status(404).json({ success: false, message: 'No messages found for this user' });
+    }
+
+    res.status(200).json({ success: true, message: 'User and their messages deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting user and their messages:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete user and their messages' });
   }
 });
 

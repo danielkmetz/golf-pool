@@ -6,6 +6,10 @@ const UserPickSchema = new mongoose.Schema({
     ref: 'users', // Reference to the User model
     required: true
   },
+  poolName: {
+    type: String,
+    default: null,
+  },
   userPicks: [{tier: {type: String, required: true}, golferName: [{type: String, required: true}]}]
 });
 

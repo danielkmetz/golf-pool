@@ -3,18 +3,6 @@ const getNextThursdayDate = require('../utils');
 const express = require('express');
 const router = express.Router();
 const User = require('../models/users'); // Assuming your User model is in models/User.js
-const cron = require('node-cron');
-const Pool = require('../models/createPool')
-
-cron.schedule('0 0 * * 0', async () => {
-  try {
-    // Update the paymentStatus of all users to false
-    await User.updateMany({}, { paymentStatus: false });
-    console.log('Payment statuses reset to false for all users');
-  } catch (error) {
-    console.error('Error resetting payment statuses:', error);
-  }
-});
 
 // Route to get all users (for admin purposes, optional)
 router.get('/', async (req, res) => {
@@ -44,7 +32,8 @@ router.get('/:username', async (req, res) => {
 // Route to delete a user
 router.delete('/:username', async (req, res) => {
   try {
-    const deletedUser = await User.findByIdAndDelete(req.params.id);
+    const { username } = req.params;
+    const deletedUser = await User.findByOneAndDelete({ username });
 
     if (!deletedUser) {
       return res.status(404).json({ message: 'User not found' });

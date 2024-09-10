@@ -21,9 +21,7 @@ export const updateUsername = createAsyncThunk(
       try {
         const response = await axios.put(
           `${process.env.REACT_APP_API_URL}/users/${username}`,
-          {
-            newUsername: newUsername,
-          },
+          { newUsername },
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -31,20 +29,20 @@ export const updateUsername = createAsyncThunk(
           }
         );
   
-        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('token', response.data.token); // Save the new token in localStorage
         return response.data;
       } catch (error) {
         if (error.response && error.response.status === 409) {
-          // Return a custom error message
+          // Return a custom error message if username is taken
           return rejectWithValue('Username already taken. Please choose another one.');
         }
         // Handle other errors
         console.error('Error updating username:', error);
-        throw error; // Rethrow the error to be caught by the caller
+        return rejectWithValue('Failed to update username.'); // Send a generic failure message
       }
     }
   );
-  
+    
 export const updateUsernameMyPicks = createAsyncThunk(
     'users/updateUsernameMyPicks',
     async ({ username, newUsername}) => {

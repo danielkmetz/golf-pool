@@ -142,4 +142,27 @@ router.post('/withdraw-balance', async (req, res) => {
     }
 });
 
+// DELETE endpoint to delete a user
+router.delete('/delete-user', async (req, res) => {
+    const { username, email } = req.body;
+
+    if (!username || !email) {
+        return res.status(400).json({ error: 'Invalid input data' });
+    }
+
+    try {
+        // Find and delete the user by username and email
+        const deletedUser = await Balance.findOneAndDelete({ username, email });
+
+        if (!deletedUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.status(200).json({ message: 'User deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({ error: 'Failed to delete user' });
+    }
+});
+
 module.exports = router;

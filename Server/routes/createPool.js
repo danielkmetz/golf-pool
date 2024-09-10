@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
 const Pool = require('../models/createPool');
 
 router.post('/', async (req, res) => {
     const { admin, email, poolName, format, maxUsers,
-         buyIn, payouts, users, isPrivate, password, numTournaments, tournaments } = req.body;
+         buyIn, payouts, users, isPrivate, password, numTournaments, tournaments, round } = req.body;
 
     try {
         // Check if a pool with the same username and pool name already exists
@@ -28,6 +27,7 @@ router.post('/', async (req, res) => {
             password,
             numTournaments,
             tournaments,
+            round,
         });
 
         await newPool.save();
@@ -334,6 +334,110 @@ router.delete('/delete-pool', async (req, res) => {
         res.status(500).json({ message: 'Error deleting pool', error });
     }
 });
+
+// Get a user's payment status using poolName and username
+router.get('/payment-status', async (req, res) => {
+    const { poolName, username } = req.query;
+
+    try {
+        // Find the pool by pool name
+        const pool = await Pool.findOne({ poolName });
+        if (!pool) {
+            return res.status(404).json({ message: 'Pool not found.' });
+        }
+
+        // Find the user in the pool's users array
+        const user = pool.users.find(user => user.username === username);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found in this pool.' });
+        }
+
+        // Return the user's payment status
+        res.status(200).json({ paymentStatus: user.paymentStatus });
+    } catch (error) {
+        console.error('Error fetching payment status:', error);
+        res.status(500).json({ message: 'Error fetching payment status', error });
+    }
+});
+
+// Update a user's payment status to false using poolName and username
+router.put('/update-payment-status', async (req, res) => {
+    const { poolName, username } = req.body;
+
+    try {
+        // Find the pool by pool name
+        const pool = await Pool.findOne({ poolName });
+        if (!pool) {
+            return res.status(404).json({ message: 'Pool not found.' });
+        }
+
+        // Find the user in the pool's users array
+        const user = pool.users.find(user => user.username === username);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found in this pool.' });
+        }
+
+        // Update the user's payment status to false
+        user.paymentStatus = true;
+        await pool.save();
+
+        res.status(200).json({ message: 'Payment status updated to true.', user });
+    } catch (error) {
+        console.error('Error updating payment status:', error);
+        res.status(500).json({ message: 'Error updating payment status', error });
+    }
+});
+
+
+// Update payment status to false for a batch of users in a pool
+router.put('/batch-update-payment-status', async (req, res) => {
+    const { poolName, usernames } = req.body;
+
+    try {
+        // Find the pool by pool name
+        const pool = await Pool.findOne({ poolName });
+        if (!pool) {
+            return res.status(404).json({ message: 'Pool not found.' });
+        }
+
+        // Update the payment status of each user in the usernames array
+        const updatedUsers = [];
+        pool.users.forEach(user => {
+            if (usernames.includes(user.username)) {
+                user.paymentStatus = false;
+                updatedUsers.push(user.username);
+            }
+        });
+
+        // Save the updated pool document
+        await pool.save();
+
+        // Return the updated list of users whose payment status was changed
+        res.status(200).json({ message: 'Payment status updated to false for selected users.', updatedUsers });
+    } catch (error) {
+        console.error('Error updating payment status for batch:', error);
+        res.status(500).json({ message: 'Error updating payment status for batch', error });
+    }
+});
+
+router.get('/all-pools', async (req, res) => {
+    const { username } = req.query;
+  
+    try {
+      // Find all pools where the user's username exists in the users array
+      const pools = await Pool.find({ 'users.username': username }).select('poolName');
+      if (!pools.length) {
+        return res.status(404).json({ message: 'User not found in any pool' });
+      }
+  
+      // Return an array of pool names where the user is found
+      res.json({ poolNames: pools.map(pool => pool.poolName) });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+  
 
 module.exports = router;
 

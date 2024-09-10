@@ -141,4 +141,27 @@ router.put('/update-username/:username', async (req, res) => {
     }
 });
 
+// DELETE endpoint to delete a user and their past results
+router.delete('/delete-user/:username', async (req, res) => {
+    try {
+        const { username } = req.params;
+
+        if (!username) {
+            return res.status(400).json({ error: 'Username is required' });
+        }
+
+        // Find and delete the user's past results by username
+        const deletedUser = await pastResults.findOneAndDelete({ username });
+
+        if (!deletedUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.status(200).json({ message: 'User and their past results deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({ error: 'Failed to delete user' });
+    }
+});
+
 module.exports = router;

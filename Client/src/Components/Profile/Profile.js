@@ -112,6 +112,7 @@ function Profile() {
         
         try {
           const resultAction = await dispatch(updateUsername({ username, newUsername: trimmedUsername, token }));
+          
           if (updateUsername.rejected.match(resultAction)) {
             // The update failed, set the error message
             setError(resultAction.payload || 'Failed to update username. Please try again.');
@@ -136,8 +137,7 @@ function Profile() {
         } catch (error) {
           console.error('Error submitting username change:', error);
         }
-      };
-      
+      };  
     const handleFileChange = (event) => {
         const image = event.target.files[0];
         const reader = new FileReader();

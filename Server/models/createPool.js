@@ -3,6 +3,10 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
     username: String,
     email: String,
+    paymentStatus: {
+        type: Boolean,
+        default: false,
+    }
 });
 
 const payoutSchema = new mongoose.Schema({
@@ -21,7 +25,13 @@ const tournamentSchema = new mongoose.Schema({
     State: String,
     Week: Number,
     _id: String,
-})
+});
+
+const messageSchema = new mongoose.Schema({
+    username: String,
+    message: String,
+    timestamp: { type: Date, default: Date.now },
+  });
 
 const poolSchema = new mongoose.Schema({
     admin: String,
@@ -39,6 +49,11 @@ const poolSchema = new mongoose.Schema({
     password: String,
     numTournaments: Number,
     tournaments: [tournamentSchema],
+    round: String,
+    messages: {
+        type: [messageSchema],
+        default: [],
+    }
 });
 
 const createPool = mongoose.model('Pool', poolSchema);

@@ -6,7 +6,6 @@ const getNextThursdayDate = require('../utils');
 const UserSchema = new mongoose.Schema({
     username: { type: String, unique: true },
     password: String,
-    paymentStatus: { type: Boolean, default: false }, // Default to false indicating unpaid
     paymentExpiryDate: Date,
     email: String,
     profilePic: String,
