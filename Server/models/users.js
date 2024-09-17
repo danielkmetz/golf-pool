@@ -17,6 +17,10 @@ const UserSchema = new mongoose.Schema({
       type: String,
       default: null,
     },
+    experienceId: {
+      type: String,
+      default: null,
+    },
     positionNotification: {
       type: Boolean,
       default: false,

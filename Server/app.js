@@ -316,6 +316,10 @@ app.delete('/api/chat/delete-user/:username', async (req, res) => {
   }
 });
 
+app.get('/api/healthcheck', (req, res) => {
+  res.status(200).send('OK');
+});
+
 const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {

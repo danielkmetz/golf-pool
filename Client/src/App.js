@@ -11,6 +11,7 @@ import HowTo from './Components/HowTo/HowTo';
 import CreatePool from './Components/CreatePool/CreatePool';
 import JoinPool from './Components/JoinPool/JoinPool';
 import Welcome from './Components/Welcome/Welcome';
+import ResetPassword from './Components/ResetPassword/ResetPassword';
 import { fetchUsername, selectUsername } from './Features/userSlice';
 import { fetchPoolUsers, 
   resetPoolUsers, 
@@ -91,6 +92,7 @@ function App() {
         <Route path="/golfers" element={isLoggedIn ? <Golfers /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
         <Route path="/profile" element={isLoggedIn ? <Profile /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
         <Route path="/user-profile/:username" element={isLoggedIn ? <UserProfile /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
       </Routes>
       </div>
     </div>
@@ -98,3 +100,5 @@ function App() {
 }
 
 export default App;
+
+

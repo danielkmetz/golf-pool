@@ -80,14 +80,26 @@ router.get('/:username/:poolName', async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
+    const { poolName } = req.query;  // Retrieve poolName from query parameters
+
+    if (!poolName) {
+        return res.status(400).json({ message: 'poolName is required' });
+    }
+
     try {
-        const allUserPicks = await UserPick.find();
-        res.status(200).json(allUserPicks);
+        const userPicksByPool = await UserPick.find({ poolName });
+        
+        if (userPicksByPool.length === 0) {
+            return res.status(404).json({ message: `No user picks found for poolName: ${poolName}` });
+        }
+
+        res.status(200).json(userPicksByPool);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Error getting all user picks' });
+        res.status(500).json({ message: 'Error retrieving user picks for the specified poolName' });
     }
 });
+
 
 router.post('/users-picks', async (req, res) => {
     const { usernames, poolName } = req.body; // Expect an array of usernames and a poolName
@@ -119,7 +131,39 @@ router.post('/users-picks', async (req, res) => {
     }
 });
 
+router.delete('/delete-users-picks', async (req, res) => {
+    const { userPools } = req.body; // Expect an array of objects with username and poolName
 
+    if (!userPools || !Array.isArray(userPools) || userPools.length === 0) {
+        return res.status(400).json({ message: 'userPools must be a non-empty array of objects' });
+    }
+
+    try {
+        // Loop through each object in the array and delete the associated user picks
+        const deleteResults = await Promise.all(userPools.map(async (userPool) => {
+            const { username, poolName } = userPool;
+
+            const result = await UserPick.deleteMany({ username, poolName });
+            return {
+                username,
+                poolName,
+                deletedCount: result.deletedCount
+            };
+        }));
+
+        // Check if any deletions were made
+        const totalDeleted = deleteResults.reduce((acc, cur) => acc + cur.deletedCount, 0);
+        
+        if (totalDeleted === 0) {
+            return res.status(404).json({ message: 'No user picks found for the provided usernames and pools' });
+        }
+
+        res.status(200).json({ message: 'User picks deleted successfully', deleteResults });
+    } catch (error) {
+        console.error('Error deleting user picks:', error);
+        res.status(500).json({ message: 'Error deleting user picks' });
+    }
+});
 
 module.exports = router;
 

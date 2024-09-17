@@ -2,7 +2,99 @@
 const getNextThursdayDate = require('../utils');
 const express = require('express');
 const router = express.Router();
-const User = require('../models/users'); // Assuming your User model is in models/User.js
+const User = require('../models/users');
+const crypto = require('crypto'); // For generating random tokens
+const bcrypt = require('bcryptjs');
+const AWS = require('aws-sdk'); // For sending emails via AWS SES
+
+// Configure AWS SES
+AWS.config.update({
+  region: 'us-east-2',
+});
+
+const ses = new AWS.SES();
+
+router.post('/request-reset-password', async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Find the user by their email address
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User with this email does not exist.' });
+    }
+
+    // Generate a reset token and expiration time (e.g., valid for 1 hour)
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    user.resetToken = resetToken;
+    user.resetTokenExpiration = Date.now() + 3600000; // Token expires in 1 hour
+    await user.save();
+
+    // Create the password reset link
+    const resetLink = `https://the-golf-pool.com/reset-password/${resetToken}`;
+
+    // Send the email using AWS SES
+    const params = {
+      Source: 'thegolfpoolhelp@gmail.com', // Must be a verified email in SES
+      Destination: {
+        ToAddresses: [email],
+      },
+      Message: {
+        Subject: {
+          Data: 'Password Reset Request',
+        },
+        Body: {
+          Text: {
+            Data: `You requested a password reset. Click the link below to reset your password:\n\n${resetLink}\n\nIf you did not request a password reset, please ignore this email.`,
+          },
+        },
+      },
+    };
+
+    ses.sendEmail(params, (err, data) => {
+      if (err) {
+        console.error(err, err.stack);
+        return res.status(500).json({ message: 'Error sending password reset email' });
+      } else {
+        console.log('Email sent:', data);
+        return res.status(200).json({ message: 'Password reset link sent to your email' });
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.post('/reset-password', async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    // Find the user by reset token and ensure it's not expired
+    const user = await User.findOne({
+      resetToken: token,
+      resetTokenExpiration: { $gt: Date.now() }, // Ensure token is still valid
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired token' });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    // Update the user's password and clear the reset token fields
+    user.password = hashedPassword;
+    user.resetToken = undefined;
+    user.resetTokenExpiration = undefined;
+    await user.save();
+
+    res.status(200).json({ message: 'Password has been reset successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 // Route to get all users (for admin purposes, optional)
 router.get('/', async (req, res) => {
@@ -143,15 +235,15 @@ router.get('/lastReadTimestamp/:username', async (req, res) => {
 // Route to store or update a user's push token
 router.put('/pushToken/:username', async (req, res) => {
   try {
-    const { pushToken } = req.body;
+    const { pushToken, experienceId } = req.body;
 
-    if (!pushToken) {
-      return res.status(400).json({ message: 'Push token is required' });
+    if (!pushToken || !experienceId) {
+      return res.status(400).json({ message: 'Push token and experience ID are required' });
     }
 
     const updatedUser = await User.findOneAndUpdate(
       { username: req.params.username },
-      { userPushToken: pushToken },
+      { userPushToken: pushToken, experienceId: experienceId },
       { new: true }
     );
 
@@ -159,19 +251,19 @@ router.put('/pushToken/:username', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.json({ message: 'Push token updated successfully', user: updatedUser });
+    res.json({ message: 'Push token and experience ID updated successfully', user: updatedUser });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Route to delete a user's push token
+// Route to delete a user's push token and experience ID
 router.delete('/pushToken/:username', async (req, res) => {
   try {
     const updatedUser = await User.findOneAndUpdate(
       { username: req.params.username },
-      { userPushToken: null },  // Setting the token to null to indicate deletion
+      { userPushToken: null, experienceId: null },  // Setting both token and experience ID to null to indicate deletion
       { new: true }
     );
 
@@ -179,14 +271,14 @@ router.delete('/pushToken/:username', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.json({ message: 'Push token deleted successfully', user: updatedUser });
+    res.json({ message: 'Push token and experience ID deleted successfully', user: updatedUser });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Route to retrieve a user's push token (use with caution)
+// Route to retrieve a user's push token and experience ID (use with caution)
 router.get('/pushToken/:username', async (req, res) => {
   try {
     const user = await User.findOne({ username: req.params.username });
@@ -195,7 +287,7 @@ router.get('/pushToken/:username', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.json({ pushToken: user.userPushToken });
+    res.json({ pushToken: user.userPushToken, experienceId: user.experienceId });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
