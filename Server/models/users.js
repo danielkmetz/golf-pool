@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema({
     username: { type: String, unique: true },
     password: String,
     paymentExpiryDate: Date,
-    email: String,
+    email: { type: String, unique: true },
     profilePic: String,
     lastReadMessageTimestamp: {
       type: Date,
@@ -25,6 +25,15 @@ const UserSchema = new mongoose.Schema({
       type: Boolean,
       default: false,
     },
+    // New fields for password reset
+    resetToken: {
+      type: String,
+      default: null,
+    },
+    resetTokenExpiration: {
+      type: Date,
+      default: null,
+    }
 });
 
 // Middleware to update payment expiry date before saving the user
@@ -39,5 +48,3 @@ UserSchema.pre('save', async function(next) {
 const User = mongoose.model('User', UserSchema);
 
 module.exports = User;
-
-

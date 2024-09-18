@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 
 const ResetPassword = () => {
-  const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,7 +21,7 @@ const ResetPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (password !== confirmPassword) {
+    if (newPassword !== confirmPassword) {
       setMessage('Passwords do not match');
       return;
     }
@@ -30,7 +30,7 @@ const ResetPassword = () => {
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/users/reset-password`, {
         token,
-        password,
+        newPassword,
       });
 
       if (response.data.success) {
@@ -65,8 +65,8 @@ const ResetPassword = () => {
           fullWidth
           margin="normal"
           variant="outlined"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
           required
         />
         <TextField

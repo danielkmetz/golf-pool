@@ -71,6 +71,11 @@ router.post('/reset-password', async (req, res) => {
   const { token, newPassword } = req.body;
 
   try {
+    // Validate the new password
+    if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 1) {
+      return res.status(400).json({ message: 'Invalid or missing new password. It must be at least 1 character long.' });
+    }
+
     // Find the user by reset token and ensure it's not expired
     const user = await User.findOne({
       resetToken: token,
