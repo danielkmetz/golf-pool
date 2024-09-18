@@ -8,11 +8,12 @@ const bcrypt = require('bcryptjs');
 const AWS = require('aws-sdk'); // For sending emails via AWS SES
 
 // Configure AWS SES
-AWS.config.update({
+const ses = new AWS.SES({
+  accessKeyId: 'AKIA3ZD44QTVR4FG3WU6',
+  secretAccessKey: '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',
   region: 'us-east-2',
 });
 
-const ses = new AWS.SES();
 
 router.post('/request-reset-password', async (req, res) => {
   const { email } = req.body;
