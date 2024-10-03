@@ -17,16 +17,16 @@ import {
     AccordionDetails,
   } from '@mui/material';
 import GolfersModal from './golfersModal';
-import { fetchTotalPicks, selectTotalPicks } from '../../Features/myPicksSlice';
+import { selectTotalPicks } from '../../Features/myPicksSlice';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectLiveResults } from '../../Features/LeaderboardSlice';
 import { selectTournamentInfo } from '../../Features/TournamentInfoSlice';
 import { selectProfilePics, selectActiveUsers, 
-  selectUsers, fetchProfilePics, 
-  fetchUsersWithPicks, selectUsername} from '../../Features/userSlice';
-import { selectPoolUsers } from '../../Features/poolsSlice';
-import { getRoundScore, sortUsers, } from '../../actions';
+  selectUsers,  
+  selectUsername} from '../../Features/userSlice';
+import { selectPoolName, selectPoolUsers } from '../../Features/poolsSlice';
+import { sortUsers, organizeAndCalculateScores, formatDate } from '../../actions';
 import { sendUserPositionMap } from '../../Features/pastResultsSlice';
 import { selectUserPoolData } from '../../Features/poolsSlice';
 import Payouts from '../Payouts/Payouts';
@@ -38,7 +38,9 @@ import { fetchWeeklyResults,
     selectTotals, 
     duplicateRecordsCheck, 
     selectDuplicates } from '../../Features/pastResultsSlice';
+import { batchUpdatePaymentStatus } from '../../Features/paymentStatusSlice';
 import WeeklyTotalsMulti from './weeklyTotalsMulti';
+import axios from 'axios';
 
 
 function PoolStandingsMulti() {
@@ -51,8 +53,8 @@ function PoolStandingsMulti() {
     const profilePics = useSelector(selectProfilePics)
     const users = useSelector(selectUsers);
     const duplicates = useSelector(selectDuplicates);
-    const username = useSelector(selectUsername);
     const poolInfo = useSelector(selectUserPoolData);
+    const poolName = useSelector(selectPoolName);
     const dispatch = useDispatch();
     const activeUsers = useSelector(selectActiveUsers);
     const [podiumOpen, setPodiumOpen] = useState(false);
@@ -61,120 +63,61 @@ function PoolStandingsMulti() {
     const [defaultWeek, setDefaultWeek] = useState(null);
     const [activeTab, setActiveTab] = useState(0);
     const [showWeeklyTotals, setShowWeeklyTotals] = useState(false);
+    const [shouldSavePR, setShouldSavePR] = useState(true);
+    const [shouldFetch, setShouldFetch] = useState(true);
     const year = new Date().getFullYear();
 
     const format = poolInfo.format;
     const numTournaments = poolInfo.numTournaments;
     const tournaments = poolInfo.tournaments;
-    const week1DateISO = poolInfo.tournaments?.[0]?.Starts ?? null;
     const week2DateISO = poolInfo.tournaments?.[1]?.Starts ?? null;
     const week3DateISO = poolInfo.tournaments?.[2]?.Starts ?? null;
     const currentDate = new Date();
     const currentDay = currentDate.getDay();
     const coursePar = tournamentInfo.Par;
-    const week1Tournament = poolInfo.tournaments?.[0]?.Name ?? null;
-    const week2Tournament = poolInfo.tournaments?.[1]?.Name ?? null;
-    const week3Tournament = poolInfo.tournaments?.[2]?.Name ?? null;
-    const tournamentName = tournamentInfo.Name;
+    const week1Tournament = poolInfo?.tournaments?.[0]?.Name ?? null;
+    const week2Tournament = poolInfo?.tournaments?.[1]?.Name ?? null;
+    const week3Tournament = poolInfo?.tournaments?.[2]?.Name ?? null;
+    
+    const firstPlacePercentage = poolInfo?.payouts?.[0]?.first || 0;
+    const secondPlacePercentage = poolInfo?.payouts?.[0]?.second || 0;
+    const thirdPlacePercentage = poolInfo?.payouts?.[0]?.third || 0;
+    const buyIn = poolInfo?.buyIn || 0;
 
-    const formatDate = (isoDate, addDays = 0) => {
-        if (!isoDate) return null; // Handle cases where isoDate is null or undefined
-    
-        const date = new Date(isoDate);
-        date.setDate(date.getDate() + addDays); // Add the specified number of days
-    
-        const options = { month: '2-digit', day: '2-digit', year: 'numeric' };
-        return date.toLocaleDateString('en-US', options);
-    };
-    
+    const totalActive = activeUsers.length;
+    const firstPlacePayout = Math.floor((totalActive * buyIn) * firstPlacePercentage);
+    const secondPlacePayout = Math.floor((totalActive * buyIn) * secondPlacePercentage);
+    const thirdPlacePayout = Math.floor((totalActive * buyIn) * thirdPlacePercentage);
+    const tournamentName = tournamentInfo?.Name;
+
     let finalDay;
     if (numTournaments === 2) {
         finalDay = formatDate(week2DateISO, 3);
     } else if (numTournaments === 3) {
         finalDay = formatDate(week3DateISO, 3);
-    }
+    };
+
+    const formattedDate = currentDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
 
     const finalDayDate = new Date(finalDay);
-    const currentDayDate = new Date(currentDay);
-
-    useEffect(() => {
-        dispatch(fetchTotalPicks());
-    }, [dispatch]);
-
-    useEffect(() => {
-      if (poolUsers.length > 0) {
-        dispatch(fetchUsersWithPicks(poolUsers));
-      }
-    }, [dispatch, poolUsers]);
-
-    const poolUserProfilePics = useMemo(() => {
-      return poolUsers.map(user => {
-        const profilePicObj = users.find(profile => profile.username === user.username);
-        const profilePic = profilePicObj ? profilePicObj.profilePic : '';
-        return { ...user, profilePic };
+    const formattedFinalDate = finalDayDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
       });
-    }, [poolUsers]);
-  
-    const userPics = poolUserProfilePics
-      .filter(user => user && user.profilePic)
-      .map(user => ({ username: user.username, profilePic: user.profilePic }));
-  
-    useEffect(() => {
-      if (userPics.length > 0) {
-        dispatch(fetchProfilePics(userPics));
-      }
-    }, [dispatch, poolUsers]);  
 
-    const organizeAndCalculateScores = (userData, resultsData, coursePar, format) => {
-      let organizedData = [];
-    
-      userData.forEach(user => {
-          user.userPicks.forEach(pick => {
-              pick.golferName.forEach(golfer => {
-                  organizedData.push({
-                      golferName: golfer,
-                      username: user.username,
-                      R1: getRoundScore(1, golfer, resultsData, coursePar),
-                      R2: getRoundScore(2, golfer, resultsData, coursePar),
-                      R3: getRoundScore(3, golfer, resultsData, coursePar),
-                      R4: getRoundScore(4, golfer, resultsData, coursePar),
-                  });
-              });
-          });
-      });
-    
-      const calculateScores = (username, round) => {
-          if (currentDay < 4 && currentDay !== 0) return null; // Skip calculation if before Thursday and not Sunday
-    
-          const userScores = organizedData.filter(item => item.username === username);
-          const roundScores = userScores.map(item => item[round]);
-    
-          // Check if all golfers have scores for the current round
-          const allGolfersHaveScores = roundScores.every(score => score !== null && score !== undefined);
-    
-          if (!allGolfersHaveScores) return null;
-    
-          if (format === "Salary Cap" || format === "Multi-Week Salary Cap") {
-              // Calculate total score for all golfers
-              const totalScore = roundScores.reduce((total, score) => total + score, 0);
-              return totalScore;
-          } else {
-              // Calculate lowest 4 scores
-              if (roundScores.length < 8) return null; // Not enough valid scores to calculate
-              const lowestScores = roundScores.sort((a, b) => a - b).slice(0, 4);
-              const totalLowestScore = lowestScores.reduce((total, score) => total + score, 0);
-              return totalLowestScore;
-          }
-      };
-    
-      return { organizedData, calculateScores };
-    };
-    
-    const { organizedData, calculateScores } = organizeAndCalculateScores(
-        totalPicks,
-        liveResults,
-        coursePar,
-        format
+    const { organizedData, calculateScores } = useMemo(() => {
+        if (totalPicks && liveResults && coursePar && format) {
+          return organizeAndCalculateScores(totalPicks, liveResults, coursePar, format, currentDay);
+        } else {
+          return { organizedData: [], calculateScores: () => null };
+        }
+      },
+      [totalPicks, liveResults, coursePar, format]
     );
 
     const allGolfersHaveR4Score = useMemo(() => {
@@ -186,7 +129,7 @@ function PoolStandingsMulti() {
     }, [dispatch, tournaments, activeUsers, allGolfersHaveR4Score]);
     
     const isSundayComplete =
-      currentDayDate.toDateString() === finalDayDate.toDateString() && allGolfersHaveR4Score;
+      formattedDate === formattedFinalDate && allGolfersHaveR4Score;
     
     const sendScores = currentDay === 0 && allGolfersHaveR4Score;
     
@@ -205,7 +148,7 @@ function PoolStandingsMulti() {
     }
 
     const sortedUsers = useMemo(() => sortUsers(activeUsers, calculateScores), [activeUsers, calculateScores]);
-    const multiSorted = totals.slice().sort((a, b) => a.totalScore - b.totalScore);
+    const multiSorted = totals?.slice().sort((a, b) => a.totalScore - b.totalScore);
     const topThreeUsers = multiSorted.slice(0, 3);
 
     const userPositionMap = sortedUsers.reduce((acc, user, index, array) => {
@@ -239,12 +182,12 @@ function PoolStandingsMulti() {
           );
       });
     }
+    
     const duplicateCheck = areAllActiveUsersInResponse({activeUsers, responseData: duplicates, tournamentName});
-    //console.log(duplicateCheck);
-
+    
     useEffect(() => {
         // Check if all necessary info is available
-        if (isSundayComplete && !duplicateCheck) {
+        if (sendScores && !duplicateCheck && shouldSavePR) {
             // Iterate over the entries of userPositionMap
             Object.entries(userPositionMap).forEach(([username, position]) => {
   
@@ -273,22 +216,40 @@ function PoolStandingsMulti() {
         }
     }, [isSundayComplete]);
 
+    //change week tabs
     const handleTabChange = async (event, newValue) => {
         setActiveTab(newValue);
-        
+    
         if (newValue === 'total') {
+        try {
+            // Dispatch to fetch totals
             setShowWeeklyTotals(true);
-        } else {
-            setShowWeeklyTotals(false)
+        } catch (error) {
+            console.error("Error fetching user totals:", error);
+            // Handle error if necessary
         }
-
+        } else {
+        setShowWeeklyTotals(false);
+        
+        // Safely access the selected week's name
         const selectedWeekName = tournaments[newValue]?.Name;
         
-        await dispatch(fetchWeeklyResults({
-            tournamentName: selectedWeekName,
-            usernames: activeUsers,
-            year: year,
-        }));
+        if (selectedWeekName) {
+            try {
+            // Dispatch to fetch weekly results
+            await dispatch(fetchWeeklyResults({
+                tournamentName: selectedWeekName,
+                usernames: poolUsers,
+                year: year,
+            }));
+            } catch (error) {
+            console.error("Error fetching weekly results:", error);
+            // Handle error if necessary
+            }
+        } else {
+            console.warn("Selected week name is invalid or undefined.");
+        }
+        }
     };
 
     useEffect(() => {
@@ -307,6 +268,63 @@ function PoolStandingsMulti() {
           setPodiumOpen(true);
         }
       }, [isSundayComplete]);
+
+    let topThreeUsersWithEmails = [];
+    if (topThreeUsers && Array.isArray(topThreeUsers)) {
+        topThreeUsersWithEmails = topThreeUsers.map(topUser => {
+        // Find the user in the users array with the same username
+        const userDetails = users.find(user => user?.username === topUser?.username);
+        
+        // If userDetails is found, return an object with just username and email
+        if (userDetails) {
+            return {
+            username: topUser?.username,
+            email: userDetails.email,
+            };
+        }
+        
+        // If no matching user is found, return the username with a null email
+        return {
+            username: topUser?.username,
+            email: null,
+        };
+        });
+    }
+
+    const topThreeUsersWithPayouts = topThreeUsersWithEmails.map((user, index) => {
+        let payoutAmount = 0;
+        if (index === 0) payoutAmount = firstPlacePayout;
+        if (index === 1) payoutAmount = secondPlacePayout;
+        if (index === 2) payoutAmount = thirdPlacePayout;
+        
+        return {
+        ...user,
+        adjustment: payoutAmount,
+        };
+    });
+
+    //update user balances
+    useEffect(() => {
+        if (isSundayComplete && topThreeUsersWithPayouts.length > 0 && shouldFetch) {
+        const balanceUrl = `${process.env.REACT_APP_API_URL}/balance/update-balance`;
+        setShouldFetch(false);
+        
+        // Wrap the API call in an async function
+        const updateBalance = async () => {
+            try {
+            const response = await axios.post(balanceUrl, { users: topThreeUsersWithPayouts });
+            console.log("Balance updated:", response.data);
+            } catch (error) {
+            console.error("Error updating balance:", error);
+            }
+        };
+        
+        updateBalance(); // Call the async function
+    
+        } else {
+        console.log("Skipping balance update, isSundayComplete:", isSundayComplete);
+        }
+    }, [isSundayComplete, topThreeUsersWithPayouts]);
     
     // Sort the weeklyResults by totalScore before mapping
     const allResults = (weeklyResults || []).flatMap(weekResult => 
@@ -323,6 +341,13 @@ function PoolStandingsMulti() {
         return totalScoreA - totalScoreB;
     });
     
+    useEffect(() => {
+        if (isSundayComplete && poolName && userPositionMap) {
+          const usernamesArray = Object.keys(userPositionMap);
+          dispatch(batchUpdatePaymentStatus({poolName: poolName, usernames: usernamesArray}));
+        }
+      }, [isSundayComplete, poolName, userPositionMap]);
+
     return (
       <>
         <Paper 
@@ -331,7 +356,8 @@ function PoolStandingsMulti() {
             marginBottom: '.5rem', 
             borderRadius: '8px',
             backgroundColor: 'LightGray', 
-            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)' 
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+            mt: '2.5rem', 
           }}>
             <Typography
                   variant="h4"

@@ -61,6 +61,25 @@ router.delete('/delete-user-picks/:username/:poolName', async (req, res) => {
     }
 });
 
+router.delete('/delete-all-picks/:username', async (req, res) => {
+    const { username } = req.params;
+
+    try {
+        // Delete all picks for the specified user across all pools
+        const result = await UserPick.deleteMany({ username });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ message: 'No user picks found for the specified username' });
+        }
+
+        res.status(200).json({ message: 'All user picks deleted successfully for the specified username' });
+    } catch (error) {
+        console.error('Error deleting user picks:', error);
+        res.status(500).json({ message: 'Error deleting user picks' });
+    }
+});
+
+
 router.get('/:username/:poolName', async (req, res) => {
     const { username, poolName } = req.params;
     

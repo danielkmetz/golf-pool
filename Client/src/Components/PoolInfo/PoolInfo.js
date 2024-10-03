@@ -11,16 +11,20 @@ import {
     selectPoolAdmin, 
     selectPoolUsers, 
     deletePool, 
-    resetUserPoolData 
+    resetUserPoolData, 
+    selectRoundDay
 } from '../../Features/poolsSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
+import { selectAllPicks } from '../../Features/myPicksSlice';
 
 function PoolInfo() {
     const dispatch = useDispatch();
     const info = useSelector(selectUserPoolData);
     const username = useSelector(selectUsername);
+    const roundDay = useSelector(selectRoundDay)
     const admin = useSelector(selectPoolAdmin);
+    const userPicks = useSelector(selectAllPicks);
     const poolUsers = useSelector(selectPoolUsers);
     const [open, setOpen] = useState(false);
     const [newAdmin, setNewAdmin] = useState('');
@@ -28,6 +32,7 @@ function PoolInfo() {
     const navigate = useNavigate();
     const poolName = info.poolName;
     const format = info.format;
+    const round = info?.round
     const numTournaments = info.numTournaments;
     const tournaments = info.tournaments;
     const week1DateISO = tournaments?.[0]?.Starts ?? null;
@@ -54,14 +59,15 @@ function PoolInfo() {
     const currentDay = currentDate.getDay();
 
     const week1Start = formatDate(week1DateISO);
-    const week1StartDate = new Date(week1Start);
-    const finalDayDate = new Date(finalDay);
     const currentDayDate = new Date(currentDate);
+    const currDay = formatDate(currentDayDate)
     
-    const isButtonDisabled = (format === "Multi-Week" || format === "Muti-Week Salary Cap" ? 
-        currentDayDate > week1StartDate && currentDayDate <= finalDayDate : currentDay >= 4 || currentDay === 0);
-    //const isButtonDisabled = currentDay < 4;
-
+    const isButtonDisabled = (format === 'Multi-Week' || format === 'Multi-Week Salary Cap')
+        ? (currDay > week1Start && currDay <= finalDay)
+        : format === 'Single Round'
+        ? (currentDay === roundDay)
+        : (currentDay >= 4 || currentDay === 0) || userPicks.length > 0;
+    
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
@@ -185,7 +191,7 @@ function PoolInfo() {
                             },
                         }}                  
                     >
-                        <span style={{ fontFamily: 'Rock Salt' }}>Format:</span><br/> <b>{format}</b>
+                        <span style={{ fontFamily: 'Rock Salt' }}>Format:</span><br/> <b>{format}{round ? `- ${round}` : null}</b>
                     </Typography>
                 </Card>
             </Box>

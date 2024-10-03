@@ -1,13 +1,16 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from 'axios';
 
+const apiClient = axios.create({
+    baseURL: process.env.REACT_APP_API_URL,
+  });
 
 export const sendUserPositionMap = createAsyncThunk(
     "pastResults/sendUserPositionMap",
     async ({ username, results }, thunkAPI) => {
       try {
         // Make a POST request to the pastResults endpoint with necessary data using Axios
-        const response = await axios.post(`${process.env.REACT_APP_API_URL}/past-results/save`, { username, results });
+        const response = await apiClient.post(`/past-results/save`, { username, results });
   
         // Return the response data
         return response.data;
@@ -22,7 +25,7 @@ export const fetchPastResults = createAsyncThunk(
     'pastResults/fetchPastResults',
     async (username, { rejectWithValue }) => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/past-results/fetch/${username}`);
+            const response = await apiClient.get(`/past-results/fetch/${username}`);
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response.data);
@@ -33,10 +36,10 @@ export const fetchPastResults = createAsyncThunk(
 export const fetchWeeklyResults = createAsyncThunk(
     'pastResults/fetchWeeklyResults',
     async ({ tournamentName, usernames, year }, { rejectWithValue }) => {
-        const apiUrl = `${process.env.REACT_APP_API_URL}/past-results/weekly`
+        const apiUrl = `/past-results/weekly`
         const usernamesArray = usernames.map(user => user.username);
         try {
-            const response = await axios.post(apiUrl, { tournamentName, usernames: usernamesArray, year });
+            const response = await apiClient.post(apiUrl, { tournamentName, usernames: usernamesArray, year });
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response.data);
@@ -47,11 +50,10 @@ export const fetchWeeklyResults = createAsyncThunk(
 export const duplicateRecordsCheck = createAsyncThunk(
     'pastResults/duplicateRecordsCheck',
     async ({ tournamentName, usernames, year }, { rejectWithValue }) => {
-        const apiUrl = `${process.env.REACT_APP_API_URL}/past-results/weekly`
+        const apiUrl = `/past-results/weekly`
         const usernamesArray = usernames.map(user => user.username);
         try {
-            const response = await axios.post(apiUrl, { tournamentName, usernames: usernamesArray, year });
-            console.log(response.data);
+            const response = await apiClient.post(apiUrl, { tournamentName, usernames: usernamesArray, year });
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response.data);
@@ -59,27 +61,20 @@ export const duplicateRecordsCheck = createAsyncThunk(
     }
 );
 
-
-const formatDate = (isoDate) => {
-    if (!isoDate) return null; // Handle cases where isoDate is null or undefined
-  
-    const date = new Date(isoDate);
-    const options = { month: '2-digit', day: '2-digit', year: 'numeric' };
-    return date.toLocaleDateString('en-US', options);
-};
-
 export const fetchUserTotalsForTournaments = createAsyncThunk(
     'pastResults/fetchUserTotalsForTournaments',
-    async ({ tournaments, usernames, year }, { rejectWithValue }) => {
-        const apiUrl = `${process.env.REACT_APP_API_URL}/past-results/weekly`;
+    async ({ tournaments, usernames }, { rejectWithValue }) => {
+        const apiUrl = `/past-results/weekly`;
         const usernamesArray = usernames.map(user => user.username);
         const results = {};
 
         try {
             for (let tournament of tournaments) {
                 const tournamentName = tournament.Name;
-                
-                const response = await axios.post(apiUrl, { tournamentName, usernames: usernamesArray, year });
+                const year = new Date().getFullYear();
+
+                const response = await apiClient.post(apiUrl, { tournamentName, usernames: usernamesArray, year: year });
+
                 response.data.forEach(userResult => {
                     if (!results[userResult.username]) {
                         results[userResult.username] = {
@@ -102,6 +97,19 @@ export const fetchUserTotalsForTournaments = createAsyncThunk(
     }
 );
 
+export const deleteUserPastResults = createAsyncThunk(
+    'pastResults/deleteUserPastResults',
+    async ({ username }, { rejectWithValue }) => {
+        try {
+            const deleteUserUrl = `/past-results/delete-user/${username}`;
+            const response = await apiClient.delete(deleteUserUrl);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || 'Failed to delete user past results');
+        }
+    }
+);
+
 const pastResultsSlice = createSlice({
     name: 'pastResults',
     initialState: {
@@ -111,6 +119,7 @@ const pastResultsSlice = createSlice({
         totals: [],
         status: 'idle',
         error: null,
+        pastResultsStatus: 'idle',
     },
     reducers: {
         resetPastResults: (state, action) => {
@@ -132,14 +141,14 @@ const pastResultsSlice = createSlice({
                 state.error = action.payload;
             })
             .addCase(fetchPastResults.pending, (state) => {
-                state.status = 'loading';
+                state.pastResultsStatus = 'loading';
             })
             .addCase(fetchPastResults.fulfilled, (state, action) => {
-                state.status = 'succeeded';
+                state.pastResultsStatus = 'succeeded';
                 state.pastResults = action.payload;
             })
             .addCase(fetchPastResults.rejected, (state, action) => {
-                state.status = 'failed';
+                state.pastResultsStatus = 'failed';
                 state.error = action.payload;
             })
             .addCase(fetchWeeklyResults.fulfilled, (state, action) => {
@@ -166,6 +175,18 @@ const pastResultsSlice = createSlice({
                 state.status = 'failed';
                 state.error = action.payload;
             })
+            .addCase(deleteUserPastResults.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(deleteUserPastResults.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.pastResults = [];
+                state.weeklyResults = [];
+                state.totals = [];
+            })
+            .addCase(deleteUserPastResults.rejected, (state, action) => {
+                state.status = 'failed';
+            })
     },
 });
 
@@ -177,3 +198,4 @@ export const selectPastResults = (state) => state.pastResults.pastResults;
 export const selectWeeklyResults = (state) => state.pastResults.weeklyResults;
 export const selectTotals = (state) => state.pastResults.totals;
 export const selectDuplicates = (state) => state.pastResults.duplicates;
+export const selectPastResultsStatus = (state) => state.pastResults.pastResultsSatus;

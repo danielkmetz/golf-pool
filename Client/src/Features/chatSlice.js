@@ -1,12 +1,16 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from 'axios';
 
+const apiClient = axios.create({
+  baseURL: process.env.REACT_APP_API_URL,
+});
+
 // Async thunk to fetch initial messages
 export const fetchMessages = createAsyncThunk(
     'chat/fetchMessages',
     async (poolName, { rejectWithValue }) => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/chat`, {
+        const response = await apiClient.get(`/chat`, {
           params: {
             poolName: poolName,
           },
@@ -23,13 +27,27 @@ export const sendMessage = createAsyncThunk(
     'chat/sendMessage',
     async ({ username, message, poolName }) => {
       try {
-        const response = await axios.post(`${process.env.REACT_APP_API_URL}/chat`, { username, message, poolName });
+        const response = await apiClient.post(`/chat`, { username, message, poolName });
         return response.data;
       } catch (error) {
         throw error;
       }
     }
 );
+
+// Async thunk to delete a user's messages
+export const deleteUserMessages = createAsyncThunk(
+  'chat/deleteUserMessages',
+  async (username, { rejectWithValue }) => {
+      try {
+          const response = await apiClient.delete(`/chat/delete-user/${username}`);
+          return response.data;
+      } catch (error) {
+          return rejectWithValue(error.response?.data?.message || 'Failed to delete user messages');
+      }
+  }
+);
+
 
 const chatSlice = createSlice({
     name: 'chat',
@@ -66,6 +84,17 @@ const chatSlice = createSlice({
             .addCase(sendMessage.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
+            })
+            .addCase(deleteUserMessages.pending, (state) => {
+              state.status = 'loading';
+            })
+            .addCase(deleteUserMessages.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                // Optionally, you could remove all messages from the state
+                state.messages = [];
+            })
+            .addCase(deleteUserMessages.rejected, (state, action) => {
+                state.status = 'failed';
             });
     }
 });

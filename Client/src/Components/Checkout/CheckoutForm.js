@@ -5,7 +5,7 @@ import './CheckoutForm.css';
 import { Typography } from '@mui/material';
 import { selectUsername } from '../../Features/userSlice';
 import { updatePaymentStatus, selectPaymentStatus } from '../../Features/paymentStatusSlice';
-import { selectUserPoolData } from '../../Features/poolsSlice';
+import { selectPoolName, selectUserPoolData } from '../../Features/poolsSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   selectTier1Picks,
@@ -57,8 +57,10 @@ const CARD_ELEMENT_OPTIONS = {
     const tier3Picks = useSelector(selectTier3Picks);
     const tier4Picks = useSelector(selectTier4Picks);
     const poolInfo = useSelector(selectUserPoolData);
+    const poolName = useSelector(selectPoolName);
 
-    const buyIn = poolInfo.buyIn + 3 || 0;
+    const fee = (poolInfo?.buyIn < 30 ? 3 : poolInfo?.buyIn * 0.10);
+    const buyIn = (poolInfo?.buyIn || 0) + fee;
 
     const handleSubmission = async () => {
       try {
@@ -71,6 +73,7 @@ const CARD_ELEMENT_OPTIONS = {
         // Send the user picks data with the username to the server
         await axios.post(`${process.env.REACT_APP_API_URL}/userpicks/save`, {
           username: username,
+          poolName: poolName,
           userPicks: userPicks,
         });
   
@@ -91,7 +94,7 @@ const CARD_ELEMENT_OPTIONS = {
     
     const handleUpdateStatus = async (username, status) => {
       try {
-        await dispatch(updatePaymentStatus({username, status}))
+        await dispatch(updatePaymentStatus({username, poolName}))
         console.log("update successful")
       } catch (error) {
         console.error(error)

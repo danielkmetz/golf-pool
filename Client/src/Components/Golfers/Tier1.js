@@ -42,73 +42,99 @@ function Tier1() {
   const balance = useSelector(selectInitialBalance);
   const [selectedOption, setSelectedOption] = useState('');
 
-  const format = poolInfo.format;
-  console.log(format);
+  const format = poolInfo?.format;
   
   useEffect(() => {
     dispatch(fetchOdds());
   }, [dispatch]);
   
   const handleOptionChange = (event) => {
-    const selectedValue = event.target.value;
-    setSelectedOption(selectedValue);
-    if (selectedValue === 'Tier1') {
-      dispatch(setTier1Results());
-    }
-    if (selectedValue === 'Tier2') {
-      dispatch(setTier2Results());
-    }
-    if (selectedValue === 'Tier3') {
-      dispatch(setTier3Results());
-    }
-    if (selectedValue === 'Tier4') {
-      dispatch(setTier4Results());
+    const value = event.target.value;  // Extract the value from the event
+    setSelectedOption(value);
+    switch (value) {
+      case 'Tier1':
+        dispatch(setTier1Results({tier1Picks}));
+        break;
+      case 'Tier2':
+        dispatch(setTier2Results({tier2Picks}));
+        break;
+      case 'Tier3':
+        dispatch(setTier3Results({tier3Picks}));
+        break;
+      case 'Tier4':
+        dispatch(setTier4Results({tier4Picks}));
+        break;
+      default:
+        break;
     }
   };
-
-  function addGolfer(golfer) {
+  
+  
+  const addGolfer = (golfer) => {
     if (format !== "Salary Cap" && format !== "Multi-Week Salary Cap") {
-        if (selectedOption === 'Tier1') {
-            if (tier1Picks.length < 3) {
-                dispatch(addTier1Golfer(golfer));
-                dispatch(filterGolferFromTier({ tier: 'Tier1', golferName: golfer }));
-            }
-        } else if (selectedOption === 'Tier2') {
-            if (tier2Picks.length < 2) {
-                dispatch(addTier2Golfer(golfer));
-                dispatch(filterGolferFromTier({ tier: 'Tier2', golferName: golfer }));
-            }
-        } else if (selectedOption === 'Tier3') {
-            if (tier3Picks.length < 2) {
-                dispatch(addTier3Golfer(golfer));
-                dispatch(filterGolferFromTier({ tier: 'Tier3', golferName: golfer }));
-            }
-        } else if (selectedOption === 'Tier4') {
-            if (tier4Picks.length < 1) {
-                dispatch(addTier4Golfer(golfer));
-                dispatch(filterGolferFromTier({ tier: 'Tier4', golferName: golfer }));
-            }
-        }
+      switch (selectedOption) {
+        case 'Tier1':
+          if (tier1Picks.length < 3) {
+            dispatch(addTier1Golfer(golfer));
+            dispatch(filterGolferFromTier({ tier: 'Tier1', golferName: golfer }));
+          }
+          break;
+        case 'Tier2':
+          if (tier2Picks.length < 2) {
+            dispatch(addTier2Golfer(golfer));
+            dispatch(filterGolferFromTier({ tier: 'Tier2', golferName: golfer }));
+          }
+          break;
+        case 'Tier3':
+          if (tier3Picks.length < 2) {
+            dispatch(addTier3Golfer(golfer));
+            dispatch(filterGolferFromTier({ tier: 'Tier3', golferName: golfer }));
+          }
+          break;
+        case 'Tier4':
+          if (tier4Picks.length < 1) {
+            dispatch(addTier4Golfer(golfer));
+            dispatch(filterGolferFromTier({ tier: 'Tier4', golferName: golfer }));
+          }
+          break;
+        default:
+          break;
+      }
     } else {
-        if (selectedOption === 'Tier1' && balance >= 25) {
+      switch (selectedOption) {
+        case 'Tier1':
+          if (balance >= 25) {
             dispatch(addTier1Golfer(golfer));
             dispatch(filterGolferFromTier({ tier: 'Tier1', golferName: golfer }));
             dispatch(subtractInitialBalance(25))
-        } else if (selectedOption === 'Tier2' && balance >= 15) {
-              dispatch(addTier2Golfer(golfer));
-              dispatch(filterGolferFromTier({ tier: 'Tier2', golferName: golfer }));
-              dispatch(subtractInitialBalance(15))
-        } else if (selectedOption === 'Tier3' && balance >= 10) {
-              dispatch(addTier3Golfer(golfer));
-              dispatch(filterGolferFromTier({ tier: 'Tier3', golferName: golfer }));
-              dispatch(subtractInitialBalance(10))
-        } else if (selectedOption === 'Tier4' && balance >= 5) {
-              dispatch(addTier4Golfer(golfer));
-              dispatch(filterGolferFromTier({ tier: 'Tier4', golferName: golfer }));
-              dispatch(subtractInitialBalance(5));
-        }
+          }
+          break;
+        case 'Tier2':
+          if (balance >= 15) {
+            dispatch(addTier2Golfer(golfer));
+            dispatch(filterGolferFromTier({ tier: 'Tier2', golferName: golfer }));
+            dispatch(subtractInitialBalance(15))
+          }
+          break;
+        case 'Tier3':
+          if (balance >= 10) {
+            dispatch(addTier3Golfer(golfer));
+            dispatch(filterGolferFromTier({ tier: 'Tier3', golferName: golfer }));
+            dispatch(subtractInitialBalance(10))
+          }
+          break;
+        case 'Tier4':
+          if (balance >= 5) {
+            dispatch(addTier4Golfer(golfer));
+            dispatch(filterGolferFromTier({ tier: 'Tier4', golferName: golfer }));
+            dispatch(subtractInitialBalance(5));
+          }
+          break;
+        default:
+          break;
+      }
     }
-}
+  }
 
   const containerStyle = {
     marginTop: '2rem',

@@ -17,20 +17,22 @@ import {
   } from '@mui/material';
 import GolfersModal from './golfersModal';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { fetchTotalPicks, selectTotalPicks } from '../../Features/myPicksSlice';
+import { selectTotalPicks } from '../../Features/myPicksSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectLiveResults } from '../../Features/LeaderboardSlice';
 import { selectTournamentInfo } from '../../Features/TournamentInfoSlice';
 import { selectProfilePics, selectActiveUsers, 
-  selectUsers, fetchProfilePics, 
-  fetchUsersWithPicks, selectUsername, } from '../../Features/userSlice';
-import { selectPoolUsers } from '../../Features/poolsSlice';
-import { getRoundScore, sortUsers, } from '../../actions';
-import { sendUserPositionMap } from '../../Features/pastResultsSlice';
+  selectUsers, 
+  selectUsername, } from '../../Features/userSlice';
+import { selectPoolName, selectPoolUsers } from '../../Features/poolsSlice';
+import { sortUsers, organizeAndCalculateScores, areAllActiveUsersInResponse } from '../../actions';
+import { sendUserPositionMap, duplicateRecordsCheck, selectDuplicates } from '../../Features/pastResultsSlice';
 import { selectUserPoolData } from '../../Features/poolsSlice';
 import Payouts from '../Payouts/Payouts';
 import PoolInfo from '../PoolInfo/PoolInfo';
 import Results from '../Results/Results';
+import { batchUpdatePaymentStatus } from '../../Features/paymentStatusSlice';
+
 
 function PoolStandings() {
     const [selectedUser, setSelectedUser] = useState(null);
@@ -42,11 +44,14 @@ function PoolStandings() {
     const profilePics = useSelector(selectProfilePics)
     const users = useSelector(selectUsers);
     const username = useSelector(selectUsername);
+    const poolName = useSelector(selectPoolName);
     const poolInfo = useSelector(selectUserPoolData);
     const dispatch = useDispatch();
     const activeUsers = useSelector(selectActiveUsers);
+    const duplicates = useSelector(selectDuplicates);
     const [podiumOpen, setPodiumOpen] = useState(false);
     const [shouldFetch, setShouldFetch] = useState(true);
+    const [shouldSavePR, setShouldSavePR] = useState(true);
 
     const format = poolInfo.format;
     const firstPlacePercentage = poolInfo?.payouts?.[0]?.first || 0;
@@ -60,88 +65,19 @@ function PoolStandings() {
     const thirdPlacePayout = Math.floor((totalActive * buyIn) * thirdPlacePercentage);
   
     const currentDate = new Date();
+    const year = new Date().getFullYear();
     const currentDay = currentDate.getDay();
     const coursePar = tournamentInfo.Par;
     const tournamentName = tournamentInfo.Name;
     
-    useEffect(() => {
-        dispatch(fetchTotalPicks());
-    }, [dispatch]);
-
-    useEffect(() => {
-      if (poolUsers.length > 0) {
-        dispatch(fetchUsersWithPicks(poolUsers));
+    const { organizedData, calculateScores } = useMemo(() => {
+      if (totalPicks && liveResults && coursePar && format) {
+        return organizeAndCalculateScores(totalPicks, liveResults, coursePar, format, currentDay);
+      } else {
+        return { organizedData: [], calculateScores: () => null };
       }
-    }, [dispatch, poolUsers]);
-    
-    const poolUserProfilePics = useMemo(() => {
-      return poolUsers.map(user => {
-        const profilePicObj = users.find(profile => profile.username === user.username);
-        const profilePic = profilePicObj ? profilePicObj.profilePic : '';
-        return { ...user, profilePic };
-      });
-    }, [poolUsers]);
-  
-    const userPics = poolUserProfilePics
-      .filter(user => user && user.profilePic)
-      .map(user => ({ username: user.username, profilePic: user.profilePic }));
-
-    useEffect(() => {
-      if (userPics.length > 0) {
-        dispatch(fetchProfilePics(userPics));
-      }
-    }, [dispatch, poolUsers]);  
-
-    const organizeAndCalculateScores = (userData, resultsData, coursePar, format) => {
-      let organizedData = [];
-    
-      userData.forEach(user => {
-          user.userPicks.forEach(pick => {
-              pick.golferName.forEach(golfer => {
-                  organizedData.push({
-                      golferName: golfer,
-                      username: user.username,
-                      R1: getRoundScore(1, golfer, resultsData, coursePar),
-                      R2: getRoundScore(2, golfer, resultsData, coursePar),
-                      R3: getRoundScore(3, golfer, resultsData, coursePar),
-                      R4: getRoundScore(4, golfer, resultsData, coursePar),
-                  });
-              });
-          });
-      });
-    
-      const calculateScores = (username, round) => {
-          if (currentDay < 4 && currentDay !== 0) return null; // Skip calculation if before Thursday and not Sunday
-    
-          const userScores = organizedData.filter(item => item.username === username);
-          const roundScores = userScores.map(item => item[round]);
-    
-          // Check if all golfers have scores for the current round
-          const allGolfersHaveScores = roundScores.every(score => score !== null && score !== undefined);
-    
-          if (!allGolfersHaveScores) return null;
-    
-          if (format === "Salary Cap") {
-              // Calculate total score for all golfers
-              const totalScore = roundScores.reduce((total, score) => total + score, 0);
-              return totalScore;
-          } else {
-              // Calculate lowest 4 scores
-              if (roundScores.length < 8) return null; // Not enough valid scores to calculate
-              const lowestScores = roundScores.sort((a, b) => a - b).slice(0, 4);
-              const totalLowestScore = lowestScores.reduce((total, score) => total + score, 0);
-              return totalLowestScore;
-          }
-      };
-    
-      return { organizedData, calculateScores };
-    };
-    
-    const { organizedData, calculateScores } = organizeAndCalculateScores(
-        totalPicks,
-        liveResults,
-        coursePar,
-        format
+    },
+    [totalPicks, liveResults, coursePar, format]
     );
 
     const allGolfersHaveR4Score = useMemo(() => {
@@ -151,8 +87,6 @@ function PoolStandings() {
     const isSundayComplete =
       currentDay === 0 && allGolfersHaveR4Score;
 
-    //console.log(isSundayComplete);
-      
     const handleClick = (user) => {
         setSelectedUser(user.username);
         setOpen(true);
@@ -188,28 +122,45 @@ function PoolStandings() {
       acc[user.user.username] = position;
       return acc;
     }, {});
+
+    useEffect(() => {
+      dispatch(duplicateRecordsCheck({tournamentName: tournamentName, usernames: activeUsers, year: year}))
+    }, [activeUsers, tournamentName, year]);
+
+    const duplicateCheck = areAllActiveUsersInResponse({activeUsers, responseData: duplicates, tournamentName});
     
+    //send scores to database
     useEffect(() => {
       // Check if all necessary info is available
-      if (isSundayComplete ) {
-          // Iterate over the entries of userPositionMap
-          Object.entries(userPositionMap).forEach(([username, position]) => {
-              // Dispatch sendUserPositionMap action for each user
-              dispatch(
-                  sendUserPositionMap({
-                      username,
-                      results: [{
-                          date: new Date(),
-                          tournamentName,
-                          position,
-                      }],
-                  })
-              );
-          });
-      }
-    }, [isSundayComplete]);
+      if (isSundayComplete && !duplicateCheck && shouldSavePR) {
+        // Iterate over the entries of userPositionMap
+        Object.entries(userPositionMap).forEach(([username, position]) => {
+          const scores = {
+            R1: calculateScores(username, 'R1'),
+            R2: calculateScores(username, 'R2'),
+            R3: calculateScores(username, 'R3'),
+            R4: calculateScores(username, 'R4'),
+          };
 
-    const today = new Date().toISOString().split('T')[0];
+          scores.Total = scores.R1 + scores.R2 + scores.R3 + scores.R4;
+          // Dispatch sendUserPositionMap action for each user
+          dispatch(
+            sendUserPositionMap({
+              username,
+              results: [
+                {
+                  year: year,
+                  tournamentName,
+                  position,
+                  scores,
+                },
+              ],
+            })
+          );
+          setShouldSavePR(false);
+        })
+      }
+    }, [isSundayComplete, duplicateCheck]);
 
     const topThreeUsersWithEmails = topThreeUsers.map(topUser => {
       // Find the user in the users array with the same username
@@ -242,16 +193,36 @@ function PoolStandings() {
       };
     });
 
-    const isSunday = true;
-
+    //update user balances
     useEffect(() => {
-      const balanceUrl = `${process.env.REACT_APP_API_URL}/balance/update-balance`
-      if (isSunday && topThreeUsersWithPayouts.length > 0 && shouldFetch) {
+      if (isSundayComplete && topThreeUsersWithPayouts.length > 0 && shouldFetch) {
+        const balanceUrl = `${process.env.EXPO_PUBLIC_API_URL}/balance/update-balance`;
         setShouldFetch(false);
-        const response = axios.post(balanceUrl, {users: topThreeUsersWithPayouts});
-        return response.data
+        
+        // Wrap the API call in an async function
+        const updateBalance = async () => {
+          try {
+            const response = await axios.post(balanceUrl, { users: topThreeUsersWithPayouts });
+            console.log("Balance updated:", response.data);
+          } catch (error) {
+            console.error("Error updating balance:", error);
+          }
+        };
+        
+        updateBalance(); // Call the async function
+    
+      } else {
+        console.log("Skipping balance update, isSundayComplete:", isSundayComplete);
       }
-    }, [isSunday, topThreeUsersWithPayouts])
+    }, [isSundayComplete, topThreeUsersWithPayouts]);
+
+    //switch payment status for all active users back to false
+  useEffect(() => {
+    if (userPositionMap && poolName && currentDay === 5) {
+      const usernamesArray = Object.keys(userPositionMap);
+      dispatch(batchUpdatePaymentStatus({poolName: poolName, usernames: usernamesArray}))
+    }
+  }, [userPositionMap, poolName, currentDay]);
 
     return (
       <>
@@ -261,7 +232,8 @@ function PoolStandings() {
             marginBottom: '.5rem', 
             borderRadius: '8px',
             backgroundColor: 'LightGray', 
-            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)' 
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+            mt: '2.5rem' 
           }}
         >
               <Typography

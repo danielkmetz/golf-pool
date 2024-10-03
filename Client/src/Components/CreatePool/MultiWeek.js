@@ -241,6 +241,13 @@ function MultiWeek({ username, admin, email, }) {
                             <MenuItem value={10}>$10</MenuItem>
                             <MenuItem value={20}>$20</MenuItem>
                             <MenuItem value={30}>$30</MenuItem>
+                            <MenuItem value={40}>$40</MenuItem>
+                            <MenuItem value={50}>$50</MenuItem>
+                            <MenuItem value={60}>$60</MenuItem>
+                            <MenuItem value={70}>$70</MenuItem>
+                            <MenuItem value={80}>$80</MenuItem>
+                            <MenuItem value={90}>$90</MenuItem>
+                            <MenuItem value={100}>$100</MenuItem>
                         </Select>
                     </FormControl>
                 </Box>
@@ -262,10 +269,13 @@ function MultiWeek({ username, admin, email, }) {
                                 }}
                             >
                                 <MenuItem value={1}>100%</MenuItem>
+                                <MenuItem value={0.85}>85%</MenuItem>
+                                <MenuItem value={0.8}>80%</MenuItem>
+                                <MenuItem value={0.75}>75%</MenuItem>
                                 <MenuItem value={0.7}>70%</MenuItem>
+                                <MenuItem value={0.65}>65%</MenuItem>
                                 <MenuItem value={0.6}>60%</MenuItem>
-                                <MenuItem value={0.5}>50%</MenuItem>
-                                <MenuItem value={0.4}>40%</MenuItem>
+                                <MenuItem value={0.55}>55%</MenuItem>
                             </Select>
                         </FormControl>
                         <FormControl sx={{ width: '25%', marginTop: '.75rem', marginLeft: '2rem' }}>
@@ -281,9 +291,14 @@ function MultiWeek({ username, admin, email, }) {
                                     },
                                 }}
                             >
+                                <MenuItem value={0}>0%</MenuItem>
+                                <MenuItem value={0.15}>15%</MenuItem>
                                 <MenuItem value={0.2}>20%</MenuItem>
+                                <MenuItem value={0.25}>25%</MenuItem>
                                 <MenuItem value={0.3}>30%</MenuItem>
+                                <MenuItem value={0.35}>35%</MenuItem>
                                 <MenuItem value={0.4}>40%</MenuItem>
+                                <MenuItem value={0.45}>45%</MenuItem>
                                 <MenuItem value={0.5}>50%</MenuItem>
                             </Select>
                         </FormControl>
@@ -300,10 +315,17 @@ function MultiWeek({ username, admin, email, }) {
                                     },
                                 }}
                             >
+                                <MenuItem value={0}>0%</MenuItem>
+                                <MenuItem value={0.05}>5%</MenuItem>
                                 <MenuItem value={0.1}>10%</MenuItem>
+                                <MenuItem value={0.15}>15%</MenuItem>
                                 <MenuItem value={0.2}>20%</MenuItem>
+                                <MenuItem value={0.25}>25%</MenuItem>
                                 <MenuItem value={0.3}>30%</MenuItem>
+                                <MenuItem value={0.35}>35%</MenuItem>
                                 <MenuItem value={0.4}>40%</MenuItem>
+                                <MenuItem value={0.45}>45%</MenuItem>
+                                <MenuItem value={0.5}>50%</MenuItem>
                             </Select>
                         </FormControl>
                     </Box>

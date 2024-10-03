@@ -1,21 +1,26 @@
 import React, { useEffect } from 'react';
 import { Paper, Typography, Box, Accordion, AccordionSummary, AccordionDetails, useMediaQuery } from '@mui/material';
-import { selectUsername, fetchEmail, selectEmail } from '../../Features/userSlice';
+import { selectUsername, fetchEmail, selectEmail, selectLoggedIn, fetchUsername } from '../../Features/userSlice';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useDispatch, useSelector } from 'react-redux';
 import SingleWeek from './SingleWeek';
 import SalaryCap from './SalaryCap';
 import MultiWeek from './MultiWeek';
 import MultiWeekSalary from './MultiWeekSalary';
+import SingleDay from './SingleDay';
 
 function CreatePool() {
     const dispatch = useDispatch();
     const username = useSelector(selectUsername);
     const email = useSelector(selectEmail);
-
+    const isLoggedIn = useSelector(selectLoggedIn);
     const admin = username;
 
     const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down('sm'));
+
+    useEffect(() => {
+        dispatch(fetchUsername());
+    }, [dispatch, isLoggedIn])
 
     useEffect(() => {
         if (username) {
@@ -123,12 +128,26 @@ function CreatePool() {
                     </AccordionDetails>
                 </Accordion>
 
-                <Accordion sx={{ width: '100%' }}>
+                <Accordion sx={{ width: '100%', mb: "1rem" }}>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{py: '.75rem'}}>
                         <Typography variant="h5">Multi-Week Salary Cap</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
                         <MultiWeekSalary
+                            email={email}
+                            username={username}
+                            admin={admin}
+                            isSmallScreen={isSmallScreen}
+                        />
+                    </AccordionDetails>
+                </Accordion>
+
+                <Accordion sx={{ width: '100%' }}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{py: '.75rem'}}>
+                        <Typography variant="h5">Single Round Best 4</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <SingleDay
                             email={email}
                             username={username}
                             admin={admin}

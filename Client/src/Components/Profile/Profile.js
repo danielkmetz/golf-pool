@@ -5,8 +5,8 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CurrentPicks from './currentPicks'; 
 import { fetchUserPicks } from '../../Features/myPicksSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { resetPoolUsers, selectUserPoolData } from '../../Features/poolsSlice';
-import { selectAllPicks, deleteUserPicks } from '../../Features/myPicksSlice';
+import { resetPoolName, resetPoolUsers, resetUserPoolData, selectPoolName, selectUserPoolData } from '../../Features/poolsSlice';
+import { selectAllPicks, deleteUserPicks, resetAllPicks } from '../../Features/myPicksSlice';
 import ChangeInfoModal from './ChangeInfoModal';
 import MyPool from './MyPool';
 import PastResults from './PastResults';
@@ -24,16 +24,22 @@ import { fetchEmail,
     selectUsername,
     fetchUsername,
     setUsername,
+    selectLoggedIn,
  } from '../../Features/userSlice';
 import { fetchPastResults } from '../../Features/pastResultsSlice';
-import { getAccountBalance, selectUserBalance, changeUsernameAccountBalance } from '../../Features/balanceSlice';
+import { getAccountBalance, selectUserBalance, changeUsernameAccountBalance, resetBalance } from '../../Features/balanceSlice';
 import AccountBalance from './AccountBalance';
+import DeleteUser from './DeleteUser';
+import { useNavigate } from 'react-router';
 
 function Profile() {
     const username = useSelector(selectUsername);
     const email = useSelector(selectEmail);
     const info = useSelector(selectUserPoolData);
     const balance = useSelector(selectUserBalance);
+    const poolName = useSelector(selectPoolName);
+    const userBalance = useSelector(selectUserBalance);
+    const isLoggedIn = useSelector(selectLoggedIn);
     const format = info.format;
     const [loading, setLoading] = useState(true);
     const userPhoto = useSelector(selectProfilePic);
@@ -47,12 +53,27 @@ function Profile() {
     const [newUsername, setNewUsername] = useState('');
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [error, setError] = useState('');
-    const [tabValue, setTabValue] = useState(0);
-    const [isBalanceModalOpen, setBalanceModalOpen] = useState(false); // State for balance modal visibility
+    const [tabValue, setTabValue] = useState(poolName ? 0 : 1);
+    const [isBalanceModalOpen, setBalanceModalOpen] = useState(false);
+    const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const currentDate = new Date();
     const currentDay = currentDate.getDay();
     const isSubmitDisabled = currentDay >= 4 || currentDay === 0;
+
+    const logout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('tournamentInfoCache');
+        localStorage.removeItem('geoCodeCache');
+        localStorage.removeItem('weatherCache');
+        dispatch(resetPoolName());
+        dispatch(resetPoolUsers());
+        dispatch(resetBalance());
+        dispatch(resetUserPoolData());
+        navigate('/Login');
+      };
 
     useEffect(() => {
         dispatch(fetchUsername());
@@ -61,7 +82,7 @@ function Profile() {
     useEffect(() => {
         setLoading(true)
         if (username) {
-            dispatch(fetchUserPicks(username));
+            dispatch(fetchUserPicks({username, poolName}));
             dispatch(fetchEmail(username));
             dispatch(fetchProfilePic(username));
             dispatch(fetchPastResults(username));
@@ -70,10 +91,10 @@ function Profile() {
     }, [dispatch, username, email]);
 
     useEffect(() => {
-        if (email) {
+        if (email && username) {
             dispatch(getAccountBalance({username, email}))
         }
-    }, [email])
+    }, [email, username, isLoggedIn])
 
     useEffect(() => {
         if (allUserPicks && allUserPicks.length > 0) {
@@ -88,8 +109,13 @@ function Profile() {
         }
     }, [allUserPicks]);
 
-    const handleDeletePicks = () => {
-        dispatch(deleteUserPicks({ username }));
+    const handleDeletePicks = async () => {
+        await dispatch(deleteUserPicks({ username, poolName }));
+        await setTier1Picks([]);
+        await setTier2Picks([]);
+        await setTier3Picks([]);
+        await setTier4Picks([]);
+        await dispatch(resetAllPicks());
     };
 
     const handleOpenModal = () => {
@@ -138,6 +164,7 @@ function Profile() {
           console.error('Error submitting username change:', error);
         }
       };  
+    
     const handleFileChange = (event) => {
         const image = event.target.files[0];
         const reader = new FileReader();
@@ -172,6 +199,14 @@ function Profile() {
         dispatch(getAccountBalance({username, email}));
     };
 
+    const handleOpenDeleteModal = () => {
+        setDeleteModalOpen(true);
+    };
+
+    const handleCloseDeleteModal = () => {
+        setDeleteModalOpen(false);
+    };
+
     return (
         <Box 
             sx={{ 
@@ -194,8 +229,8 @@ function Profile() {
                     padding: '5px 10px',
                     width: 120,
                     height: 30,
-                    right: 20,
-                    top: 140,
+                    left: 0,
+                    top: 120,
                     cursor: 'pointer',
                     display: 'flex',
                     textAlign: 'center',
@@ -206,6 +241,9 @@ function Profile() {
                     },
                     ':focus': {
                         outline: 'none',
+                    },
+                    '@media (max-width: 600px)': {
+                        marginTop: '1rem',
                     },
                 }}
             >
@@ -250,9 +288,9 @@ function Profile() {
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
-                            height: '240px',
+                            height: '260px',
                             backgroundColor: "#DEB887",
-                            marginTop: '2rem',
+                            marginTop: '3rem',
                             '@media (min-width: 600px)': {
                                 position: 'sticky',
                                 top: '20px',
@@ -304,6 +342,14 @@ function Profile() {
                         >
                             Change Username
                         </Button>
+                        <Button
+                            sx={{
+                                color: 'red'
+                            }}
+                            onClick={handleOpenDeleteModal}
+                        >
+                            Delete Account
+                        </Button>
                         <ChangeInfoModal
                             open={openModal}
                             onClose={handleCloseModal}
@@ -317,13 +363,16 @@ function Profile() {
                 )}
             </Box>
             {/* Main Content */}
-            <Box sx={{ width: '60%', '@media (max-width: 600px)': {
+            <Box sx={{ 
+                    width: '60%',
+                    mt: "2rem",
+                    '@media (max-width: 600px)': {
                             marginTop: '2rem',
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',
                             width: '100%',
-                        },}}>
+                    },}}>
                 <Box>
                     <Tabs
                         value={tabValue}
@@ -345,6 +394,7 @@ function Profile() {
                                 },
                         }}
                     >
+                    {poolName ?
                         <Button 
                             variant="contained"
                             onClick={() => handleTabChange(0)}
@@ -373,7 +423,8 @@ function Profile() {
                                     },
                                 }}
                             />
-                        </Button>
+                        </Button> :
+                        null}
                         <Button 
                             variant="contained"
                             sx={{
@@ -419,16 +470,18 @@ function Profile() {
                     )}
                 </Box>
             </Box>
-            <Box 
-                sx={{
-                    display: 'flex', 
-                    justifyContent: 'center',
-                    '@media (max-width: 600px)': {
-                        width: '100%',
-                    }
-                    }}>
-                <MyPool info={info}/>
-            </Box>
+            {poolName ?
+                <Box 
+                    sx={{
+                        display: 'flex', 
+                        justifyContent: 'center',
+                        '@media (max-width: 600px)': {
+                            width: '100%',
+                        }
+                        }}>
+                    <MyPool info={info}/>
+                </Box> :
+            null}
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={6000}
@@ -439,6 +492,14 @@ function Profile() {
                     Username changed successfully
                 </Alert>
             </Snackbar>
+            <DeleteUser
+                username={username}
+                visible={isDeleteModalOpen}
+                onClose={handleCloseDeleteModal}
+                onSuccess={logout}  // After deletion, log the user out
+                balance={userBalance}  // Pass the user balance to the modal
+                email={email}
+            />
         </Box>
     );
 }

@@ -423,7 +423,7 @@ router.get('/triggerPositionNotificationReset', async (req, res) => {
     }
 });
 
-cron.schedule('0 19 * * 3,4', async () => {
+cron.schedule('0 19 * * 2,3', async () => {
     console.log('Running scheduled task to send notifications to users without picks');
     try {
         await sendNotificationToUsersWithoutPicks();
@@ -432,7 +432,7 @@ cron.schedule('0 19 * * 3,4', async () => {
     }
 });
 
-cron.schedule('0 12 * * 1', async () => {
+cron.schedule('0 12 * * 1,2', async () => {
     console.log('Running scheduled task to send tournament notifications');
     try {
         await sendTournamentNotifications();
@@ -445,7 +445,7 @@ cron.schedule('0 12 * * 1', async () => {
 cron.schedule('0 10 * * 4', async () => {
     console.log('Running scheduled task to send tournament notifications');
     try {
-        await sendTournamentNotifications();
+        await sendNotificationToUsersWithPicks();
     } catch (error) {
         console.error('Error during scheduled task:', error);
     }

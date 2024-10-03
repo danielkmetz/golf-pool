@@ -179,6 +179,7 @@ router.post('/fetch-all', async (req, res) => {
                 };
   
                 const data = await S3.send(new GetObjectCommand(s3Params));
+                console.log(data);
                 const { Body } = data; 
                 const chunks = [];
                 Body.on('data', (chunk) => {

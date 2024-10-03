@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { resetTier1Picks, resetTier2Picks, resetTier3Picks, resetTier4Picks } from '../../Features/myPicksSlice';
 import { resetPastResults } from '../../Features/pastResultsSlice';
 import { useDispatch } from 'react-redux';
+import UserPools from '../UserPools/UserPools';
 
 function Header({isLoggedIn}) {
     const poolName = useSelector(selectPoolName);
@@ -74,12 +75,16 @@ function Header({isLoggedIn}) {
                         },
                     }}
                 >
-                    {!isLoggedIn || poolName === null ? (
+                    {!poolName ? (
                     <>
                         <Tab label="Welcome" component={Link} to="/" />
                         <Tab label="Create Pool" component={Link} to="/Create-Pool"/>
                         <Tab label="Join Pool" component={Link} to="/Join-Pool"/>
-                        {!isLoggedIn && <Tab label="Login" component={Link} to="/Login"/>}
+                        <Tab label="My Pools" component={Link} to="/my-pools"/>
+                        {isLoggedIn ? 
+                            <Tab label="Profile" component={Link} to="/Profile" onClick={handleProfileClick}/> :
+                            <Tab label="Login" component={Link} to="/Login"/>
+                        }
                     </>
                     ) : (
                     <>

@@ -9,7 +9,6 @@ export const fetchLeaderboard = createAsyncThunk(
     'leaderboard/fetchLeaderboard',
     async () => {
         const url = `${process.env.REACT_APP_API_URL}/leaderboard`;
-        //console.log(url)
         const response = await fetch(url, params);
         const json = await response.json();
         return json.field.map(i => i);
@@ -22,7 +21,6 @@ export const fetchRound1 = createAsyncThunk(
         const liveUrl = `https://feeds.datagolf.com/preds/live-tournament-stats?&round=1&${process.env.REACT_APP_DATA_GOLF_KEY}`;
         const response = await fetch(liveUrl, params);
         const json = await response.json();
-        //console.log(json)
         return json.live_stats;
     }
 );
@@ -31,10 +29,8 @@ export const fetchLiveModel = createAsyncThunk(
     'leaderboard/fetchLiveModel',
     async () => {
         const url = `${process.env.REACT_APP_API_URL}/liveResults`;
-        //console.log(url)
         const response = await fetch(url, params);
         const json = await response.json()
-        //console.log(json);
         return json.data
     }
 )
@@ -56,7 +52,6 @@ export const leaderboardSlice = createSlice({
                 state.status = "loading";
             })
             .addCase(fetchLeaderboard.fulfilled, (state, action) => {
-                //console.log(action.payload)
                 state.results = action.payload;
                 state.status = "succeeded";
             })

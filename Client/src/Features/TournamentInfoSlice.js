@@ -9,7 +9,7 @@ const fetchWeatherData = async (lat, long) => {
     return json.forecast.forecastday[0].hour;
   };
 
-  export const fetchTournamentInfo = createAsyncThunk(
+export const fetchTournamentInfo = createAsyncThunk(
     'tournamentInfo/fetchTournamentInfo',
     async (_, { dispatch, getState }) => {
         const state = getState();

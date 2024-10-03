@@ -1,33 +1,34 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from 'axios';
 
+const apiClient = axios.create({
+    baseURL: process.env.REACT_APP_API_URL,
+  });
+
 export const fetchUserPicks = createAsyncThunk(
     'myPicks/fetchUserPicks',
-    async (username) => {
+    async ({ username, poolName }, { rejectWithValue }) => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/userpicks/${username}`);
-            //console.log(response)
-            if (!response.ok) {
-                throw new Error('Failed to fetch user picks');
+            const response = await apiClient.get(`/userpicks/${username}/${poolName}`);
+            
+            if (response.status !== 200) {
+                return rejectWithValue('Failed to fetch user picks');
             }
-            const data = await response.json();
-            //console.log(data)
-            const userPicks = data.userPicks.map(pick => pick);
-            return userPicks;
+            
+            return response.data.userPicks || [];
         } catch (error) {
-            console.error('Error fetching picks:', error);
-            throw error
+            return rejectWithValue(error.response?.data?.message || error.message || 'An unknown error occurred');
         }
     }
 );
 
 export const deleteUserPicks = createAsyncThunk(
     'myPicks/deleteUserPicks',
-    async ({username}) => {
+    async ({username, poolName}) => {
         try {
-            const response = await axios.delete(`${process.env.REACT_APP_API_URL}/userpicks/delete-user-picks/${username}`);
-            return response.data;
+            const response = await apiClient.delete(`/userpicks/delete-user-picks/${username}/${poolName}`);
             alert('Your picks have been deleted');
+            return response.data;
         } catch (error) {
             console.error('Error deleting user picks:', error);
             alert("error deleteing user picks");
@@ -35,22 +36,49 @@ export const deleteUserPicks = createAsyncThunk(
     }
 )
 
+export const deleteAllUserPicks = createAsyncThunk(
+    'myPicks/deleteAllUserPicks',
+    async (username) => {
+        try {
+            const response = await apiClient.delete(`/userpicks/delete-all-picks/${username}`);
+            return response.data;
+        } catch (error) {
+            console.error('Error deleting user picks:', error);
+        }
+    }
+)
+
 export const fetchTotalPicks = createAsyncThunk(
     'myPicks/fetchTotalPicks',
-    async () => {
+    async (poolName) => {  // Accept poolName as an argument
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/userpicks/`);
-            //console.log(response)
-            if (!response.ok) {
-                throw new Error('Failed to fetch user picks');
-            }
-            const data = await response.json();
-            return data;
+            const response = await apiClient.get(`/userpicks`, {
+                params: {
+                    poolName: poolName
+                }
+            });
+            return response.data;  // Return data from the axios response
             
         } catch (error) {
             console.error('Error fetching picks:', error);
-            throw error
+            throw error;
         }
+    }
+);
+
+export const deleteAllPoolPicks = createAsyncThunk(
+    'userPicks/deleteUsersPicks',
+    async (userPools, { rejectWithValue }) => {
+      try {
+        const response = await apiClient.delete(`/userpicks/delete-users-picks`, {
+          data: { userPools }  // Pass the userPools array in the request body
+        });
+        return response.data;  // Return the response data if successful
+      } catch (error) {
+        console.error('Error deleting user picks:', error);
+        // Return a rejected value with the error message
+        return rejectWithValue(error.response?.data?.message || 'Failed to delete user picks');
+      }
     }
 );
 
@@ -139,10 +167,15 @@ export const myPicksSlice = createSlice({
         resetTier3Picks: (state, action) => {
             state.tier3Picks = [];
         },
-        restTier4Picks: (state, action) => {
+        resetTier4Picks: (state, action) => {
             state.tier4Picks = [];
         },
-
+        resetAllPicks: (state, action) => {
+            state.allPicks = [];
+        },
+        setAllPicks: (state, action) => {
+            state.allPicks = action.payload;
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -150,7 +183,6 @@ export const myPicksSlice = createSlice({
                 state.status = "loading";
             })
             .addCase(fetchUserPicks.fulfilled, (state, action) => {
-                //console.log(action.payload)
                 state.allPicks = action.payload;
                 state.status = "succeeded";
             })
@@ -162,7 +194,6 @@ export const myPicksSlice = createSlice({
                 state.status = "loading";
             })
             .addCase(fetchTotalPicks.fulfilled, (state, action) => {
-                //console.log(action.payload)
                 state.totalPicks = action.payload;
                 state.status = "succeeded";
             })
@@ -174,7 +205,6 @@ export const myPicksSlice = createSlice({
                 state.status = "loading";
             })
             .addCase(deleteUserPicks.fulfilled, (state, action) => {
-                console.log(action.payload)
                 state.status = "succeeded";
             })
             .addCase(deleteUserPicks.rejected, (state, action) => {
@@ -183,7 +213,6 @@ export const myPicksSlice = createSlice({
             })
     }
 });
-
 
 export default myPicksSlice.reducer;
 
@@ -211,5 +240,7 @@ export const {
     resetTier2Picks,
     resetTier3Picks,
     resetTier4Picks,
+    resetAllPicks,
+    setAllPicks,
 } = myPicksSlice.actions
 

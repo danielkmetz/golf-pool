@@ -30,30 +30,37 @@ export const bettingOddsSlice = createSlice({
         status: "idle",
     },
     reducers: {
-        setTier1Results: (state) => {
-            const tier1 = Math.floor((state.oddsResults.length) * .21);
-            const tier1Slice = state.oddsResults.slice(0, tier1);
+        setTier1Results: (state, action) => {
+            const { tier1Picks } = action.payload;  // Get the current tier 1 picks
+            const tier1 = Math.floor(state.oddsResults.length * 0.21);
+            // Calculate the slice and then filter out the picks
+            const tier1Slice = state.oddsResults.slice(0, tier1).filter(golfer => !tier1Picks.includes(golfer.player_name));
             state.tier1Results = tier1Slice;
         },
-        setTier2Results: (state) => {
-            const tier1 = Math.floor((state.oddsResults.length) * .21);
-            const tier2 = Math.floor((state.oddsResults.length) * .24);
-            const tier2Slice = state.oddsResults.slice(tier1, (tier1 + tier2));
+        setTier2Results: (state, action) => {
+            const { tier2Picks } = action.payload;  // Get the current tier 2 picks
+            const tier1 = Math.floor(state.oddsResults.length * 0.21);
+            const tier2 = Math.floor(state.oddsResults.length * 0.24);
+            // Calculate the slice and then filter out the picks
+            const tier2Slice = state.oddsResults.slice(tier1, tier1 + tier2).filter(golfer => !tier2Picks.includes(golfer.player_name));
             state.tier2Results = tier2Slice;
         },
-        setTier3Results: (state) => {
-            const tier1 = Math.floor((state.oddsResults.length) * .21);
-            const tier2 = Math.floor((state.oddsResults.length) * .24);
-            const tier3 = Math.floor((state.oddsResults.length) * .26);
-            const tier3Slice = state.oddsResults.slice((tier1 + tier2), (tier1 + tier2 + tier3));
+        setTier3Results: (state, action) => {
+            const { tier3Picks } = action.payload;  // Get the current tier 3 picks
+            const tier1 = Math.floor(state.oddsResults.length * 0.21);
+            const tier2 = Math.floor(state.oddsResults.length * 0.24);
+            const tier3 = Math.floor(state.oddsResults.length * 0.26);
+            // Calculate the slice and then filter out the picks
+            const tier3Slice = state.oddsResults.slice(tier1 + tier2, tier1 + tier2 + tier3).filter(golfer => !tier3Picks.includes(golfer.player_name));
             state.tier3Results = tier3Slice;
         },
-        setTier4Results: (state) => {
-            const tier1 = Math.floor((state.oddsResults.length) * .21);
-            const tier2 = Math.floor((state.oddsResults.length) * .24);
-            const tier3 = Math.floor((state.oddsResults.length) * .26);
-            const end = Math.floor(state.oddsResults.length + 1)
-            const tier4Slice = state.oddsResults.slice((tier1 + tier2 + tier3), end);
+        setTier4Results: (state, action) => {
+            const { tier4Picks } = action.payload;  // Get the current tier 4 picks
+            const tier1 = Math.floor(state.oddsResults.length * 0.21);
+            const tier2 = Math.floor(state.oddsResults.length * 0.24);
+            const tier3 = Math.floor(state.oddsResults.length * 0.26);
+            // Calculate the slice and then filter out the picks
+            const tier4Slice = state.oddsResults.slice(tier1 + tier2 + tier3).filter(golfer => !tier4Picks.includes(golfer.player_name));
             state.tier4Results = tier4Slice;
         },
         filterGolferFromTier: (state, action) => {

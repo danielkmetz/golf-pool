@@ -6,6 +6,7 @@ const User = require('../models/users');
 const crypto = require('crypto'); // For generating random tokens
 const bcrypt = require('bcryptjs');
 const AWS = require('aws-sdk'); // For sending emails via AWS SES
+const rateLimit = require('express-rate-limit');
 
 // Configure AWS SES
 const ses = new AWS.SES({
@@ -14,13 +15,18 @@ const ses = new AWS.SES({
   region: 'us-east-2',
 });
 
+const passwordResetLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 3, // Limit each IP to 3 requests per windowMs
+  message: 'Too many password reset attempts from this IP, please try again later.',
+});
 
-router.post('/request-reset-password', async (req, res) => {
-  const { email } = req.body;
+router.post('/request-reset-password', passwordResetLimiter, async (req, res) => {
+  const { username, email } = req.body;
 
   try {
     // Find the user by their email address
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ username, email });
     if (!user) {
       return res.status(404).json({ message: 'User with this email does not exist.' });
     }
@@ -131,7 +137,7 @@ router.get('/:username', async (req, res) => {
 router.delete('/:username', async (req, res) => {
   try {
     const { username } = req.params;
-    const deletedUser = await User.findByOneAndDelete({ username });
+    const deletedUser = await User.findOneAndDelete({ username });
 
     if (!deletedUser) {
       return res.status(404).json({ message: 'User not found' });

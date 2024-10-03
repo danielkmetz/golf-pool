@@ -3,12 +3,11 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
 import { useSelector } from 'react-redux';
 import { selectTotals } from '../../Features/pastResultsSlice';
 
-const WeeklyTotalsMulti = ({ tournaments, usernames, profilePics }) => {
+const WeeklyTotalsMulti = ({ tournaments, profilePics }) => {
     const totalsData = useSelector(selectTotals);
     // Sort totalsData by totalScore in ascending order
+    console.log(totalsData);
     const sortedTotalsData = [...totalsData].sort((a, b) => a.totalScore - b.totalScore);
-
-    console.log(sortedTotalsData);
 
     return (
         <TableContainer component={Paper}>

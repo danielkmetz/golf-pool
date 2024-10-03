@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { Button, Container, TextField, Typography, Box, FormControlLabel, Checkbox } from '@mui/material';
-import { fetchPoolName } from '../../Features/poolsSlice';
+import { fetchPoolName, fetchUserPools } from '../../Features/poolsSlice';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
+import { fetchUsername } from '../../Features/userSlice';
 import TigerFistPump from '../../Resources/Tiger_fist_pump.jpg';
 import Scottie from '../../Resources/Scottie.jpg';
+import axios from 'axios';
+
+const API_URL = process.env.REACT_APP_API_URL;
 
 const Login = ({ setIsLoggedIn }) => {
   const [username, setUsername] = useState('');
@@ -12,44 +16,75 @@ const Login = ({ setIsLoggedIn }) => {
   const [email, setEmail] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
   const [message, setMessage] = useState('');
-  const [smsOptIn, setSmsOptIn] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [confirmEmail, setConfirmEmail] = useState('');
+  
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // Email validation regex
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleLogin = async () => {
     const trimmedUsername = username.trim();
+
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await axios.post(
+        `${API_URL}/login`,
+        {
+          username: trimmedUsername,
+          password: password,
         },
-        body: JSON.stringify({ username: trimmedUsername, password }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setIsLoggedIn(true);
-        localStorage.setItem('token', data.token);
-        setMessage('Login successful');
-        const result = await dispatch(fetchPoolName(trimmedUsername));
-        if (result.payload.message === "User not found in any pool") {
-          navigate('/Join-Pool');
-        } else {
-          navigate('/Standings');
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
+      );
+
+      if (response.status === 200) {
+        const { token } = response.data;
+        dispatch(fetchUserPools(trimmedUsername));
+        dispatch(setIsLoggedIn(true));
+        setMessage('Login successful');
+        navigate('/my-pools')
+        await localStorage.setItem('token', token);
+        await dispatch(fetchUsername());
+        
       } else {
-        setMessage(data.message || 'Error logging in');
+        setMessage(response.data.message || 'Error logging in');
       }
     } catch (error) {
       console.error('Error:', error);
-      setMessage('Error logging in');
+      setMessage(error.response?.data?.message || 'Error logging in');
     }
   };
 
   const handleRegister = async () => {
     const trimmedUsername = username.trim();
+
+    if (password !== confirmPassword) {
+      setMessage('Passwords do not match');
+      return;
+    }
+
+    // Ensure emails match
+    if (email !== confirmEmail) {
+      setMessage('Emails do not match');
+      return;
+    }
+
+    // Validate email format
+    if (!validateEmail(email)) {
+      setMessage('Invalid email format');
+      return;
+    }
+
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/register`, {
+      const response = await fetch(`${API_URL}/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -146,27 +181,31 @@ const Login = ({ setIsLoggedIn }) => {
         {isRegistering && (
           <>
           <TextField
+            type="password"
+            label="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            variant="outlined"
+            margin="normal"
+            
+          />
+          <TextField
             type="email"
             label="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             variant="outlined"
             margin="normal"
-            
           />
-          <FormControlLabel
-              control={
-                <Checkbox
-                  checked={smsOptIn}
-                  onChange={(e) => setSmsOptIn(e.target.checked)}
-                  name="smsOptIn"
-                  color="primary"
-                />
-              }
-              sx={{maxWidth: '350px'}}
-              label="Opt-in to receive SMS updates for your tournament"
-            />
-            </>
+          <TextField
+            type="email"
+            label="Confirm Email"
+            value={confirmEmail}
+            onChange={(e) => setConfirmEmail(e.target.value)}
+            variant="outlined"
+            margin="normal"
+          />
+          </>
         )}
         <Button 
           type="submit" 

@@ -5,8 +5,8 @@ import { Container, Box, Card,
     InputLabel, Grid, Accordion, AccordionSummary, 
     AccordionDetails, Modal, Backdrop, Fade } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { fetchPools, selectPools, setPoolName } from '../../Features/poolsSlice';
-import { selectUsername } from '../../Features/userSlice';
+import { fetchPools, selectPools, selectUserPools, setPoolName, fetchPoolUsers } from '../../Features/poolsSlice';
+import { fetchUsername, selectUsername } from '../../Features/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import axios from 'axios';
@@ -15,18 +15,24 @@ function JoinPool() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const pools = useSelector(selectPools);
+    const userPools = useSelector(selectUserPools);
     const username = useSelector(selectUsername);
     const [searchQuery, setSearchQuery] = useState('');
     const [formatFilter, setFormatFilter] = useState('');
     const [pinModalOpen, setPinModalOpen] = useState(false);
     const [enteredPin, setEnteredPin] = useState('');
     const [selectedPool, setSelectedPool] = useState(null);
+    const [canJoin, setCanJoin] = useState(true);
 
     const formatDate = (dateString) => {
         const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
         const date = new Date(dateString);
         return date.toLocaleDateString('en-US', options);
-    };    
+    };
+    
+    useEffect(() => {
+        dispatch(fetchUsername());
+    }, [dispatch])
     
     useEffect(() => {
         dispatch(fetchPools());
@@ -50,18 +56,22 @@ function JoinPool() {
     };
 
     const joinPool = async (poolName) => {
-        try {
-            const response = await axios.put(`${process.env.REACT_APP_API_URL}/create-pool/join`, 
-                { poolName, username });
+        if (canJoin && username) {
+            try {
+                const response = await axios.put(`${process.env.REACT_APP_API_URL}/create-pool/join`, 
+                    { poolName, username });
 
-            if (response.status === 200) {
-                dispatch(setPoolName(poolName));
-                alert('Successfully joined the pool!');
-                navigate('/Standings');
+                if (response.status === 200) {
+                    dispatch(setPoolName(poolName));
+                    dispatch(fetchPoolUsers(poolName));
+                    alert('Successfully joined the pool!');
+                    setCanJoin(false);
+                    navigate('/Standings');
+                }
+            } catch (error) {
+                console.error('Error joining pool:', error);
+                alert('Failed to join the pool.');
             }
-        } catch (error) {
-            console.error('Error joining pool:', error);
-            alert('Failed to join the pool.');
         }
     };
 
@@ -82,10 +92,12 @@ function JoinPool() {
         setPinModalOpen(false);
     };
 
-    const filteredPools = pools.filter(pool =>
-        pool.poolName.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        (formatFilter === '' || pool.format === formatFilter)
-    );
+    const filteredPools = pools
+        .filter(pool =>
+            pool.poolName.toLowerCase().includes(searchQuery.toLowerCase()) &&
+            (formatFilter === '' || pool.format === formatFilter) &&
+            !userPools.includes(pool.poolName) // Exclude pools where the poolName is in userPools
+        );
 
     const uniqueFormats = [...new Set(pools.map(pool => pool.format))];
 

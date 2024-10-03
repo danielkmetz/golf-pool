@@ -1,12 +1,16 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from 'axios';
 
+const apiClient = axios.create({
+    baseURL: process.env.REACT_APP_API_URL,
+  });
+
 // Thunk to get account balance
 export const getAccountBalance = createAsyncThunk(
     'balance/getAccountBalance',
     async ({ username, email }) => {
-        const getBalanceUrl = `${process.env.REACT_APP_API_URL}/balance/get-balance`;
-        const response = await axios.get(getBalanceUrl, {
+        const getBalanceUrl = `/balance/get-balance`;
+        const response = await apiClient.get(getBalanceUrl, {
             params: { username, email }
         });
         return response.data;
@@ -17,8 +21,8 @@ export const getAccountBalance = createAsyncThunk(
 export const changeUsernameAccountBalance= createAsyncThunk(
     'balance/changeUsername',
     async ({ username, email, newUsername }) => {
-        const changeUsernameUrl = `${process.env.REACT_APP_API_URL}/balance/change-username`;
-        const response = await axios.post(changeUsernameUrl, { username, email, newUsername });
+        const changeUsernameUrl = `/balance/change-username`;
+        const response = await apiClient.post(changeUsernameUrl, { username, email, newUsername });
         return response.data;
     }
 );
@@ -27,11 +31,10 @@ export const changeUsernameAccountBalance= createAsyncThunk(
 export const withdrawBalance = createAsyncThunk(
     'balance/withdrawBalance',
     async ({ username, email, adjustment }, {dispatch}) => {
-        const withdrawUrl = `${process.env.REACT_APP_API_URL}/balance/withdraw-balance`;
-        const response = await axios.post(withdrawUrl, {
+        const withdrawUrl = `/balance/withdraw-balance`;
+        const response = await apiClient.post(withdrawUrl, {
             username, email, adjustment
         });
-        console.log(response.data);
         dispatch(setUserBalance(response.data.balance));
         return response.data;
     }
@@ -40,9 +43,25 @@ export const withdrawBalance = createAsyncThunk(
 export const sendPayment = createAsyncThunk(
     'balance/sendPayment',
     async ({username, email, payout}) => {
-        const paymentUrl = `${process.env.REACT_APP_API_URL}/payouts/send-payout`;
-        const response = await axios.post(paymentUrl, {username, email, payout});
+        const paymentUrl = `/payouts/send-payout`;
+        const response = await apiClient.post(paymentUrl, {username, email, payout});
         return response.data
+    }
+);
+
+// Thunk to delete a user
+export const deleteUserBalance = createAsyncThunk(
+    'balance/deleteUserAccount',
+    async ({ username, email }, { rejectWithValue }) => {
+        try {
+            const deleteUserUrl = `/balance/delete-user`;
+            const response = await apiClient.delete(deleteUserUrl, {
+                data: { username, email } // Axios requires data to be sent in the body for DELETE requests
+            });
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || 'Failed to delete user');
+        }
     }
 );
 
@@ -122,6 +141,16 @@ export const balanceSlice = createSlice({
             .addCase(sendPayment.rejected, (state, action) => {
                 state.paymentStatus = 'failed';
                 state.paymentError = action.error.message;
+            })
+            .addCase(deleteUserBalance.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(deleteUserBalance.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.userBalance = null;
+            })
+            .addCase(deleteUserBalance.rejected, (state, action) => {
+                state.status = 'failed';
             })
     }
 });

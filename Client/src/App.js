@@ -12,20 +12,21 @@ import CreatePool from './Components/CreatePool/CreatePool';
 import JoinPool from './Components/JoinPool/JoinPool';
 import Welcome from './Components/Welcome/Welcome';
 import ResetPassword from './Components/ResetPassword/ResetPassword';
-import { fetchUsername, selectUsername } from './Features/userSlice';
-import { fetchPoolUsers, 
+import UserPools from './Components/UserPools/UserPools';
+import { fetchUsername, selectUsername, fetchUsers, fetchEmail, setIsLoggedIn, selectLoggedIn } from './Features/userSlice';
+import {  
   resetPoolUsers, 
   selectPoolName, 
-  fetchPoolName, 
-  resetPoolName, 
-  fetchPoolInfo, 
+  resetPoolName,  
   resetUserPoolData } from './Features/poolsSlice';
+import { fetchPastResults } from './Features/pastResultsSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { resetBalance } from './Features/balanceSlice';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const isLoggedIn = useSelector(selectLoggedIn);
   const username = useSelector(selectUsername);
   const poolName = useSelector(selectPoolName);
   const dispatch = useDispatch();
@@ -43,19 +44,6 @@ function App() {
     }
   }, [dispatch, isLoggedIn]);
 
-  useEffect(() => {
-    if (username) {
-      dispatch(fetchPoolName(username));
-    }
-  }, [dispatch, username]);
-
-  useEffect(() => {
-    if (poolName) {
-      dispatch(fetchPoolUsers(poolName));
-      dispatch(fetchPoolInfo(poolName));
-    }
-  }, [dispatch, poolName]);
-
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('tournamentInfoCache');
@@ -65,8 +53,25 @@ function App() {
     dispatch(resetPoolName());
     dispatch(resetPoolUsers());
     dispatch(resetUserPoolData());
+    dispatch(resetBalance());
     navigate('/Login');
   };
+
+  useEffect(() => {
+    const checkAuthToken = async () => {
+      const authToken = await localStorage.getItem('token');
+      dispatch(setIsLoggedIn(!!authToken));
+    };
+    checkAuthToken();
+    dispatch(fetchUsers());
+}, [username]);
+
+useEffect(() => {
+  if (username) {      
+    dispatch(fetchEmail(username));
+    dispatch(fetchPastResults(username));
+  }
+}, [username]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -75,24 +80,39 @@ function App() {
   return (
     <div className="App">
       <Header isLoggedIn={isLoggedIn} />
-      {isLoggedIn && <button onClick={logout} >Logout</button>}
+      {isLoggedIn && 
+        <button 
+          onClick={logout} 
+          style={{
+            position: 'absolute',
+            right: 0,
+          }}  
+        >
+          Logout
+        </button>}
       <div className="main-content">
       <Routes>
         {poolName ? (
-          <Route path='/' element={<Standings />} />
+          <>
+          <Route path='/Standings' element={<Standings />} />
+          <Route path="/golfers" element={<Golfers />} />
+          <Route path='/news' element={isLoggedIn ? <News /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
+          <Route path="/how-to" element={<HowTo />} />
+          <Route path="/user-profile/:username" element={<UserProfile />} />
+          <Route path="/profile" element={<Profile />} />
+          </>
         ) : (
+          <>
           <Route path='/' element={<Welcome />} />
+          <Route path="/Login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
+          <Route path="/Create-Pool" element={isLoggedIn ? <CreatePool /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
+          <Route path="/Join-Pool" element={isLoggedIn ? <JoinPool /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
+          <Route path="/how-to" element={<HowTo />} />
+          <Route path="/profile" element={isLoggedIn ? <Profile /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/my-pools" element={isLoggedIn ? <UserPools /> : <Login setIsLoggedIn={setIsLoggedIn}/>} />
+          </>
         )}
-        <Route path="/Login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
-        <Route path="/Create-Pool" element={isLoggedIn ? <CreatePool /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
-        <Route path="/Join-Pool" element={isLoggedIn ? <JoinPool /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
-        <Route path="/Standings" element={isLoggedIn ? <Standings /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
-        <Route path="/how-to" element={isLoggedIn ? <HowTo /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
-        <Route path='/news' element={isLoggedIn ? <News /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
-        <Route path="/golfers" element={isLoggedIn ? <Golfers /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
-        <Route path="/profile" element={isLoggedIn ? <Profile /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
-        <Route path="/user-profile/:username" element={isLoggedIn ? <UserProfile /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
       </Routes>
       </div>
     </div>

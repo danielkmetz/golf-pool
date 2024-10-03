@@ -16,14 +16,16 @@ import {
   removeTier2Golfer,
   removeTier3Golfer,
   removeTier4Golfer,
+  setAllPicks,
+  
 } from '../../Features/myPicksSlice';
 import SubmissionWindow from './submissionWindow';
 import axios from 'axios';
-import { fetchEmail, selectEmail, selectUsername } from '../../Features/userSlice';
+import { fetchEmail, selectEmail, selectUsername, fetchUsersWithPicks } from '../../Features/userSlice';
 import CheckoutPage from '../Checkout/CheckoutPage';
-import { selectPaymentStatus, fetchPaymentStatus, } from '../../Features/paymentStatusSlice';
+import { selectPaymentStatus, fetchPaymentStatus, updatePaymentStatus, } from '../../Features/paymentStatusSlice';
 import { addGolferToAvailable, selectOddsResults } from '../../Features/bettingOddsSlice';
-import { addInitialBalance, selectUserPoolData, selectInitialBalance } from '../../Features/poolsSlice';
+import { addInitialBalance, resetInitialBalance, selectUserPoolData, selectInitialBalance, selectRoundDay, selectPoolName, selectPoolUsers } from '../../Features/poolsSlice';
 import { getAccountBalance, selectUserBalance } from '../../Features/balanceSlice';
 import { withdrawBalance } from '../../Features/balanceSlice';
 
@@ -36,6 +38,7 @@ function MyPicks() {
   const username = useSelector(selectUsername);
   const [showCheckout, setShowCheckout] = useState(true);
   const [showBalanceModal, setShowBalanceModal] = useState(false);
+  const [showCutPlayersModal, setShowCutPlayersModal] = useState(false);
   
   const tier1Picks = useSelector(selectTier1Picks);
   const tier2Picks = useSelector(selectTier2Picks);
@@ -46,12 +49,21 @@ function MyPicks() {
   const poolInfo = useSelector(selectUserPoolData);
   const balance = useSelector(selectInitialBalance);
   const accountBalance = useSelector(selectUserBalance);
+  const roundDay = useSelector(selectRoundDay);
+  const poolName = useSelector(selectPoolName);
+  const poolUsers = useSelector(selectPoolUsers);
   
   const userAccountBalance = accountBalance?.balance
   const currentDate = new Date();
   const currentDay = currentDate.getDay();
   const format = poolInfo?.format;
   const buyIn = poolInfo?.buyIn;
+
+  useEffect(() => {
+    if (format === "Single Round" && (roundDay === 6 || roundDay === 0)) {
+      setShowCutPlayersModal(true);
+    }
+  }, [format, roundDay]);
 
   useEffect(() => {
     if (username) {
@@ -74,10 +86,12 @@ function MyPicks() {
   let isSubmitDisabled;
   if (format === "Salary Cap" || format === "Multi-Week Salary Cap") {
     isSubmitDisabled = currentDay >= 4 || currentDay === 0 || balance > 0;
+  } else if (format === "Single Round") {
+    isSubmitDisabled = currentDay === roundDay || totalPicksLength < 8;
   } else {
     isSubmitDisabled = currentDay >= 4 || currentDay === 0 || totalPicksLength < 8;
-  }
-  
+  }  
+
   const handleSubmission = async () => {
     try {
       const userPicks = [
@@ -89,9 +103,13 @@ function MyPicks() {
       // Send the user picks data with the username to the server
       await axios.post(`${process.env.REACT_APP_API_URL}/userpicks/save`, {
         username: username,
+        poolName: poolName,
         userPicks: userPicks,
       });
 
+      dispatch(setAllPicks(userPicks));
+      dispatch(fetchUsersWithPicks({poolUsers, poolName}));
+      dispatch(resetInitialBalance());
       dispatch(setTier1Picks([]));
       dispatch(setTier2Picks([]));
       dispatch(setTier3Picks([]));
@@ -108,12 +126,15 @@ function MyPicks() {
   };
 
   useEffect(() => {
-    dispatch(fetchPaymentStatus(username));
-  }, [username, handleSubmission, dispatch]);
+    if (username && poolName) {
+      dispatch(fetchPaymentStatus({username, poolName}));
+    }
+  }, [username, poolName, handleSubmission, dispatch]);
 
   const handleClose = () => {
     setOpen(false);
     setGoodluck(false);
+    dispatch(getAccountBalance(username));
   };
 
   const handleCloseCheckout = () => {
@@ -124,6 +145,7 @@ function MyPicks() {
     setShowBalanceModal(false);
     handleSubmission();
     dispatch(withdrawBalance({username, email, adjustment: -buyIn}))
+    dispatch(updatePaymentStatus({username, poolName}))
     setGoodluck(true);
   };
   
@@ -198,7 +220,11 @@ function MyPicks() {
       }
     }      
   };
-  console.log(playableBalance);
+
+  const handleCutPlayersModalClose = () => {
+    setShowCutPlayersModal(false);
+  };
+  
   return (
     <Card className="my-picks" 
       sx={{ 
@@ -237,6 +263,38 @@ function MyPicks() {
           >
             SUBMIT
           </Button>
+          {/* Cut players modal */}
+          <Modal
+            open={showCutPlayersModal}
+            onClose={handleCutPlayersModalClose}
+            aria-labelledby="modal-title"
+            aria-describedby="modal-description"
+          >
+            <Box
+              sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: 400,
+                bgcolor: 'background.paper',
+                boxShadow: 24,
+                p: 4,
+                borderRadius: 2,
+              }}
+            >
+              <Typography id="modal-title" variant="h6" component="h2" sx={{ mb: 2 }}>
+                Important Reminder
+              </Typography>
+              <Typography id="modal-description" sx={{ mb: 2 }}>
+                Please note, it is your responsibility to monitor your picks for cut players. 
+                If one of your players is cut or is in danger of being cut, please submit a new card of picks.
+              </Typography>
+              <Button variant="contained" onClick={handleCutPlayersModalClose}>
+                Close
+              </Button>
+            </Box>
+          </Modal>
         </div>
         <Container sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', marginTop: '3rem' }}>
           <SubmissionWindow isOpen={goodluck} handleClose={handleClose}>
