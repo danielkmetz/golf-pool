@@ -200,7 +200,7 @@ const WelcomePage = () => {
               Privacy Policy
             </Typography>
             <Typography sx={{ mt: 2 }}>
-              Last Updated: 8/15/2024
+              Last Updated: 10/8/2024
             </Typography>
             <Typography sx={{ mt: 2 }}>
               The Golf Pool LLC is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and disclose your information when you use our mobile application ("App"). By using the App, you agree to the collection and use of information in accordance with this policy.
@@ -210,6 +210,21 @@ const WelcomePage = () => {
             </Typography>
             <Typography sx={{ mt: 1 }}>
               <strong>Personal Information:</strong> When you create an account, we may collect personal information such as your name, email address, and username.
+            </Typography>
+            <Typography sx={{ mt: 1 }}>
+              <strong>Payment Information:</strong> We use Stripe to process payments. Payment information, including your card details and purchase history related to the card used, is sent to Stripe for payment processing.
+            </Typography>
+            <Typography sx={{ mt: 1 }}>
+              <strong>In-App Messages:</strong> We collect and store messages that you send through the chat feature in the App.
+            </Typography>
+            <Typography sx={{ mt: 1 }}>
+              <strong>Profile Pictures:</strong> If you choose to upload a profile picture, the photo is sent to and stored in Amazon S3.
+            </Typography>
+            <Typography sx={{ mt: 1 }}>
+              <strong>Crash Logs and Diagnostic Information:</strong> We collect crash logs and diagnostic information to help improve the performance of the App.
+            </Typography>
+            <Typography sx={{ mt: 1 }}>
+              <strong>Device Information:</strong> We collect certain device information, such as screen size and device model, in order to render app styling properly across different devices.
             </Typography>
             <Typography sx={{ mt: 1 }}>
               <strong>Usage Data:</strong> We may collect information on how the App is accessed and used, including your device's IP address, browser type, version, the pages of our App that you visit, the time and date of your visit, and other diagnostic data.
