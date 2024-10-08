@@ -10,10 +10,12 @@ const rateLimit = require('express-rate-limit');
 
 // Configure AWS SES
 const ses = new AWS.SES({
-  accessKeyId: 'AKIA3ZD44QTVR4FG3WU6',
-  secretAccessKey: '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',
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   region: 'us-east-2',
 });
+
+const fingerprintLimiter = new Map();
 
 const passwordResetLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -21,19 +23,42 @@ const passwordResetLimiter = rateLimit({
   message: 'Too many password reset attempts from this IP, please try again later.',
 });
 
-router.post('/request-reset-password', passwordResetLimiter, async (req, res) => {
-  const { username, email } = req.body;
+const resetPasswordRequestHandler = async (req, res) => {
+  const { username, email, fingerprint } = req.body;
 
+  // Custom fingerprint-based rate limiting
+  const now = Date.now();
+  const requestWindow = 15 * 60 * 1000; // 15 minutes
+  const maxRequests = 3;
+
+  // Check fingerprint-based rate limit
+  if (fingerprintLimiter.has(fingerprint)) {
+    const { count, firstRequest } = fingerprintLimiter.get(fingerprint);
+    if (now - firstRequest < requestWindow && count >= maxRequests) {
+      return res.status(429).json({ message: 'Too many password reset attempts, please try again later.' });
+    } else if (now - firstRequest > requestWindow) {
+      // Reset the count and timestamp if the time window has passed
+      fingerprintLimiter.set(fingerprint, { count: 1, firstRequest: now });
+    } else {
+      // Increment the request count
+      fingerprintLimiter.set(fingerprint, { count: count + 1, firstRequest });
+    }
+  } else {
+    // First request from this fingerprint within the time window
+    fingerprintLimiter.set(fingerprint, { count: 1, firstRequest: now });
+  }
+
+  // Find the user by their username and email
   try {
-    // Find the user by their email address
     const user = await User.findOne({ username, email });
     if (!user) {
       return res.status(404).json({ message: 'User with this email does not exist.' });
     }
 
-    // Generate a reset token and expiration time (e.g., valid for 1 hour)
+    // Generate a reset token and expiration time (valid for 1 hour)
     const resetToken = crypto.randomBytes(32).toString('hex');
-    user.resetToken = resetToken;
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    user.resetToken = hashedToken;
     user.resetTokenExpiration = Date.now() + 3600000; // Token expires in 1 hour
     await user.save();
 
@@ -51,27 +76,37 @@ router.post('/request-reset-password', passwordResetLimiter, async (req, res) =>
           Data: 'Password Reset Request',
         },
         Body: {
-          Text: {
-            Data: `You requested a password reset. Click the link below to reset your password:\n\n${resetLink}\n\nIf you did not request a password reset, please ignore this email.`,
+          Html: {
+            Data: `<p>You requested a password reset. Click the link below to reset your password:</p>
+                   <p><a href="${resetLink}">Reset Password</a></p>
+                   <p>If you did not request a password reset, please ignore this email.</p>`,
           },
         },
       },
     };
 
-    ses.sendEmail(params, (err, data) => {
-      if (err) {
-        console.error(err, err.stack);
-        return res.status(500).json({ message: 'Error sending password reset email' });
-      } else {
-        console.log('Email sent:', data);
-        return res.status(200).json({ message: 'Password reset link sent to your email' });
-      }
-    });
+    // Send the email
+    await ses.sendEmail(params).promise();
+    res.status(200).json({ message: 'Password reset email sent.' });
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error processing password reset:', error);
+    res.status(500).json({ message: 'Internal server error.' });
   }
-});
+};
+
+// Cleanup expired entries in the fingerprintLimiter map (runs every minute)
+setInterval(() => {
+  const now = Date.now();
+  fingerprintLimiter.forEach((value, key) => {
+    if (now - value.firstRequest > 15 * 60 * 1000) {
+      fingerprintLimiter.delete(key); // Remove expired entries
+    }
+  });
+}, 60 * 1000); // Run cleanup every minute
+
+// Attach the rate limiter and the request handler to the endpoint
+router.post('/request-reset-password', passwordResetLimiter, resetPasswordRequestHandler);
 
 router.post('/reset-password', async (req, res) => {
   const { token, newPassword } = req.body;

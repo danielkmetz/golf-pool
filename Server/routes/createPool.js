@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Pool = require('../models/createPool');
+const cron = require('node-cron');
 
 router.post('/', async (req, res) => {
     const { admin, email, poolName, format, maxUsers,
@@ -28,6 +29,7 @@ router.post('/', async (req, res) => {
             numTournaments,
             tournaments,
             round,
+            balancesUpdated: false,
         });
 
         await newPool.save();
@@ -436,8 +438,72 @@ router.get('/all-pools', async (req, res) => {
       console.error(error);
       res.status(500).json({ message: 'Server error' });
     }
-  });
-  
+});
+
+// GET request to fetch the balancesUpdated parameter for a specific pool using poolName and admin
+router.get('/balances-updated', async (req, res) => {
+    const { poolName, admin } = req.query;
+
+    try {
+        // Find the pool by pool name and admin
+        const pool = await Pool.findOne({ poolName, admin });
+        if (!pool) {
+            return res.status(404).json({ message: 'Pool not found.' });
+        }
+
+        // Return the balancesUpdated parameter
+        res.status(200).json({ balancesUpdated: pool.balancesUpdated });
+    } catch (error) {
+        console.error('Error fetching balancesUpdated parameter:', error);
+        res.status(500).json({ message: 'Error fetching balancesUpdated parameter', error });
+    }
+});
+
+// PUT request to toggle the balancesUpdated parameter for a specific pool using poolName and admin
+router.put('/toggle-balances-updated', async (req, res) => {
+    const { poolName, admin } = req.body;
+
+    try {
+        // Find the pool by pool name and admin
+        const pool = await Pool.findOne({ poolName, admin });
+        if (!pool) {
+            return res.status(404).json({ message: 'Pool not found.' });
+        }
+
+        // Toggle the balancesUpdated parameter
+        pool.balancesUpdated = !pool.balancesUpdated;
+        await pool.save();
+
+        // Return the updated balancesUpdated value
+        res.status(200).json({ message: 'balancesUpdated toggled successfully.', balancesUpdated: pool.balancesUpdated });
+    } catch (error) {
+        console.error('Error toggling balancesUpdated parameter:', error);
+        res.status(500).json({ message: 'Error toggling balancesUpdated parameter', error });
+    }
+});
+
+// Cron job to reset balancesUpdated to false every Tuesday at midnight (12:00 AM)
+cron.schedule('0 0 * * 2', async () => {
+    console.log('Running scheduled task to reset balancesUpdated to false for all pools.');
+
+    try {
+        // Find all pools where balancesUpdated is true
+        const pools = await Pool.find({ balancesUpdated: true });
+
+        // Update each pool to set balancesUpdated to false
+        const updatePromises = pools.map(async (pool) => {
+            pool.balancesUpdated = false;
+            await pool.save();
+        });
+
+        // Wait for all pool updates to complete
+        await Promise.all(updatePromises);
+
+        console.log('Successfully reset balancesUpdated to false for all pools.');
+    } catch (error) {
+        console.error('Error during cron job to reset balancesUpdated:', error);
+    }
+});
 
 module.exports = router;
 

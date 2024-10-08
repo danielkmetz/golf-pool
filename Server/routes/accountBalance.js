@@ -13,14 +13,13 @@ const getCurrentDate = () => {
 
 // POST endpoint to adjust user balance
 router.post('/update-balance', async (req, res) => {
-    const {users} = req.body;
+    const { users } = req.body;
 
     if (!Array.isArray(users) || users.some(user => !user.username || !user.email || user.adjustment === undefined)) {
         return res.status(400).json({ error: 'Invalid input data' });
     }
 
     try {
-        const today = getCurrentDate();
         const updatePromises = users.map(async ({ username, email, adjustment }) => {
             let user = await Balance.findOne({ username, email });
 
@@ -30,17 +29,12 @@ router.post('/update-balance', async (req, res) => {
                     username,
                     email,
                     balance: adjustment,
-                    dateUpdated: today
+                    dateUpdated: new Date(), // Set the current date when a new user is created
                 });
             } else {
-                // If the user exists, check if the balance was already updated today
-                if (user.dateUpdated === today) {
-                    return { username, email, message: 'Balance already updated today', balance: user.balance };
-                }
-
-                // Update the balance and dateUpdated
+                // Update the balance directly without checking the date
                 user.balance += adjustment;
-                user.dateUpdated = today;
+                user.dateUpdated = new Date(); // Update the date regardless
             }
 
             // Save the user document

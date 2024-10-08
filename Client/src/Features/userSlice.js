@@ -6,7 +6,7 @@ const apiClient = axios.create({
     baseURL: process.env.REACT_APP_API_URL,
   });
 
-  export const fetchUsers = createAsyncThunk(
+export const fetchUsers = createAsyncThunk(
     'users/fetchUsers',
     async () => {
         try {

@@ -2,12 +2,13 @@ const express = require('express');
 const router = express.Router();
 const pastResults = require('../models/pastResults');
 
-const getPastResults = async (tournamentName, usernames, year) => {
+const getPastResults = async (tournamentName, usernames, year, poolName) => {
     try {
         const results = await pastResults.find({
             'results.tournamentName': tournamentName,
             username: { $in: usernames },
             'results.year': year,
+            'results.poolName': poolName,
         });
         return results;
     } catch (error) {
@@ -16,19 +17,24 @@ const getPastResults = async (tournamentName, usernames, year) => {
 };
 
 router.post('/weekly', async (req, res) => {
-    const { tournamentName, usernames, year } = req.body;
-    if (!tournamentName || !usernames || !year) {
-        return res.status(400).json({ error: 'Missing tournamentName, usernames, or year' });
+    const { tournamentName, usernames, year, poolName } = req.body;
+    if (!tournamentName || !usernames || !year || !poolName) {
+        return res.status(400).json({ error: 'Missing tournamentName, usernames, year, or poolName' });
     }
 
     try {
-        const results = await getPastResults(tournamentName, usernames, year);
+        const results = await getPastResults(tournamentName, usernames, year, poolName);
 
         // Structure the results
         const structuredResults = usernames.map(username => {
             const userResults = results.find(result => result.username === username);
             if (userResults) {
-                const filteredResults = userResults.results.filter(result => result.tournamentName === tournamentName && result.year === year);
+                // Filter results by tournamentName, year, and poolName
+                const filteredResults = userResults.results.filter(result => 
+                    result.tournamentName === tournamentName && 
+                    result.year === year &&
+                    result.poolName === poolName // Add this check for poolName
+                );
                 return {
                     username: userResults.username,
                     results: filteredResults
@@ -36,8 +42,10 @@ router.post('/weekly', async (req, res) => {
             }
             return { username, results: [] };
         });
+
         res.json(structuredResults);
     } catch (error) {
+        console.error('Failed to fetch past results:', error);
         res.status(500).json({ error: 'Failed to fetch past results' });
     }
 });
@@ -58,7 +66,7 @@ router.post('/save', async (req, res) => {
 
         // Check if any result object is missing required fields
         const hasInvalidResults = results.some(
-            result => !result.year || !result.tournamentName || !result.position
+            result => !result.year || !result.tournamentName || !result.position || !result.poolName
         );
 
         if (hasInvalidResults) {
@@ -72,11 +80,11 @@ router.post('/save', async (req, res) => {
 
             // Filter out duplicate results
             const existingResultsSet = new Set(
-                userResults.results.map(result => `${result.date}_${result.tournamentName}_${result.position}`)
+                userResults.results.map(result => `${result.date}_${result.tournamentName}_${result.position}_${result.poolName}`)
             );
 
             const newResults = results.filter(
-                result => !existingResultsSet.has(`${result.date}_${result.tournamentName}_${result.position}`)
+                result => !existingResultsSet.has(`${result.date}_${result.tournamentName}_${result.position}_${result.poolName}`)
             );
 
             console.log('New results to be added:', newResults); // Log new results
@@ -98,7 +106,6 @@ router.post('/save', async (req, res) => {
     }
 });
 
-
 // Fetch past results by username
 router.get('/fetch/:username', async (req, res) => {
     try {
@@ -115,26 +122,30 @@ router.get('/fetch/:username', async (req, res) => {
     }
 });
 
-// Update username
+// Update multiple instances of username
 router.put('/update-username/:username', async (req, res) => {
     try {
-        const username = req.params.username
+        const username = req.params.username;
         const { newUsername } = req.body;
-        console.log(username)
-        console.log(newUsername);
+
         if (!username || !newUsername) {
             return res.status(400).json({ error: 'Both oldUsername and newUsername are required' });
         }
 
-        const userResults = await pastResults.findOne({ username: username });
-        if (!userResults) {
+        // Find all instances of past results with the old username
+        const userResults = await pastResults.find({ username: username });
+        
+        if (userResults.length === 0) {
             return res.status(404).json({ error: 'No results found for the old username' });
         }
 
-        userResults.username = newUsername;
-        await userResults.save();
+        // Update the username for all instances
+        for (let result of userResults) {
+            result.username = newUsername;
+            await result.save(); // Save each updated document
+        }
 
-        res.status(200).json({ message: 'Username updated successfully' });
+        res.status(200).json({ message: 'Username updated successfully in multiple instances' });
     } catch (error) {
         console.error('Error updating username:', error);
         res.status(500).json({ error: 'Error updating username' });

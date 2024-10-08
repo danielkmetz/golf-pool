@@ -50,6 +50,7 @@ const poolSchema = new mongoose.Schema({
     numTournaments: Number,
     tournaments: [tournamentSchema],
     round: String,
+    balancesUpdated: Boolean,
     messages: {
         type: [messageSchema],
         default: [],

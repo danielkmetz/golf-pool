@@ -12,6 +12,7 @@ const resultsSchema = new mongoose.Schema({
     year: Number,
     tournamentName: String,
     position: String,
+    poolName: String,
     scores: scoresSchema,
 });
 
