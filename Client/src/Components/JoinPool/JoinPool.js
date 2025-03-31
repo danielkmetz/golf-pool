@@ -29,7 +29,7 @@ function JoinPool() {
         const date = new Date(dateString);
         return date.toLocaleDateString('en-US', options);
     };
-    
+
     useEffect(() => {
         dispatch(fetchUsername());
     }, [dispatch])
@@ -242,7 +242,7 @@ function JoinPool() {
                         }}>
                         <List>
                             {filteredPools.map((pool, index) => {
-                                const week1DateISO = pool.tournaments?.[0]?.Starts ?? null;
+                                const week1DateISO = pool.tournaments?.[0]?.Starts ?? null;                            
                                 const week1Start = week1DateISO ? new Date(week1DateISO) : null;
                                 const currentDate = new Date();
                                 const currentDayDate = new Date(currentDate);
@@ -292,7 +292,7 @@ function JoinPool() {
                                                         <>
                                                             <br />
                                                             <Typography component="span" variant='caption'>
-                                                                Starts: {formatDate(pool.tournaments[0].Starts)}
+                                                                Starts: {formatDate(pool.tournaments[0]?.Starts)}
                                                             </Typography>
                                                         </>
                                                     )}

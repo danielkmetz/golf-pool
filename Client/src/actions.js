@@ -18,47 +18,40 @@ export function findRoundScores (golferName, round) {
   return golfer;
 }
 
-export function getThursdayDate(value, currentDate) {
-  let month = currentDate.getMonth() + 1;
-  let year = currentDate.getFullYear();
+export function getThursdayDate(currentDay, currentDate) {
+  const newDate = new Date(currentDate);
 
-  month = month < 10 ? '0' + month : month;
-     
-  
-  if (value === 0) {
-      let day = currentDate.getDate() - 3;
-      day = day < 10 ? '0' + day : day;
-      return `${year}-${month}-${day}`;
+  let offset;
+  switch (currentDay) {
+    case 0: // Sunday
+      offset = -3;
+      break;
+    case 1: // Monday
+      offset = 3;
+      break;
+    case 2: // Tuesday
+      offset = 2;
+      break;
+    case 3: // Wednesday
+      offset = 1;
+      break;
+    case 5: // Friday
+      offset = -1;
+      break;
+    case 6: // Saturday
+      offset = -2;
+      break;
+    default: // Thursday
+      offset = 0;
   }
-  if (value === 1) {
-      let day = currentDate.getDate() + 3;
-      day = day < 10 ? '0' + day : day;
-      return `${year}-${month}-${day}`;
-  }
-  if (value === 2) {
-      let day = currentDate.getDate() + 2;
-      day = day < 10 ? '0' + day : day;
-      return `${year}-${month}-${day}`;
-  }
-  if (value === 3) {
-      let day = currentDate.getDate() + 1;
-      day = day < 10 ? '0' + day : day;
-      return `${year}-${month}-${day}`;
-  }
-  if (value === 5) {
-      let day = currentDate.getDate() - 1;
-      day = day < 10 ? '0' + day : day;
-      return `${year}-${month}-${day}`;
-  }
-  if (value === 6) {
-      let day = currentDate.getDate() - 2;
-      day = day < 10 ? '0' + day : day;
-      return `${year}-${month}-${day}`;
-  } else {
-      let day = currentDate.getDate();
-      day = day < 10 ? '0' + day : day;
-      return `${year}-${month}-${day}`;
-  } 
+
+  newDate.setDate(currentDate.getDate() + offset);
+
+  const year = newDate.getFullYear();
+  const month = String(newDate.getMonth() + 1).padStart(2, '0'); // Always two digits
+  const day = String(newDate.getDate()).padStart(2, '0');         // Always two digits
+
+  return `${year}-${month}-${day}`;
 }
 
 export const getCurrentPosition = (name, liveResults) => {
@@ -71,14 +64,15 @@ export const getCurrentPosition = (name, liveResults) => {
 }
 
 export const getRoundScore = (round, name, liveResults, coursePar) => {
+  const par = coursePar ?? 72;
+
   if (!name) {
     console.error("Empty name provided.");
     return null;
   }
-
+  
   let currentPos = getCurrentPosition(name, liveResults);
-  //console.log("Current position:", currentPos);
-
+  
   // Check if currentPos is not a valid position or if it's "--"
   if (!currentPos || currentPos === "--") {
     return null;
@@ -86,11 +80,23 @@ export const getRoundScore = (round, name, liveResults, coursePar) => {
 
   // Find the golfer in the liveResults array
   const golfer = liveResults.find(g => g.player_name === name);
-  //console.log("Found golfer:", golfer);
-
+  
   if (!golfer) {
-    console.error("Golfer not found in liveResults:", name);
-    return null;
+    //console.error("Golfer not found in liveResults:", name);
+    return par + 10;
+  }
+
+  // If the golfer withdrew (WD), return coursePar + 10 for rounds without a valid score
+  if (currentPos === "WD") {
+    switch (round) {
+      case 1: return golfer.R1 ?? par + 10;
+      case 2: return golfer.R2 ?? par + 10;
+      case 3: return golfer.R3 ?? par + 10;
+      case 4: return golfer.R4 ?? par + 10;
+      default:
+        console.error("Invalid round number:", round);
+        return null;
+    }
   }
 
   // Depending on the round, return the score or a default value if the score is not available
@@ -106,10 +112,10 @@ export const getRoundScore = (round, name, liveResults, coursePar) => {
     }
   } else {
     switch (round) {
-      case 1: return golfer.R1;
-      case 2: return golfer.R2;
-      case 3: return coursePar + 10;
-      case 4: return coursePar + 10;
+      case 1: return golfer.R1
+      case 2: return golfer.R2
+      case 3: return par + 10;
+      case 4: return par + 10;
       default:
         console.error("Invalid round number:", round);
         return null;
@@ -117,48 +123,94 @@ export const getRoundScore = (round, name, liveResults, coursePar) => {
   }
 };
 
-
 export const getRoundScores = (allUserPicks, liveResults, roundNumber, coursePar) => {
   const roundScores = [];
+
   allUserPicks.forEach((name) => {
     const currentPos = getCurrentPosition(name, liveResults);
 
     if (currentPos === "--") {
-        return;
+      return; // Skip if position is not valid
     }
+
+    const golfer = liveResults.find((golfer) => golfer.player_name === name);
+
+    if (!golfer) {
+      console.error("Golfer not found in liveResults:", name);
+      return;
+    }
+
     if (currentPos === "CUT" || currentPos === "WD") {
-        return coursePar + 10;
+      // If the golfer is CUT or WD, check if there's a valid score for the round, otherwise return coursePar + 10
+      switch (roundNumber) {
+        case 1: 
+          roundScores.push(golfer.R1 ?? coursePar + 10);
+          break;
+        case 2: 
+          roundScores.push(golfer.R2 ?? coursePar + 10);
+          break;
+        case 3: 
+          roundScores.push(golfer.R3 ?? coursePar + 10);
+          break;
+        case 4: 
+          roundScores.push(golfer.R4 ?? coursePar + 10);
+          break;
+        default:
+          console.error("Invalid round number:", roundNumber);
+          break;
+      }
     } else {
-      const golfer = liveResults.find((golfer) => golfer.player_name === name);
-      if (golfer) {
-          if (roundNumber === 1) {
-              roundScores.push(golfer.R1);
-          } else if (roundNumber === 2) {
-              roundScores.push(golfer.R2);
-          } else if (roundNumber === 3) {
-              roundScores.push(golfer.R3);
-          } else if (roundNumber === 4) {
-              roundScores.push(golfer.R4);
-          }
+      // If the golfer is not CUT or WD, simply push the score for the round
+      switch (roundNumber) {
+        case 1:
+          roundScores.push(golfer.R1);
+          break;
+        case 2:
+          roundScores.push(golfer.R2);
+          break;
+        case 3:
+          roundScores.push(golfer.R3);
+          break;
+        case 4:
+          roundScores.push(golfer.R4);
+          break;
+        default:
+          console.error("Invalid round number:", roundNumber);
+          break;
       }
     }
   });
+
   return roundScores;
 };
 
+export const getScore = (name, liveResults, coursePar) => {
+  if (!Array.isArray(liveResults)) {
+    return '-'; // Default value if liveResults is not an array
+  }
 
-export const getScore = (name, liveResults) => {
-  const golfer = liveResults.find(g => g.player_name === name)
-  if (golfer) {
-    if (golfer.current_score > 0) {
-      return `+${golfer.current_score}`;
-    }
-    if (golfer.current_score === 0) {
-      return `E`;
-    }
-    return golfer.current_score; 
+  const golfer = liveResults.find(g => g.player_name === name);
+
+  if (!golfer) {
+    return '-'; // Default value if the golfer is not found
+  }
+
+  // Handle the special cases for CUT and WD
+  const currentPos = getCurrentPosition(name, liveResults);
+  
+  if (currentPos === "CUT" || currentPos === "WD") {
+    return "+10"; // Return coursePar + 10 if the golfer is CUT or WD
+  }
+
+  // Format the score
+  const score = golfer.current_score;
+
+  if (score > 0) {
+    return `+${score}`;
+  } else if (score === 0) {
+    return 'E';
   } else {
-    return;
+    return score; // This handles negative scores
   }
 };
 

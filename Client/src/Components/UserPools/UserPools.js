@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectUserPools, setPoolName, fetchPoolUsers } from '../../Features/poolsSlice';
 import { fetchUsers } from '../../Features/userSlice';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, Typography, Button, Box, IconButton, Container } from '@mui/material';
+import { Card, CardContent, Typography, Box, IconButton, Container } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 function UserPools() {
@@ -12,7 +12,6 @@ function UserPools() {
   const navigate = useNavigate();
 
   const handleGoToStandings = async (poolName) => {
-    console.log(poolName);
     await dispatch(setPoolName(poolName));
     await dispatch(fetchPoolUsers(poolName));
     dispatch(fetchUsers());

@@ -8,7 +8,7 @@ router.post('/', async (req, res) => {
 
   const stripeBuyIn = buyIn * 100;
 
-  console.log(buyIn);
+  //console.log(buyIn);
   try {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: stripeBuyIn,

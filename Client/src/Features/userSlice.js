@@ -55,7 +55,7 @@ export const updateUsername = createAsyncThunk(
     }
   );
 
-  export const updateUsernameEverywhere = createAsyncThunk(
+export const updateUsernameEverywhere = createAsyncThunk(
     'users/updateUsernameEverywhere',
     async ({ username, newUsername, email }, { rejectWithValue }) => {
         try {
@@ -203,8 +203,6 @@ export const fetchProfilePic = createAsyncThunk(
 export const uploadProfilePic = createAsyncThunk(
     'users/uploadProfilePic',
     async ({ image, username }, { rejectWithValue }) => {
-        console.log(image);
-        console.log(username);
         try {
             const formData = new FormData();
             formData.append('image', image);
@@ -296,25 +294,28 @@ export const fetchUsersWithPicks = createAsyncThunk(
 export const fetchProfilePics = createAsyncThunk(
     'users/fetchProfilePics',
     async (profilePicData, { rejectWithValue }) => {
-        try {
-            const response = await apiClient.post(
-                `/profile-pics/fetch-all`,
-                { profilePicData },
-                {
-                    headers: {
-                        'Content-Type': 'application/json', // Specify the Content-Type header
-                        // You can add other headers here if needed
-                    },
-                }
-            );
-            console.log(response.data);
-            return response.data.profilePics;
-        } catch (error) {
-            return rejectWithValue(error.response.data);
+      try {
+        const response = await apiClient.post(
+          `/profile-pics/fetch-all`,
+          { profilePicData },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+  
+        return response.data.profilePics;
+      } catch (error) {
+        console.error('[fetchProfilePics] Error occurred:', error); // 🔴 ERROR LOG
+        if (error.response) {
+          console.error('[fetchProfilePics] Error response data:', error.response.data); // 🔴 RESPONSE ERROR LOG
         }
+        return rejectWithValue(error.response?.data || { message: 'Unknown error' });
+      }
     }
 );
-
+  
 export const updateLastReadTimestamp = createAsyncThunk(
     'users/updateLastReadTimestamp', 
     async (username, { dispatch }) => {

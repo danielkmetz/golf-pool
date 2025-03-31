@@ -18,7 +18,9 @@ import {
   resetPoolUsers, 
   selectPoolName, 
   resetPoolName,  
-  resetUserPoolData } from './Features/poolsSlice';
+  resetUserPoolData,
+  fetchUserPools,
+} from './Features/poolsSlice';
 import { fetchPastResults } from './Features/pastResultsSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -70,6 +72,7 @@ useEffect(() => {
   if (username) {      
     dispatch(fetchEmail(username));
     dispatch(fetchPastResults(username));
+    dispatch(fetchUserPools(username));
   }
 }, [username]);
 

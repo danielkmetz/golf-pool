@@ -9,36 +9,44 @@ const fetchWeatherData = async (lat, long) => {
     return json.forecast.forecastday[0].hour;
   };
 
-export const fetchTournamentInfo = createAsyncThunk(
+  export const fetchTournamentInfo = createAsyncThunk(
     'tournamentInfo/fetchTournamentInfo',
     async (_, { dispatch, getState }) => {
-        const state = getState();
-        const cachedData = state.tournamentInfo.info; // Assuming you store tournament info in state
-    
-        if (cachedData.length > 0) {
-            return cachedData;
-        }
-        const scheduleUrl = `${process.env.REACT_APP_API_URL}/schedule`;
+      const state = getState();
+      const cachedData = state.tournamentInfo.info;
+  
+      if (cachedData.length > 0) {
+        return cachedData;
+      }
+  
+      const scheduleUrl = `${process.env.REACT_APP_API_URL}/schedule`;
+  
+      try {
         const response = await fetch(scheduleUrl);
         const tournaments = await response.json();
-        console.log(tournaments)
+  
         const currentDate = new Date();
         const currentDay = currentDate.getDay();
         const thursdayDate = getThursdayDate(currentDay, currentDate);
-        
-        const thursdayTournament = tournaments.find(tournament => {
-            const tournamentDatePart = tournament.Starts.split('T')[0];
-            return tournamentDatePart === thursdayDate;
+  
+        const thursdayTournament = tournaments.find((tournament) => {
+          const tournamentDatePart = tournament.Starts.split('T')[0];
+          return tournamentDatePart === thursdayDate;
         });
-        
-        dispatch(tournamentInfoSlice.actions.setCity(thursdayTournament.City));
-        dispatch(tournamentInfoSlice.actions.setState(thursdayTournament.State));
-        dispatch(tournamentInfoSlice.actions.setCountry(thursdayTournament.Country));
-        
+  
+        if (thursdayTournament) {
+          dispatch(tournamentInfoSlice.actions.setCity(thursdayTournament.City));
+          dispatch(tournamentInfoSlice.actions.setState(thursdayTournament.State));
+          dispatch(tournamentInfoSlice.actions.setCountry(thursdayTournament.Country));
+        }
+  
         return thursdayTournament;
+      } catch (error) {
+        throw error;
+      }
     }
   );
-
+    
   export const fetchGeoCode = createAsyncThunk(
     'tournamentInfo/fetchGeoCode',
     async ({ city, state, country }, { dispatch, getState }) => {

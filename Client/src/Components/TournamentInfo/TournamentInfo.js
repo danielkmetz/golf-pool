@@ -5,7 +5,6 @@ function TournamentInfo() {
     const [tournamentInfo, setTournamentInfo] = useState([]);
     const [thursdayDate, setThursdayDate] = useState(null);
     const [currentTournament, setCurrentTournament] = useState(null);
-    
 
     useEffect(() => {
         const currentDate = new Date();
@@ -31,8 +30,6 @@ function TournamentInfo() {
         fetchInfo();
     }, []);
     
-    
-
     return (
         <>{thursdayDate}</>
     )

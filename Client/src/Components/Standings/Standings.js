@@ -54,7 +54,7 @@ function Standings() {
 
   const currentDate = new Date();
   const currentDay = currentDate.getDay();
-  
+
   useEffect(() => {
     dispatch(fetchUsername());
     dispatch(fetchUsers());
@@ -117,16 +117,23 @@ function Standings() {
     .filter((user) => user.profilePic)
     .map((user) => ({ username: user.username, profilePic: user.profilePic }));
   
-  useEffect(() => {
-    const fetchPics = async () => {
-      const prevUserPics = prevUserPicsRef.current;
-      if (JSON.stringify(prevUserPics) !== JSON.stringify(userPics)) {
-        dispatch(fetchProfilePics(userPics));
-        prevUserPicsRef.current = userPics;
-      }
-    };
-    fetchPics();
-  }, [userPics, allPicks]);
+    useEffect(() => {
+      const fetchPics = async () => {
+        const prevUserPics = prevUserPicsRef.current;
+        if (userPics.length === 0) {
+          console.log('No userPics found. Skipping fetch.');
+          return;
+        }
+        if (JSON.stringify(prevUserPics) !== JSON.stringify(userPics)) {
+          dispatch(fetchProfilePics(userPics));
+          prevUserPicsRef.current = userPics;
+        } else {
+          console.log('No change in userPics. Skipping fetch.');
+        }
+      };
+      fetchPics();
+    }, [userPics, allPicks]);
+    
 
   useEffect(() => {
     if (finalTournamentDate) {

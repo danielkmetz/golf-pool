@@ -67,7 +67,9 @@ function UserList() {
                                     {user.username}
                                 </Link>
                             </Typography>
-                            <Avatar src={`${profilePics[user.username]}`} sx={{ marginLeft: '0.5rem' }} />
+                            <Avatar src={profilePics[user.username]} sx={{ marginLeft: '0.5rem' }}>
+                                {profilePics[user.username] ? null : user.username.charAt(0)}
+                            </Avatar>
                         </Box>
                         <Divider sx={{ backgroundColor: 'rgba(0, 0, 0, 0.12)', height: '1px', width: '100%', marginY: '0.5rem' }} />
                     </React.Fragment>
