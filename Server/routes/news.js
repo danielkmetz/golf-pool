@@ -5,26 +5,18 @@ const cheerio = require('cheerio');
 
 router.get('/scrape-article', async (req, res) => {
   const { type, apiUrl, id } = req.query;
-  console.log('📨 Incoming request to /scrape-article');
-  console.log('🧾 Query params:', { type, apiUrl, id });
-
   try {
     const articleUrl = apiUrl;
-    console.log('🌐 Fetching from:', articleUrl);
-
     const response = await axios.get(articleUrl);
     const contentType = response.headers['content-type'];
 
     if (contentType.includes('application/json')) {
       const data = response.data;
-      console.log('📦 Top-level keys in response:', Object.keys(data));
-
       // 🎥 Handle direct video structure (e.g., /video/clips/:id)
       if (Array.isArray(data.videos) && data.videos.length > 0) {
         const video = data.videos[0];
         const videoUrl = video.links?.source?.mezzanine?.href;
 
-        console.log('🎥 Extracted video from videos[0]:', video.headline);
         return res.json({
           type: 'media',
           title: video.headline,
@@ -36,7 +28,6 @@ router.get('/scrape-article', async (req, res) => {
 
       // 🎥 Handle direct video object structure (fallback)
       if (data.id && data.source?.mezzanine?.href) {
-        console.log('🎥 Detected video clip format with mezzanine link');
         return res.json({
           type: 'media',
           title: data.title,
@@ -49,9 +40,6 @@ router.get('/scrape-article', async (req, res) => {
       // 📰 Handle articles inside headlines[0]
       const headline = data.headlines?.[0];
       if (headline) {
-        console.log('📰 Found headline:', headline.headline);
-        console.log('👤 Author/byline:', headline.byline || headline.source || 'N/A');
-
         const storyContent = headline.story;
         const embeddedVideo = headline.video?.[0];
         const videoUrl = embeddedVideo?.links?.source?.mezzanine?.href;
@@ -82,7 +70,6 @@ router.get('/scrape-article', async (req, res) => {
     }
 
     // 🌐 Cheerio fallback for ESPN HTML article pages
-    console.log('🔍 Attempting HTML scraping fallback...');
     const html = response.data;
     const $ = cheerio.load(html);
 
