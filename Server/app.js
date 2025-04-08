@@ -30,6 +30,7 @@ const payouts = require('./routes/sendPayments');
 const balance = require('./routes/accountBalance');
 const push = require('./routes/pushNotifications');
 const Pool = require('./models/createPool');
+const news = require('./routes/news');
 const { uuid } = require('uuidv4');
 
 connectUserDB();
@@ -216,6 +217,7 @@ app.use('/api/payouts', payouts);
 app.use('/api/twilio', twilio);
 app.use('/api/balance', balance);
 app.use('/api/push', push);
+app.use('/api/news', news);
 
 app.post('/api/chat', async (req, res) => {
   try {
