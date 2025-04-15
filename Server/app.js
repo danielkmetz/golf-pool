@@ -31,11 +31,10 @@ const balance = require('./routes/accountBalance');
 const push = require('./routes/pushNotifications');
 const Pool = require('./models/createPool');
 const news = require('./routes/news');
-const { uuid } = require('uuidv4');
 
 connectUserDB();
 
-const secret = uuid();
+const secret = process.env.JWT_SECRET;
 const app = express();
 
 const server = http.createServer(app);
@@ -153,7 +152,6 @@ passport.deserializeUser(async (id, done) => {
 
 //endpoint to login
 app.post('/api/login', passport.authenticate('local'), (req, res) => {
-  console.log('Received POST request to /api/login');
   const token = jwt.sign({ username: req.user.username }, secret);
   res.setHeader('Content-Type', 'application/json');
   res.json({ message: 'Login successful', token });
